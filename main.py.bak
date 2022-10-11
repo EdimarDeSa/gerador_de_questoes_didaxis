@@ -1,6 +1,7 @@
+from time import sleep
 from json import dump, load
 from os.path import abspath, exists
-from subprocess import call
+import subprocess as sub
 from tkinter import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
@@ -170,7 +171,7 @@ class FuncoesFrontEnd:
         pass
 
     def abre_feedback(self):
-        return call(
+        return sub.call(
             'start https://forms.office.com/Pages/ResponsePage.aspx?id=M083D5gGVkaWZUrSp05YCkZTqk471oVCrP11vG53XR5UN1FQM1c0VlVHNk0xRUZQR0RROE5FT1pHQS4u',
             shell = True,
             stdout = False,

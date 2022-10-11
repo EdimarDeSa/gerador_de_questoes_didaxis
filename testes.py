@@ -4,6 +4,6 @@ from os.path import abspath
 
 xml = abspath('./configs/configs.json')
 with open(xml, 'r', encoding = 'UTF-8') as arquivo_configuracoes:
-    y = json.load(fp = arquivo_configuracoes)['Dificuldades']
+    y: list = json.load(fp = arquivo_configuracoes)['Dificuldades']
 
-print(y)
+print(y.)

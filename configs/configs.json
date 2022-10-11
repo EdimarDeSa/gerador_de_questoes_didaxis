@@ -17,6 +17,10 @@
         "selectbackground": "lightgreen",
         "exportselection": false
     },
+    "param_buttons":  {
+        "activebackground": "lightgreen",
+        "background": "lightgreen"
+    },
     "tipos": [
         "Multipla escolha 1 correta",
         "Multipla escolha n corretas",
