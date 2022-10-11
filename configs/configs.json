@@ -36,5 +36,6 @@
         "Gest\u00e3o",
         "Energia",
         "Astec"
-    ]
+    ],
+    "Dificuldades": ["Fácil", "Médio", "Difícil"]
 }

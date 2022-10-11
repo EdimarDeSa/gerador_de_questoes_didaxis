@@ -53,13 +53,13 @@ class Configs:
     @classmethod
     def salva_configs(cls, config_path, infos):
         config_path = abspath('./configs/configs.json')
-        with open(config_path, 'w') as arquivo_configuracoes:
+        with open(file = config_path, mode = 'r', encoding = 'UTF-8') as arquivo_configuracoes:
             dump(infos, arquivo_configuracoes, indent = 4)
 
     @classmethod
     def abre_configs(cls, chave):
         config_path = abspath('./configs/configs.json')
-        with open(config_path, 'r') as arquivo_configuracoes:
+        with open(file = config_path, mode = 'r', encoding = 'UTF-8') as arquivo_configuracoes:
             infos = load(arquivo_configuracoes)
             return infos[chave]
 
@@ -72,6 +72,9 @@ class FuncoesFrontEnd:
     @property
     def altura_tela(self):
         return int(self.root.winfo_screenheight() / 1.1)
+
+    def altera_tipo_opcao(self):
+        pass
 
 
 class Interface(FuncoesFrontEnd):
@@ -109,6 +112,8 @@ class Interface(FuncoesFrontEnd):
         self.tipos = Configs.abre_configs('tipos')
 
         self.unidades = Configs.abre_configs('unidades')
+
+        self.dificuldades = Configs.abre_configs('Dificuldades')
 
     def inicia_tela(self):
         # Inicia a tela principal do formulário
@@ -150,18 +155,18 @@ class Interface(FuncoesFrontEnd):
         self.numero_questao()
         # Inicia captura de categoria
         self.categoria()
-        # # Inicia captura de sub categoria
-        # self.sub_categoria()
-        # # Inicia captura de tempo para responder questão
-        # self.tempo()
-        # # Inicia captura de tipo das alternativas
-        # self.tipo()
-        # # Inicia captura de peso da questão
-        # self.peso()
-        # # Inicia captura de dificuldade da questão
-        # self.dificuldade()
-        # # Inicia captura de pergunta
-        # self.pergunta()
+        # Inicia captura de sub categoria
+        self.sub_categoria()
+        # Inicia captura de tempo para responder questão
+        self.tempo()
+        # Inicia captura de tipo das alternativas
+        self.tipo()
+        # Inicia captura de peso da questão
+        self.peso()
+        # Inicia captura de dificuldade da questão
+        self.dificuldade()
+        # Inicia captura de pergunta
+        self.pergunta()
         # # Inicia o botão de retirar alternativa
         # self.bt_remove_alternativa()
         # # Inicia o botão de alternativa
@@ -186,7 +191,6 @@ class Interface(FuncoesFrontEnd):
     def categoria(self):
         # Ordena as unidades por nome
         self.unidades.sort()
-        print(self.unidades)
 
         # Cria a label com a descrição da categoria
         self.categoria_label = Label(text = "Unidade", **self.label_param)
@@ -204,9 +208,9 @@ class Interface(FuncoesFrontEnd):
 
     def sub_categoria(self):
         # Cria a label com a descrição da sub categoria
-        self.codigo_curso_label = Label(self.frame_infos, text = "Código do curso", **self.label_param)
+        codigo_curso_label = Label(text = "Código do curso", **self.label_param)
         # Posiciona a label da sub categoria
-        self.codigo_curso_label.place(relx = 0.5, rely = 0.00)
+        codigo_curso_label.place(relx = 0.5, rely = 0.00)
 
         # Cria a Entry da categoria
         self.codigo_curso_entry = Entry(self.frame_infos)
@@ -215,9 +219,9 @@ class Interface(FuncoesFrontEnd):
 
     def tempo(self):
         # Cria a label de tempo
-        self.tempo_label = Label(self.frame_infos, text = "Tempo de resposta", **self.label_param)
+        tempo_label = Label(text = "Tempo de resposta", **self.label_param)
         # Posiciona a label de tempo
-        self.tempo_label.place(relx = 0.75, rely = 0.00)
+        tempo_label.place(relx = 0.75, rely = 0.00)
 
         # Cria a entry de tempo
         self.tempo_entry = eph(self.frame_infos, "00:00:00")
@@ -226,12 +230,12 @@ class Interface(FuncoesFrontEnd):
 
     def tipo(self):
         # Cria a label do tipo
-        self.tipo_label = Label(self.frame_infos, text = "Tipo da questão", **self.label_param)
+        tipo_label = Label(text = "Tipo da questão", **self.label_param)
         # Posiciona a label de tempo
-        self.tipo_label.place(relx = 0.2, rely = 0.2)
+        tipo_label.place(relx = 0.2, rely = 0.2)
 
         # Cria listbox para as questões disponíveis
-        self.tipo_list = Listbox(self.frame_infos, **self.list_param)
+        self.tipo_list = Listbox(**self.list_param)
         # Posiciona a listbox dos tipos da questão
         self.tipo_list.place(relx = 0.2, rely = 0.26, width = 165)
         # Insere as opções de tipops
@@ -243,26 +247,23 @@ class Interface(FuncoesFrontEnd):
         self.tipo_list.bind("<<ListboxSelect>>", self.altera_tipo_opcao)
 
     def dificuldade(self):
-        # Cria a tabela de dificuldades
-        dificuldades = ["Fácil", "Médio", "Difícil"]
-
         # Cria a label da dificuldade
-        self.dificuldade_label = Label(self.frame_infos, text = "Dificuldade", **self.label_param)
+        dificuldade_label = Label(text = "Dificuldade", **self.label_param)
         # Posiciona a label da dificuldade
-        self.dificuldade_label.place(relx = 0.5, rely = 0.2)
+        dificuldade_label.place(relx = 0.5, rely = 0.2)
 
         # Cria a listbox da dificuldade
-        self.dificuldade_list = Listbox(self.frame_infos, **self.list_param)
+        self.dificuldade_list = Listbox(**self.list_param)
         # Posiciona a listbox da dificuldade
         self.dificuldade_list.place(relx = 0.5, rely = 0.26)
         # Insere a lista de dificuldades na listbox
-        self.dificuldade_list.insert(0, *dificuldades)
+        self.dificuldade_list.insert(0, *self.dificuldades)
 
     def peso(self):
         #  Cria label do peso da questão
-        self.peso_label = Label(self.frame_infos, text = "Peso da questão", **self.label_param)
+        peso_label = Label(text = "Peso da questão", **self.label_param)
         #  Posiciona o label do peso da questão
-        self.peso_label.place(relx = 0.75, rely = 0.2)
+        peso_label.place(relx = 0.75, rely = 0.2)
 
         #  Cria Entry do peso da questão
         self.peso_entry = eph(self.frame_infos, "1")
@@ -271,13 +272,13 @@ class Interface(FuncoesFrontEnd):
 
     def pergunta(self):
         # Cria a label da pergunta
-        self.pergunta_label = Label(self.frame_infos, text = "Enunciado da questão.", **self.label_param)
+        pergunta_label = Label(text = "Enunciado da questão.", **self.label_param)
         # Posiciona a label da pergunta
-        self.pergunta_label.place(relx = 0.05, rely = 0.45)
+        pergunta_label.place(relx = 0.05, rely = 0.45)
 
         # Cria a Textbox da pergunta
         self.pergunta_entry = Text(self.frame_infos, wrap = "word", height = 4, undo = True)
-        # Posiciona a Textbox da pergunta
+        # Posiciona a caixa de texto da pergunta
         self.pergunta_entry.place(relx = 0.05, rely = 0.56, relwidth = 0.9)
 
     def bt_add_alternativa(self):
