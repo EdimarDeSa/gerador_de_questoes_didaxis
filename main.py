@@ -1,11 +1,170 @@
 from json import dump, load
 from os.path import abspath, exists
 from subprocess import call
-from tkinter import *
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter import Tk, Label, Frame
+from tkinter import Listbox, Entry, Button, Text, OptionMenu, Menu, Radiobutton, Checkbutton
+from tkinter import BooleanVar, IntVar, StringVar
+# from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter import messagebox
 
 from estiloWidgets.entryPlaceHolder import EntPlaceHold as eph
+import openpyxl as op
 
+
+class FuncoesBackEnd:
+    def inicia_excel(self):
+        # Inicia a verificação de existência da planilha na pasta
+        arquivo = self.selecionar_arquivo_pasta()
+        if arquivo:
+            # Caso exista a planilha, abre a planilha
+            self.wb = op.load_workbook('banco.xlsx')
+            # Abre a primeira worksheet
+            self.ws = self.wb[self.wb.sheetnames[0]]
+        else:
+            # Caso não exista a planilha, cria uma planilha
+            self.wb = op.Workbook()
+            # Abre a primeira worksheet
+            self.ws = self.wb[self.wb.sheetnames[0]]
+            # Salva o cabeçalho padrão que todos os bancos de questões devem ter
+            self.ws.append(self.cabecalho)
+
+    @staticmethod
+    def selecionar_arquivo_pasta():
+        # Checa se existe já existe uma planilha na pasta
+        return True if exists('./Banco.xlsx') else False
+
+    @property
+    def cabecalho(self):
+        # Cabeçalho padrão dos bancos de questões
+        return [
+            'ID',
+            'TIPO',
+            'PESO',
+            'TEMPO',
+            'CONTROLE',
+            'PERGUNTA',
+            'ALTERNATIVA',
+            'CORRETA',
+            'CATEGORIA',
+            'SUBCATEGORIA',
+            'Dificuldade'
+        ]
+
+    @staticmethod
+    def verifica_tipo(tipo):
+        # Cria um dicionário com todos os tipos da questão
+        tipos = {
+            'Multipla escolha 1 correta': 'me',
+            'Multipla escolha n corretas': 'men',
+            'Verdadeiro ou falso': 'vf',
+            'Dissertativa': 'd'
+        }
+        # Retorna a variável que a ser gravada na planilha
+        return tipos[tipo]
+
+    def verifica_correta(self, tipo, opc):
+        # Dependendo do tipo da questão, temos uma forma diferente de salvar a alternativa correta
+        resposta = {
+            'vf': self.vf,
+            'men': self.men,
+            'me': self.me,
+        }
+        return resposta[tipo](opc)
+
+    def me(self, opc):
+        # Marca correta caso o indice da opção seja igual ao valor retornado no 'api_dict'
+        # Isso porque 'me' retorna um valor numérico, não True e False
+        return 'CORRETA' if self.correta == opc else ''
+
+    def vf(self, opc):
+        # Marca 'V' caso a opção seja true e 'f' em caso de false
+        return 'V' if self.correta[opc] else 'F'
+
+    def men(self, opc):
+        # Marca 'CORRETA' caso a opção seja true e '' em caso de false
+        return 'CORRETA' if self.correta[opc] else ''
+
+    def salvar_nova_questao(self, linha_a_salvar):
+        # Adiciona na última linha disponível do Excel as informações
+        self.ws.append(linha_a_salvar)
+        # Salva a planilha que até o momento está apenas na memória do (App)
+        self.wb.save('banco.xlsx')
+
+    def salvar_edicao(self, linha_a_salvar, opc, linha):
+        # Como opção é uma contagem numérica em range, usamos esse valor para acrescentar as linhas, 0 a N, opções
+        linha += opc
+        coluna = 'ABCDEFGHIJK'
+        # Adiciona na última linha disponível do Excel as informações
+        for index in range(11):
+            self.ws[f'{coluna[index]}{linha}'] = linha_a_salvar[index]
+        # Salva a planilha que até o momento está apenas na memória do ‘software’
+        self.wb.save('banco.xlsx')
+
+
+# -------------------------------------------------------------------------------------------------------------------------#
+
+
+class BackEnd(FuncoesBackEnd):
+    def __init__(self, api_dict):
+        self.gravar(api_dict)
+    def gravar(self, api_dict):
+        # Inicia planilha do Excel
+        self.inicia_excel()
+
+        # Cria um laço para salvar cada alternativa criada
+        for opc, alternativa in enumerate(api_dict['Alternativa']):
+            # Cria a lista que será usada para salvar na planilha para cada alternativa criada
+            linha_a_salvar = self.separa_informacoes(api_dict, opc, alternativa)
+            if api_dict['linha']:
+                self.salvar_edicao(linha_a_salvar, opc, api_dict['linha'])
+            else:
+                # Salva a linha na planilha de fato
+                self.salvar_nova_questao(linha_a_salvar)
+
+            linha_a_salvar[2] = str(linha_a_salvar[2])
+            # Printa no console cada linha que será salva
+            print('\t \t'.join(linha_a_salvar))
+
+    def separa_informacoes(self, api_dict, opc, alternativa):
+        tipo = self.verifica_tipo(api_dict['Tipo'])
+        self.correta = api_dict['Correta']
+
+        # Cria a linha a ser salva com as informações do 'api_dict'
+        return [
+            '',
+            tipo,
+            int(api_dict['Peso']),
+            api_dict['Tempo'],
+            '',
+            api_dict['Pergunta'],
+            alternativa,
+            self.verifica_correta(tipo, opc),
+            api_dict['Categoria'],
+            api_dict['SubCategoria'],
+            api_dict['Dificuldade']
+        ]
+
+    def carrega_linha(self, index):
+        self.inicia_excel()
+        linha = self.ws[f'A{index}:K{index}']
+        return tuple(self.get_api_dicio(linha))
+
+    def checa_quantidade_de_opcoes(self, index):
+        verifica = self.carrega_linha(index)[5]
+        soma = 0
+        while True:
+            linha = self.carrega_linha(index)[5]
+            if verifica != linha:
+                break
+            index += 1
+            soma += 1
+        return soma
+
+    @staticmethod
+    def get_api_dicio(linha):
+        return [linha[0][idx].value for idx in range(len(linha[0]))]
+
+# ---------------------------------------------------------------------------------------------------------------------#
 
 class Configs:
     @classmethod
@@ -29,30 +188,30 @@ class Configs:
                     'exportselection': False,
                 },
                 'tipos': [
-                    "Multipla escolha 1 correta",
-                    "Multipla escolha n corretas",
-                    "Verdadeiro ou falso"
+                    'Multipla escolha 1 correta',
+                    'Multipla escolha n corretas',
+                    'Verdadeiro ou falso'
                 ],
                 'unidades': [
-                    "Comunicação",
-                    "Redes",
-                    "Segurança eletrônica",
-                    "Controle de acesso",
-                    "Incêndio e iluminação",
-                    "Varejo",
-                    "Verticais",
-                    "Soluções",
-                    "Solar",
-                    "Negócios",
-                    "Gestão",
-                    "Energia",
-                    "Astec"
+                    'Comunicação',
+                    'Redes',
+                    'Segurança eletrônica',
+                    'Controle de acesso',
+                    'Incêndio e iluminação',
+                    'Varejo',
+                    'Verticais',
+                    'Soluções',
+                    'Solar',
+                    'Negócios',
+                    'Gestão',
+                    'Energia',
+                    'Astec'
                 ]
             }
             cls.salva_configs(infos)
 
     @classmethod
-    def salva_configs(cls, config_path, infos):
+    def salva_configs(cls, infos):
         config_path = abspath('./configs/configs.json')
         with open(file = config_path, mode = 'r', encoding = 'UTF-8') as arquivo_configuracoes:
             dump(infos, arquivo_configuracoes, indent = 4)
@@ -65,6 +224,9 @@ class Configs:
             return infos[chave]
 
 
+# ---------------------------------------------------------------------------------------------------------------------#
+
+
 class FuncoesFrontEnd:
     @property
     def largura_tela(self):
@@ -74,7 +236,7 @@ class FuncoesFrontEnd:
     def altura_tela(self):
         return int(self.root.winfo_screenheight() / 1.1)
 
-    def altera_tipo_opcao(self, *event):
+    def altera_tipo_opcao(self, _):
         self.frame_bts.destroy()
         self.inicia_frame_bts()
         # Reseta a lista de referências de respostas corretas
@@ -104,15 +266,15 @@ class FuncoesFrontEnd:
         self.list_opcoes.append(entrada)
         # Executa a criação de botão conforme o tipo da questão
         self.tipo_alternativa()
-        # Adiciona distância no eixo "Y" para a próxima caixa que será criada
+        # Adiciona distância no eixo 'Y' para a próxima caixa que será criada
         self.rely_entry_opcoes += 0.09
 
     def tipo_alternativa(self):
         # Primeira verificação do tipo da questão
         tipos = {
-            "Multipla escolha 1 correta": self.cria_radio_bt,
-            "Multipla escolha n corretas": self.cria_check_bt,
-            "Verdadeiro ou falso": self.cria_check_bt
+            'Multipla escolha 1 correta': self.cria_radio_bt,
+            'Multipla escolha n corretas': self.cria_check_bt,
+            'Verdadeiro ou falso': self.cria_check_bt
         }
         tipos[self.tipo_list.get('active')]()
         self.rely_bts += 0.09
@@ -167,25 +329,89 @@ class FuncoesFrontEnd:
             self.list_corretas.pop()
 
     def salvar(self):
-        pass
+        if not self.verifica_informacoes():
+            return self.faltam_informacoes()
+        # Cria dicionário para ser repassado ao back end
+        api_dict = {
+            'Tipo': self.tipo_list.get('active'),
+            'Peso': self.peso_entry.get(),
+            'Tempo': self.tempo_entry.get(),
+            'Pergunta': self.perguntas,
+            'Alternativa': self.lista_alternativas,
+            'Correta': self.listar_corretas(),
+            'Categoria': self.var_unidade.get(),
+            'SubCategoria': self.codigo_curso_entry.get(),
+            'Dificuldade': self.dificuldade_list.get('active'),
+            'linha': self.linha
+        }
+        # Envia informações para back end
+        print(api_dict)
+        BackEnd(api_dict)
 
-    def abre_feedback(self):
+        # Limpa dicionário após salvar no excel
+        api_dict.clear()
+
+        # Limpa formulário de opções para nova questão e TextBox
+        self.reset_opcs()
+
+        self.refresh_infos()
+
+        if not self.top_lvl.winfo_exists():
+            self.iniciar_quadro_questoes()
+
+    # Verrifica se existe algo no campo de pergunta e opções
+    def verifica_informacoes(self):
+        self.perguntas = self.pergunta_entry.get('0.0', 'end').rstrip('\n')
+        if not self.perguntas:
+            return False
+
+        # Cria uma lista verificando se cada uma das entrys de opções estão preenchidas
+        self.lista_alternativas = [opc.get() for opc in self.list_opcoes]
+        print(self.lista_alternativas)
+        if '' in self.lista_alternativas:
+            return False
+
+        return True
+
+    @staticmethod
+    def faltam_informacoes():
+        # Se encontrarmos algum False, retorna a messagebox de atenção
+        messagebox.showerror(
+            title = 'Falha na estrutura',
+            message = '''
+            Não será possível prosseguir \n 
+            com a gravação da questão, \n
+            existem informações faltando.
+             '''
+        )
+
+    def listar_corretas(self):
+        tipo = self.tipo_list.get('active')
+        if tipo == self.tipos[0]:
+            return self.var_radio_button.get()
+
+        else:
+            return [correta.get() for correta in self.list_corretas]
+
+    @staticmethod
+    def abre_feedback():
         return call(
-            'start https://forms.office.com/Pages/ResponsePage.aspx?id=M083D5gGVkaWZUrSp05YCkZTqk471oVCrP11vG53XR5UN1FQM1c0VlVHNk0xRUZQR0RROE5FT1pHQS4u',
+            'start https://forms.office.com/Pages/ResponsePage.aspx?id='
+            'M083D5gGVkaWZUrSp05YCkZTqk471oVCrP11vG53XR5UN1FQM1c0VlVHNk0xRUZQR0RROE5FT1pHQS4u',
             shell = True,
             stdout = False,
         )
 
-    def reset_opcs(self, *args):
+    def reset_opcs(self):
         # Destroy o frame de opções e todos os widgets vinculados a ele
         self.frame_opcs.destroy()
         # # Destroy o frame dos botões de seleção da opção correta
         self.frame_bts.destroy()
 
-        # Reseta o parâmetro de posicionamento "y" das entrys de opções
+        # Reseta o parâmetro de posicionamento 'y' das entrys de opções
         self.rely_entry_opcoes = 0
         self.linha = None
-        # Reseta o parâmetro de posicionamento "y" dos botões de opções
+        # Reseta o parâmetro de posicionamento 'y' dos botões de opções
         self.rely_bts = 0
 
         # Reseta a lista de referências de opções
@@ -202,6 +428,10 @@ class FuncoesFrontEnd:
 
         # Reseta o dicionário da api para integração com Back End
         self.connector_dict.clear()
+
+
+# ---------------------------------------------------------------------------------------------------------------------#
+
 
 class Interface(FuncoesFrontEnd):
     def __init__(self):
@@ -243,7 +473,7 @@ class Interface(FuncoesFrontEnd):
 
         self.dificuldades = Configs.abre_configs('Dificuldades')
 
-        # Cria o parâmetro inicial de posicionamento "y" das Entrys de opções
+        # Cria o parâmetro inicial de posicionamento 'y' das Entrys de opções
         self.rely_entry_opcoes = 0
         self.rely_bts = 0
 
@@ -258,8 +488,6 @@ class Interface(FuncoesFrontEnd):
 
         # Cria valor para ser atribuído ao radiobutton
         self.valor_radio_button = 0
-        # Cria a variável de alternativa correta do RadioButton, usado nas questões "ME"
-        self.var_radio_button = lambda e: IntVar()
 
     def inicia_tela(self):
         # Inicia a tela principal do formulário
@@ -267,7 +495,7 @@ class Interface(FuncoesFrontEnd):
 
         # Cria as proporções da tela principal
         # Configura as dimenções da tela principal e onde ela inicia
-        self.root.geometry(f"{self.largura_tela}x{self.altura_tela}+0+0")
+        self.root.geometry(f'{self.largura_tela}x{self.altura_tela}+0+0')
         # Define uma cor de fundo para o backgroud da janela principal
         self.root.configure(**self.root_param)
 
@@ -276,9 +504,9 @@ class Interface(FuncoesFrontEnd):
     def inicia_menu(self):
         menubar = Menu(self.root)
         helpmenu = Menu(menubar, tearoff = 0)
-        helpmenu.add_command(label = "Ajuda", command = self.abre_feedback)
-        helpmenu.add_command(label = "Feedbacks", command = self.abre_feedback)
-        menubar.add_cascade(label = "Ajuda", menu = helpmenu)
+        helpmenu.add_command(label = 'Ajuda', command = self.abre_feedback)
+        helpmenu.add_command(label = 'Feedbacks', command = self.abre_feedback)
+        menubar.add_cascade(label = 'Ajuda', menu = helpmenu)
 
         self.root.config(menu = menubar)
 
@@ -298,6 +526,9 @@ class Interface(FuncoesFrontEnd):
         self.list_param['master'] = self.frame_infos
 
         self.frame_salvar = frame_salvar
+
+        # Cria a variável de alternativa correta do RadioButton, usado nas questões 'ME'
+        self.var_radio_button = IntVar()
 
         # Inicia o número da questão para efeito de contabilidade
         self.numero_questao()
@@ -331,14 +562,14 @@ class Interface(FuncoesFrontEnd):
         questao_label.place(relx = 0.0, rely = 0.0)
         # Verifica o número da questão que será criada
         self.contador_questao.set('Questões: \n'
-                                 f'      {1}     ')
+                                  f'      {1}     ')
 
     def categoria(self):
         # Ordena as unidades por nome
         self.unidades.sort()
 
         # Cria a label com a descrição da categoria
-        self.categoria_label = Label(text = "Unidade", **self.label_param)
+        self.categoria_label = Label(text = 'Unidade', **self.label_param)
         # Posiciona a label de descrição na tela
         self.categoria_label.place(relx = 0.2, rely = 0.0)
 
@@ -353,7 +584,7 @@ class Interface(FuncoesFrontEnd):
 
     def sub_categoria(self):
         # Cria a label com a descrição da sub categoria
-        codigo_curso_label = Label(text = "Código do curso", **self.label_param)
+        codigo_curso_label = Label(text = 'Código do curso', **self.label_param)
         # Posiciona a label da sub categoria
         codigo_curso_label.place(relx = 0.5, rely = 0.00)
 
@@ -364,18 +595,18 @@ class Interface(FuncoesFrontEnd):
 
     def tempo(self):
         # Cria a label de tempo
-        tempo_label = Label(text = "Tempo de resposta", **self.label_param)
+        tempo_label = Label(text = 'Tempo de resposta', **self.label_param)
         # Posiciona a label de tempo
         tempo_label.place(relx = 0.75, rely = 0.00)
 
         # Cria a entry de tempo
-        self.tempo_entry = eph(self.frame_infos, "00:00:00")
+        self.tempo_entry = eph(self.frame_infos, '00:00:00')
         # Posiciona a entry de tempo
         self.tempo_entry.place(relx = 0.75, rely = 0.06)
 
     def tipo(self):
         # Cria a label do tipo
-        tipo_label = Label(text = "Tipo da questão", **self.label_param)
+        tipo_label = Label(text = 'Tipo da questão', **self.label_param)
         # Posiciona a label de tempo
         tipo_label.place(relx = 0.2, rely = 0.2)
 
@@ -389,11 +620,11 @@ class Interface(FuncoesFrontEnd):
         self.tipo_list.activate(0)
 
         # Aciona a reinicialização das opções sempre que o usuário clicar numa opção dentro da listbox
-        self.tipo_list.bind("<<ListboxSelect>>", self.altera_tipo_opcao)
+        self.tipo_list.bind('<<ListboxSelect>>', self.altera_tipo_opcao)
 
     def dificuldade(self):
         # Cria a label da dificuldade
-        dificuldade_label = Label(text = "Dificuldade", **self.label_param)
+        dificuldade_label = Label(text = 'Dificuldade', **self.label_param)
         # Posiciona a label da dificuldade
         dificuldade_label.place(relx = 0.5, rely = 0.2)
 
@@ -406,44 +637,37 @@ class Interface(FuncoesFrontEnd):
 
     def peso(self):
         #  Cria label do peso da questão
-        peso_label = Label(text = "Peso da questão", **self.label_param)
+        peso_label = Label(text = 'Peso da questão', **self.label_param)
         #  Posiciona o label do peso da questão
         peso_label.place(relx = 0.75, rely = 0.2)
 
         #  Cria Entry do peso da questão
-        self.peso_entry = eph(self.frame_infos, "1")
+        self.peso_entry = eph(self.frame_infos, '1')
         #  Posiciona a Entry do peso da questão
         self.peso_entry.place(relx = 0.75, rely = 0.26)
 
     def pergunta(self):
         # Cria a label da pergunta
-        pergunta_label = Label(text = "Enunciado da questão.", **self.label_param)
+        pergunta_label = Label(text = 'Enunciado da questão.', **self.label_param)
         # Posiciona a label da pergunta
         pergunta_label.place(relx = 0.05, rely = 0.45)
 
         # Cria a Textbox da pergunta
-        self.pergunta_entry = Text(self.frame_infos, wrap = "word", height = 4, undo = True)
+        self.pergunta_entry = Text(self.frame_infos, wrap = 'word', height = 4, undo = True)
         # Posiciona a caixa de texto da pergunta
         self.pergunta_entry.place(relx = 0.05, rely = 0.56, relwidth = 0.9)
 
     def bt_add_alternativa(self):
         # Cria o botão para adicionar alternativa/opção
-        bt_add = Button(self.frame_infos, text = "+ opção", command = self.add_alternativa)
+        bt_add = Button(self.frame_infos, text = '+ opção', command = self.add_alternativa)
         # Posiciona o botão de alternativas, o relwidth é para combinar com o tamanho da caixa de texto
         bt_add.place(relx = 0.7, rely = 0.8, relwidth = 0.1)
 
     def bt_remove_alternativa(self):
         # Cria o botão para adicionar alternativa/opções
-        bt_remove = Button(self.frame_infos, text = "- opção", command = self.remove_alternativa)
+        bt_remove = Button(self.frame_infos, text = '- opção', command = self.remove_alternativa)
         # Posiciona o botão de alternativas, o relwidth é para combinar com o tamanho da caixa de texto
         bt_remove.place(relx = 0.85, rely = 0.8, relwidth = 0.1)
-
-    def bt_salvar(self):
-        # Cria botão de salvar
-        self.salvar = Button(self.frame_salvar, text = "Salvar", relief = 'solid',
-                             command = self.salvar, activebackground = '#F00BA4')
-        # Posiciona o botão de salvar
-        self.salvar.pack(fill = 'x', side = 'bottom')
 
     def inicia_frames_opcoes(self):
         # Cria a frame das alternativas/opções
@@ -460,6 +684,15 @@ class Interface(FuncoesFrontEnd):
 
         self.buttons_param['master'] = self.frame_bts
 
+    def bt_salvar(self):
+        # Cria botão de salvar
+        self.salvar = Button(self.frame_salvar, text = 'Salvar', relief = 'solid',
+                             command = self.salvar, activebackground = '#F00BA4')
+        # Posiciona o botão de salvar
+        self.salvar.pack(fill = 'x', side = 'bottom')
+
+
+# ---------------------------------------------------------------------------------------------------------------------#
 
 
 if __name__ == '__main__':
