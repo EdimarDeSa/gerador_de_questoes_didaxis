@@ -1,230 +1,14 @@
-from json import dump, load
-from os.path import abspath, exists
 from subprocess import call
-from tkinter import Tk, Label, Frame
-from tkinter import Listbox, Entry, Button, Text, OptionMenu, Menu, Radiobutton, Checkbutton
+from tkinter import Tk, Frame, Label, Menu
+from tkinter import Entry, Text, Listbox, OptionMenu, Button, Checkbutton, Radiobutton
 from tkinter import BooleanVar, IntVar, StringVar
-# from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter import messagebox
 
-from estiloWidgets.entryPlaceHolder import EntPlaceHold as eph
-import openpyxl as op
+from estiloWidgets.entryPlaceHolder import EntPlaceHold
 
-
-class FuncoesBackEnd:
-    def inicia_excel(self):
-        # Inicia a verificação de existência da planilha na pasta
-        arquivo = self.selecionar_arquivo_pasta()
-        if arquivo:
-            # Caso exista a planilha, abre a planilha
-            self.wb = op.load_workbook('banco.xlsx')
-            # Abre a primeira worksheet
-            self.ws = self.wb[self.wb.sheetnames[0]]
-        else:
-            # Caso não exista a planilha, cria uma planilha
-            self.wb = op.Workbook()
-            # Abre a primeira worksheet
-            self.ws = self.wb[self.wb.sheetnames[0]]
-            # Salva o cabeçalho padrão que todos os bancos de questões devem ter
-            self.ws.append(self.cabecalho)
-
-    @staticmethod
-    def selecionar_arquivo_pasta():
-        # Checa se existe já existe uma planilha na pasta
-        return True if exists('./Banco.xlsx') else False
-
-    @property
-    def cabecalho(self):
-        # Cabeçalho padrão dos bancos de questões
-        return [
-            'ID',
-            'TIPO',
-            'PESO',
-            'TEMPO',
-            'CONTROLE',
-            'PERGUNTA',
-            'ALTERNATIVA',
-            'CORRETA',
-            'CATEGORIA',
-            'SUBCATEGORIA',
-            'Dificuldade'
-        ]
-
-    @staticmethod
-    def verifica_tipo(tipo):
-        # Cria um dicionário com todos os tipos da questão
-        tipos = {
-            'Multipla escolha 1 correta': 'me',
-            'Multipla escolha n corretas': 'men',
-            'Verdadeiro ou falso': 'vf',
-            'Dissertativa': 'd'
-        }
-        # Retorna a variável que a ser gravada na planilha
-        return tipos[tipo]
-
-    def verifica_correta(self, tipo, opc):
-        # Dependendo do tipo da questão, temos uma forma diferente de salvar a alternativa correta
-        resposta = {
-            'vf': self.vf,
-            'men': self.men,
-            'me': self.me,
-        }
-        return resposta[tipo](opc)
-
-    def me(self, opc):
-        # Marca correta caso o indice da opção seja igual ao valor retornado no 'api_dict'
-        # Isso porque 'me' retorna um valor numérico, não True e False
-        return 'CORRETA' if self.correta == opc else ''
-
-    def vf(self, opc):
-        # Marca 'V' caso a opção seja true e 'f' em caso de false
-        return 'V' if self.correta[opc] else 'F'
-
-    def men(self, opc):
-        # Marca 'CORRETA' caso a opção seja true e '' em caso de false
-        return 'CORRETA' if self.correta[opc] else ''
-
-    def salvar_nova_questao(self, linha_a_salvar):
-        # Adiciona na última linha disponível do Excel as informações
-        self.ws.append(linha_a_salvar)
-        # Salva a planilha que até o momento está apenas na memória do (App)
-        self.wb.save('banco.xlsx')
-
-    def salvar_edicao(self, linha_a_salvar, opc, linha):
-        # Como opção é uma contagem numérica em range, usamos esse valor para acrescentar as linhas, 0 a N, opções
-        linha += opc
-        coluna = 'ABCDEFGHIJK'
-        # Adiciona na última linha disponível do Excel as informações
-        for index in range(11):
-            self.ws[f'{coluna[index]}{linha}'] = linha_a_salvar[index]
-        # Salva a planilha que até o momento está apenas na memória do ‘software’
-        self.wb.save('banco.xlsx')
-
-
-# -------------------------------------------------------------------------------------------------------------------------#
-
-
-class BackEnd(FuncoesBackEnd):
-    def __init__(self, api_dict):
-        self.gravar(api_dict)
-    def gravar(self, api_dict):
-        # Inicia planilha do Excel
-        self.inicia_excel()
-
-        # Cria um laço para salvar cada alternativa criada
-        for opc, alternativa in enumerate(api_dict['Alternativa']):
-            # Cria a lista que será usada para salvar na planilha para cada alternativa criada
-            linha_a_salvar = self.separa_informacoes(api_dict, opc, alternativa)
-            if api_dict['linha']:
-                self.salvar_edicao(linha_a_salvar, opc, api_dict['linha'])
-            else:
-                # Salva a linha na planilha de fato
-                self.salvar_nova_questao(linha_a_salvar)
-
-            linha_a_salvar[2] = str(linha_a_salvar[2])
-            # Printa no console cada linha que será salva
-            print('\t \t'.join(linha_a_salvar))
-
-    def separa_informacoes(self, api_dict, opc, alternativa):
-        tipo = self.verifica_tipo(api_dict['Tipo'])
-        self.correta = api_dict['Correta']
-
-        # Cria a linha a ser salva com as informações do 'api_dict'
-        return [
-            '',
-            tipo,
-            int(api_dict['Peso']),
-            api_dict['Tempo'],
-            '',
-            api_dict['Pergunta'],
-            alternativa,
-            self.verifica_correta(tipo, opc),
-            api_dict['Categoria'],
-            api_dict['SubCategoria'],
-            api_dict['Dificuldade']
-        ]
-
-    def carrega_linha(self, index):
-        self.inicia_excel()
-        linha = self.ws[f'A{index}:K{index}']
-        return tuple(self.get_api_dicio(linha))
-
-    def checa_quantidade_de_opcoes(self, index):
-        verifica = self.carrega_linha(index)[5]
-        soma = 0
-        while True:
-            linha = self.carrega_linha(index)[5]
-            if verifica != linha:
-                break
-            index += 1
-            soma += 1
-        return soma
-
-    @staticmethod
-    def get_api_dicio(linha):
-        return [linha[0][idx].value for idx in range(len(linha[0]))]
-
-# ---------------------------------------------------------------------------------------------------------------------#
-
-class Configs:
-    @classmethod
-    def verifica_dependencias(cls):
-        config_path = abspath('./configs/configs.json')
-        if not exists(config_path):
-            infos = {
-                'root': {
-                    'background': 'green',
-                },
-                'param_labels': {
-                    'background': 'lightgreen',
-                    'font': 'Arial 10 bold',
-                },
-                'param_lists': {
-                    'selectmode': 'single',
-                    'height': 3,
-                    'font': 'Arial 8 bold',
-                    'relief': 'sunken',
-                    'selectbackground': 'lightgreen',
-                    'exportselection': False,
-                },
-                'tipos': [
-                    'Multipla escolha 1 correta',
-                    'Multipla escolha n corretas',
-                    'Verdadeiro ou falso'
-                ],
-                'unidades': [
-                    'Comunicação',
-                    'Redes',
-                    'Segurança eletrônica',
-                    'Controle de acesso',
-                    'Incêndio e iluminação',
-                    'Varejo',
-                    'Verticais',
-                    'Soluções',
-                    'Solar',
-                    'Negócios',
-                    'Gestão',
-                    'Energia',
-                    'Astec'
-                ]
-            }
-            cls.salva_configs(infos)
-
-    @classmethod
-    def salva_configs(cls, infos):
-        config_path = abspath('./configs/configs.json')
-        with open(file = config_path, mode = 'r', encoding = 'UTF-8') as arquivo_configuracoes:
-            dump(infos, arquivo_configuracoes, indent = 4)
-
-    @classmethod
-    def abre_configs(cls, chave):
-        config_path = abspath('./configs/configs.json')
-        with open(file = config_path, mode = 'r', encoding = 'UTF-8') as arquivo_configuracoes:
-            infos = load(arquivo_configuracoes)
-            return infos[chave]
-
-
-# ---------------------------------------------------------------------------------------------------------------------#
+from configuracoes import Configs
+from quadro_de_questoes import Questoes
+from selecao_de_diretorio import SelecionaPasta as SP
 
 
 class FuncoesFrontEnd:
@@ -342,11 +126,11 @@ class FuncoesFrontEnd:
             'Categoria': self.var_unidade.get(),
             'SubCategoria': self.codigo_curso_entry.get(),
             'Dificuldade': self.dificuldade_list.get('active'),
-            'linha': self.linha
+            'linha': self.linha,
+            'diretorio': self.diretorio
         }
         # Envia informações para back end
-        print(api_dict)
-        BackEnd(api_dict)
+        self.gravar(api_dict)
 
         # Limpa dicionário após salvar no excel
         api_dict.clear()
@@ -354,10 +138,10 @@ class FuncoesFrontEnd:
         # Limpa formulário de opções para nova questão e TextBox
         self.reset_opcs()
 
-        self.refresh_infos()
-
         if not self.top_lvl.winfo_exists():
-            self.iniciar_quadro_questoes()
+            self.abre_quadro_questoes()
+        else:
+            self.refresh_infos()
 
     # Verrifica se existe algo no campo de pergunta e opções
     def verifica_informacoes(self):
@@ -367,7 +151,6 @@ class FuncoesFrontEnd:
 
         # Cria uma lista verificando se cada uma das entrys de opções estão preenchidas
         self.lista_alternativas = [opc.get() for opc in self.list_opcoes]
-        print(self.lista_alternativas)
         if '' in self.lista_alternativas:
             return False
 
@@ -429,11 +212,28 @@ class FuncoesFrontEnd:
         # Reseta o dicionário da api para integração com Back End
         self.connector_dict.clear()
 
+    @staticmethod
+    def selecionar_arquivo_pasta():
+        resposta = messagebox.askquestion(title = 'Seleção de arquivo', message = 'Editar banco existente?')
+        if resposta == 'no':
+            return './Novo banco.xlsx'
+        else:
+            return SP.abrir_arquivo()
+    def salvar_novo(self):
+        diretorio = SP.salvar_como()
+        extensao = '.xlsx'
+        if diretorio[-5:] != extensao:
+            self.diretorio = diretorio + extensao
+        else:
+            self.diretorio = diretorio
+
+        self.refresh_infos()
+
 
 # ---------------------------------------------------------------------------------------------------------------------#
 
 
-class Interface(FuncoesFrontEnd):
+class Interface(FuncoesFrontEnd, Questoes):
     def __init__(self):
         Configs.verifica_dependencias()
         # Inicia variáveis gerais
@@ -441,15 +241,21 @@ class Interface(FuncoesFrontEnd):
         # Inicia a janela principal
         self.inicia_tela()
 
+        self.diretorio = self.selecionar_arquivo_pasta()
+
         self.inicia_menu()
 
         # Inicia os frames e widgets do layout
         self.inicia_frames()
         # Inicia os frames das alternativas
         self.inicia_frames_opcoes()
+
         # Abre o módulo de questões
-        # self.iniciar_quadro_questoes(self.root, self.cor_background, self.largura_tela, self.altura_tela)
-        # # Cria o ‘loop’ de exibição da janela principal
+        self.abre_quadro_questoes()
+
+        self.top_lvl.focus_force()
+
+        # Cria o ‘loop’ de exibição da janela principal
         self.root.mainloop()
 
     def parametros_e_variaveis(self):
@@ -504,9 +310,9 @@ class Interface(FuncoesFrontEnd):
     def inicia_menu(self):
         menubar = Menu(self.root)
         helpmenu = Menu(menubar, tearoff = 0)
-        helpmenu.add_command(label = 'Ajuda', command = self.abre_feedback)
+        helpmenu.add_command(label = 'Salvar novo', command = self.salvar_novo)
         helpmenu.add_command(label = 'Feedbacks', command = self.abre_feedback)
-        menubar.add_cascade(label = 'Ajuda', menu = helpmenu)
+        menubar.add_cascade(label = 'Opções', menu = helpmenu)
 
         self.root.config(menu = menubar)
 
@@ -600,7 +406,7 @@ class Interface(FuncoesFrontEnd):
         tempo_label.place(relx = 0.75, rely = 0.00)
 
         # Cria a entry de tempo
-        self.tempo_entry = eph(self.frame_infos, '00:00:00')
+        self.tempo_entry = EntPlaceHold(self.frame_infos, '00:00:00')
         # Posiciona a entry de tempo
         self.tempo_entry.place(relx = 0.75, rely = 0.06)
 
@@ -634,6 +440,7 @@ class Interface(FuncoesFrontEnd):
         self.dificuldade_list.place(relx = 0.5, rely = 0.26)
         # Insere a lista de dificuldades na listbox
         self.dificuldade_list.insert(0, *self.dificuldades)
+        self.dificuldade_list.activate(0)
 
     def peso(self):
         #  Cria label do peso da questão
@@ -642,7 +449,7 @@ class Interface(FuncoesFrontEnd):
         peso_label.place(relx = 0.75, rely = 0.2)
 
         #  Cria Entry do peso da questão
-        self.peso_entry = eph(self.frame_infos, '1')
+        self.peso_entry = EntPlaceHold(self.frame_infos, '1')
         #  Posiciona a Entry do peso da questão
         self.peso_entry.place(relx = 0.75, rely = 0.26)
 
