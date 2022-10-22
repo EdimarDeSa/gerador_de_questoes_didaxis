@@ -156,3 +156,5 @@ Scripts/
 *.cfg
 *.bat
 *.xlsx
+*.exe
+testes.py

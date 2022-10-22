@@ -40,10 +40,10 @@ class FuncoesBackEnd:
     def verifica_tipo(tipo):
         # Cria um dicionário com todos os tipos da questão
         tipos = {
-            'Multipla escolha 1 correta': 'me',
+            'Multipla escolha 1 correta':  'me',
             'Multipla escolha n corretas': 'men',
-            'Verdadeiro ou falso': 'vf',
-            'Dissertativa': 'd'
+            'Verdadeiro ou falso':         'vf',
+            'Dissertativa':                'd'
         }
         # Retorna a variável que a ser gravada na planilha
         return tipos[tipo]
@@ -51,9 +51,9 @@ class FuncoesBackEnd:
     def verifica_correta(self, tipo, opc):
         # Dependendo do tipo da questão, temos uma forma diferente de salvar a alternativa correta
         resposta = {
-            'vf': self.vf,
+            'vf':  self.vf,
             'men': self.men,
-            'me': self.me,
+            'me':  self.me,
         }
         return resposta[tipo](opc)
 
@@ -150,4 +150,3 @@ class BackEnd(FuncoesBackEnd):
     @staticmethod
     def get_api_dicio(linha):
         return [linha[0][idx].value for idx in range(len(linha[0]))]
-

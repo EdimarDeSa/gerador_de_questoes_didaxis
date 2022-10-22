@@ -5,6 +5,7 @@ from os.path import exists
 
 from back_end import BackEnd
 
+
 class Questoes(BackEnd):
     def abre_quadro_questoes(self):
         # Inicia a janela de top level
@@ -16,17 +17,23 @@ class Questoes(BackEnd):
 
         self.add_infos_na_tabela()
 
-
     def cria_janela(self):
         # Cria um objeto que será nossa janela
         top_lvl = Toplevel(master = self.root)
         # Defini o nome da janela
         top_lvl.title("Questões")
         # Define o tamanho e posicionamento da janela na tela do usuário
-        top_lvl.geometry(f"{int(self.largura_tela * 1.05)}x{self.altura_tela}+{self.largura_tela}+0")
+        top_lvl.geometry(
+            f"{int(self.largura_tela(top_lvl) * 1.05)}x{self.altura_tela(top_lvl)}+{self.largura_tela(top_lvl)}+0"
+        )
         # Define a cor de fundo da janela
         top_lvl.configure(**self.root_param)
+
+        top_lvl.protocol("WM_DELETE_WINDOW", self.disable_event)
         self.top_lvl = top_lvl
+
+    def disable_event(self):
+        pass
 
     def cria_frame(self):
         self.frame = Frame(self.top_lvl)
@@ -53,7 +60,6 @@ class Questoes(BackEnd):
         self.tree_view.pack(side = 'left', fill = 'both', expand = True)
 
         self.tree_view.bind("<Double-1>", self.on_double_click)
-        self.tree_view.bind('<Double-3>', self.on_right_click)
 
     def on_double_click(self, _):
         self.limpa_formulario()
@@ -70,8 +76,12 @@ class Questoes(BackEnd):
         # Carrega informações que serão escritas no cabeçalho do formulário e retorna a pergunta
         pergunta = self.carrega_cabecalho_para_edicao(index)
 
-        while True:
-            infos = self.carrega_linha(index)
+        # Conta a quantidade de opções a serem carregadas
+        quantidade_opcoes_atual = len(self.tree_view.get_children(str(index)))
+        quantidade_opcoes = len(self.tree_view.get_children(str(index)))
+
+        for opcao in range(quantidade_opcoes):
+            infos = self.carrega_linha(index + opcao)
             if infos[5] != pergunta:
                 break
 
@@ -79,14 +89,11 @@ class Questoes(BackEnd):
             self.seleciona_correta(infos[1], infos[7])
             self.list_opcoes[len(self.list_opcoes) - 1].insert(0, infos[6])
 
-            # Passa para a próxima linha
-            index += 1
-
     def seleciona_correta(self, tipo, correta):
         tipos = {
-            'me': self.seleciona_me,
+            'me':  self.seleciona_me,
             'men': self.seleciona_men,
-            'vf': self.seleciona_vf
+            'vf':  self.seleciona_vf
         }
         return tipos[tipo.lower()](correta)
 
@@ -103,21 +110,25 @@ class Questoes(BackEnd):
             return self.ck_bt.select()
 
     def limpa_formulario(self):
-        self.codigo_curso_entry.delete(0, 'end')
-        self.tempo_entry.delete(0, 'end')
-        self.peso_entry.delete(0, 'end')
-        self.pergunta_entry.delete(0.0, 'end')
+        self.root.children['frame_infos'].children['codigo_curso'].delete(0, 'end')
+        self.root.children['frame_infos'].children['tempo'].delete(0, 'end')
+        self.root.children['frame_infos'].children['peso'].delete(0, 'end')
+        self.root.children['frame_infos'].children['pergunta'].delete(0.0, 'end')
         self.reset_opcs()
 
     def carrega_cabecalho_para_edicao(self, index):
+        frame_info_child = self.root.children['frame_infos'].children
         linha_a_carregar = self.carrega_linha(index)
-        self.var_unidade.set(linha_a_carregar[8])
-        self.codigo_curso_entry.insert(0, str(linha_a_carregar[9]))
-        self.tempo_entry.insert(0, '' if not linha_a_carregar[3] else linha_a_carregar[3])
-        self.tipo_list.activate(self.verifica_id_tipo(linha_a_carregar[1]))
-        self.dificuldade_list.activate(self.verifica_id_dificuldade(linha_a_carregar[10]))
-        self.peso_entry.insert(0, linha_a_carregar[2])
-        self.pergunta_entry.insert(0.0, linha_a_carregar[5])
+
+        frame_info_child['unidade'].set(linha_a_carregar[8])
+        frame_info_child['codigo_curso'].insert(
+            0, '' if str(linha_a_carregar[9]) == 'None' else str(linha_a_carregar[9])
+        )
+        frame_info_child['tempo'].insert(0, '' if not linha_a_carregar[3] else linha_a_carregar[3])
+        frame_info_child['tipo'].current(self.verifica_id_tipo(linha_a_carregar[1]))
+        frame_info_child['dificuldade'].current(self.verifica_id_dificuldade(linha_a_carregar[10]))
+        frame_info_child['peso'].insert(0, linha_a_carregar[2])
+        frame_info_child['pergunta'].insert(0.0, linha_a_carregar[5])
         return linha_a_carregar[5]
 
     @staticmethod
@@ -128,8 +139,8 @@ class Questoes(BackEnd):
     @staticmethod
     def verifica_id_dificuldade(dificuldade):
         dificuldades = {
-            'fácil': 0, 'facil': 0,
-            'médio': 1, 'média': 1, 'medio': 1, 'media': 1,
+            'fácil':   0, 'facil': 0,
+            'médio':   1, 'média': 1, 'medio': 1, 'media': 1,
             'difícil': 2, 'dificil': 2,
         }
         return dificuldades[dificuldade.lower()]
@@ -147,7 +158,7 @@ class Questoes(BackEnd):
                 par = ''
                 self.add_parent(infos[1], pergunta, infos[10], par, index)
                 par = index
-                self.add_parent('<-- opcao', infos[6], infos[7], par, index+0.1)
+                self.add_parent('<-- opcao', infos[6], infos[7], par, index + 0.1)
                 numero_de_questoes += 1
             else:  # ultima_pergunta == pergunta
                 self.add_parent('<-- opcao', infos[6], infos[7], par, index)
@@ -155,8 +166,10 @@ class Questoes(BackEnd):
             index += 1
             ultima_pergunta = pergunta
 
-        self.contador_questao.set('Questões: \n'
-                                  f'  {numero_de_questoes} ')
+        # self.root.children.get('frame_infos').children.get('numero_questao').configure(
+        #     text = f'Questões: \n '
+        #            f' {numero_de_questoes} '
+        # )
 
     def add_parent(self, tipo, pergunta, dificuldade, par, index):
         self.tree_view.insert(par, 'end', iid = index, text = "", values = (pergunta, tipo, dificuldade))
@@ -167,8 +180,3 @@ class Questoes(BackEnd):
     def refresh_infos(self):
         self.reset_infos()
         self.add_infos_na_tabela()
-
-    def on_right_click(self, _):
-        selecao = self.tree_view.selection()[0]
-        info = self.tree_view.get_children(selecao)
-        print(len(info))

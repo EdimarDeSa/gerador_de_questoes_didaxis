@@ -1,45 +1,33 @@
 {
-    "root": {
-        "background": "green"
-    },
-    "param_frames": {
-        "background": "lightgreen"
-    },
-    "param_labels": {
-        "background": "lightgreen",
-        "font": "Arial 10 bold"
-    },
-    "param_lists": {
-        "selectmode": "single",
-        "height": 3,
-        "font": "Arial 8 bold",
-        "relief": "sunken",
-        "selectbackground": "lightgreen",
-        "exportselection": false
-    },
-    "param_buttons":  {
-        "activebackground": "lightgreen",
-        "background": "lightgreen"
-    },
-    "tipos": [
-        "Multipla escolha 1 correta",
-        "Multipla escolha n corretas",
-        "Verdadeiro ou falso"
-    ],
-    "unidades": [
-        "Comunica\u00e7\u00e3o",
-        "Redes",
-        "Seguran\u00e7a eletr\u00f4nica",
-        "Controle de acesso",
-        "Inc\u00eandio e ilumina\u00e7\u00e3o",
-        "Varejo",
-        "Verticais",
-        "Solu\u00e7\u00f5es",
-        "Solar",
-        "Neg\u00f3cios",
-        "Gest\u00e3o",
-        "Energia",
-        "Astec"
-    ],
-    "Dificuldades": ["Fácil", "Médio", "Difícil"]
+  "cor_da_borda": "green",
+  "cor_de_fundo": "lightgreen",
+  "fonte": "Arial",
+  "tamanho_texto": 8,
+  "tamanho_titulo": 10,
+  "fonte_estilo": "bold",
+  "tipos": [
+	"Multipla escolha 1 correta",
+	"Multipla escolha n corretas",
+	"Verdadeiro ou falso"
+  ],
+"unidades": [
+	"Comunica\u00e7\u00e3o",
+	"Redes",
+	"Seguran\u00e7a eletr\u00f4nica",
+	"Controle de acesso",
+	"Inc\u00eandio e ilumina\u00e7\u00e3o",
+	"Varejo",
+	"Verticais",
+	"Solu\u00e7\u00f5es",
+	"Solar",
+	"Neg\u00f3cios",
+	"Gest\u00e3o",
+	"Energia",
+	"Astec"
+  ],
+  "dificuldades": [
+	"F\u00e1cil",
+	"M\u00e9dio",
+	"Dif\u00edcil"
+  ]
 }
