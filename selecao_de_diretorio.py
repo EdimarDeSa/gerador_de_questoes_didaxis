@@ -16,5 +16,4 @@ class SelecionaPasta:
         extensao = '.xlsx'
         if file[-5:] != extensao:
             file += extensao
-        print(file)
         return abspath(file)

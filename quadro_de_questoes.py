@@ -119,8 +119,8 @@ class Questoes(BackEnd):
     def carrega_cabecalho_para_edicao(self, index):
         frame_info_child = self.root.children['frame_infos'].children
         linha_a_carregar = self.carrega_linha(index)
-
-        frame_info_child['unidade'].set(linha_a_carregar[8])
+        # self.unidades = list()
+        frame_info_child['unidade'].current(self.unidades.index(linha_a_carregar[8]))
         frame_info_child['codigo_curso'].insert(
             0, '' if str(linha_a_carregar[9]) == 'None' else str(linha_a_carregar[9])
         )

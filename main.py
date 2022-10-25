@@ -1,7 +1,8 @@
 from subprocess import call
-from tkinter import Tk, Frame, Label, Menu, ttk, Toplevel
-from tkinter import Entry, Text, Listbox, OptionMenu, Button, Checkbutton, Radiobutton
-from tkinter import BooleanVar, IntVar, StringVar
+from tkinter import Tk, Frame, Label, Menu
+from tkinter import Entry, Text, Button, Checkbutton, Radiobutton
+from tkinter import BooleanVar, IntVar
+from tkinter.ttk import Combobox
 from tkinter.messagebox import askquestion, showerror
 
 from configuracoes import Configs
@@ -245,13 +246,28 @@ class FuncoesFrontEnd:
         if resposta == 'no' or not resposta:
             return './Novo banco.xlsx'
         else:
-            return sp.salvar_como()
+            diretorio = sp.abrir_arquivo()
+            extensao = '.xlsx'
+            if diretorio[-5:] != extensao:
+                return diretorio + '/Novo banco.xlsx'
+            else:
+                return diretorio
 
-    def salvar_novo(self):
+    def criar_novo(self):
         diretorio = sp.salvar_como()
         self.diretorio = diretorio
 
         self.refresh_infos()
+
+    def abrir_novo(self):
+        diretorio = sp.abrir_arquivo()
+        extensao = '.xlsx'
+        if diretorio[-5:] != extensao:
+            return 1
+        else:
+            self.diretorio = diretorio
+            self.refresh_infos()
+            return 0
 
     def on_root_ctrl_s(self):
         self.salvar()
@@ -309,12 +325,15 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
 
         self.frame_param['master'] = root
         root.bind('<Control-s>', lambda e: self.on_root_ctrl_s())
+        root.bind('<<F12>>', lambda e: self.criar_novo())
         self.root = root
 
     def inicia_menu(self):
         menubar = Menu(self.root)
         helpmenu = Menu(menubar, tearoff = 0)
-        helpmenu.add_command(label = 'Salvar novo', command = self.salvar_novo)
+        helpmenu.add_command(label = 'Abrir', command = self.abrir_novo)
+        helpmenu.add_command(label = 'Criar novo', command = self.criar_novo)
+        helpmenu.add_separator()
         helpmenu.add_command(label = 'Feedbacks', command = self.abre_feedback)
         menubar.add_cascade(label = 'Opções', menu = helpmenu)
 
@@ -454,7 +473,7 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
                     PlaceHolder(**widgets[widget][holder]['param']).place(**widgets[widget][holder]['place'])
             elif widget == 'combo_box':
                 for option in widgets[widget]:
-                    ttk.Combobox(**widgets[widget][option]['param']).place(**widgets[widget][option]['place'])
+                    Combobox(**widgets[widget][option]['param']).place(**widgets[widget][option]['place'])
                     frame_infos.children[widgets[widget][option]['param']['name']].current(0)
             elif widget == 'texts':
                 for texto in widgets[widget]:

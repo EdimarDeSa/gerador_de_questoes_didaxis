@@ -90,9 +90,6 @@ class FuncoesBackEnd:
         self.wb.save(self.diretorio)
 
 
-# ---------------------------------------------------------------------------------------------------------------------#
-
-
 class BackEnd(FuncoesBackEnd):
     def gravar(self, api_dict):
         # Inicia planilha do Excel
