@@ -208,7 +208,7 @@ class FuncoesFrontEnd:
         return call(
             'start https://forms.office.com/Pages/ResponsePage.aspx?id='
             'M083D5gGVkaWZUrSp05YCkZTqk471oVCrP11vG53XR5UN1FQM1c0VlVHNk0xRUZQR0RROE5FT1pHQS4u',
-            shell = False,
+            shell = True,
             stdout = False,
         )
 
