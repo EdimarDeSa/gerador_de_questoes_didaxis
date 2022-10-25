@@ -484,6 +484,7 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
 
         frame_infos.children['tipo'].bind('<<ComboboxSelected>>', lambda e: self.altera_tipo_opcao())
         frame_infos.after(100, lambda: frame_infos.children['unidade'].focus_force())
+        frame_infos.children['unidade'].current(1)
 
         todos_widgets = (
             frame_infos.children['unidade'],

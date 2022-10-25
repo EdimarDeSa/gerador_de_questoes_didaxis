@@ -166,10 +166,11 @@ class Questoes(BackEnd):
             index += 1
             ultima_pergunta = pergunta
 
-        # self.root.children.get('frame_infos').children.get('numero_questao').configure(
-        #     text = f'Questões: \n '
-        #            f' {numero_de_questoes} '
-        # )
+
+        self.root.children['frame_infos'].children['numero_questao'].config(
+            text = f'Questões:\n'
+                   f'      {numero_de_questoes}     '
+        )
 
     def add_parent(self, tipo, pergunta, dificuldade, par, index):
         self.tree_view.insert(par, 'end', iid = index, text = "", values = (pergunta, tipo, dificuldade))
