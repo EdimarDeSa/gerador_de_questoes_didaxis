@@ -110,3 +110,7 @@ class Configs:
     @property
     def dificuldades(self):
         return self.configs['dificuldades']
+
+    @property
+    def versao(self):
+        return self.configs['Versão']

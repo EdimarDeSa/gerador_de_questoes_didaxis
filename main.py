@@ -1,13 +1,13 @@
 from subprocess import call
-from tkinter import Tk, Frame, Label, Menu
+from tkinter import Tk, Frame, Label, Menu, Toplevel
 from tkinter import Entry, Text, Button, Checkbutton, Radiobutton
 from tkinter import BooleanVar, IntVar
 from tkinter.ttk import Combobox
-from tkinter.messagebox import askquestion, showerror
+from tkinter.messagebox import askquestion, showerror, showinfo
 
 from configuracoes import Configs
 from quadro_de_questoes import Questoes
-from selecao_de_diretorio import SelecionaPasta as sp
+from selecao_de_diretorio import SelecionaPasta
 
 
 class PlaceHolder(Entry):
@@ -67,6 +67,9 @@ class FuncoesFrontEnd:
         return
 
     def add_alternativa(self):
+        print(len(self.list_opcoes))
+        if len(self.list_opcoes) >= 10:
+            raise showinfo('Limite excedido', 'Limite máximo de opções excedido')
         # Cria variável da Entry das opções
         entrada = Entry(master = self.frame_opcs)
         # Posiciona a Entry das opções
@@ -120,6 +123,9 @@ class FuncoesFrontEnd:
         self.list_bt_corretas.append(self.ck_bt)
 
     def remove_alternativa(self):
+        if not self.list_opcoes:
+            return showinfo('Limite excedido', 'Limite mínimo de opções excedido')
+
         if self.rely_entry_opcoes > 0.05:
             self.rely_entry_opcoes -= 0.09
             self.rely_bts -= 0.09
@@ -127,19 +133,15 @@ class FuncoesFrontEnd:
             self.rely_entry_opcoes = 0
             self.rely_bts = 0
 
-        if self.valor_radio_button:
-            self.valor_radio_button -= 1
+        self.valor_radio_button -= 1
 
-        if self.list_opcoes:
-            self.list_opcoes[len(self.list_opcoes) - 1].place_forget()
-            self.list_opcoes.pop()
+        self.list_opcoes[len(self.list_opcoes) - 1].place_forget()
+        self.list_opcoes.pop()
 
-        if self.list_bt_corretas:
-            self.list_bt_corretas[len(self.list_bt_corretas) - 1].place_forget()
-            self.list_bt_corretas.pop()
+        self.list_bt_corretas[len(self.list_bt_corretas) - 1].place_forget()
+        self.list_bt_corretas.pop()
 
-        if self.list_corretas:
-            self.list_corretas.pop()
+        self.list_corretas.pop()
 
     def salvar(self):
         if not self.verifica_informacoes():
@@ -246,7 +248,7 @@ class FuncoesFrontEnd:
         if resposta == 'no' or not resposta:
             return './Novo banco.xlsx'
         else:
-            diretorio = sp.abrir_arquivo()
+            diretorio = SelecionaPasta.abrir_arquivo()
             extensao = '.xlsx'
             if diretorio[-5:] != extensao:
                 return diretorio + '/Novo banco.xlsx'
@@ -254,13 +256,13 @@ class FuncoesFrontEnd:
                 return diretorio
 
     def criar_novo(self):
-        diretorio = sp.salvar_como()
+        diretorio = SelecionaPasta.salvar_como()
         self.diretorio = diretorio
 
         self.refresh_infos()
 
     def abrir_novo(self):
-        diretorio = sp.abrir_arquivo()
+        diretorio = SelecionaPasta.abrir_arquivo()
         extensao = '.xlsx'
         if diretorio[-5:] != extensao:
             return 1
@@ -271,6 +273,51 @@ class FuncoesFrontEnd:
 
     def on_root_ctrl_s(self):
         self.salvar()
+
+    @staticmethod
+    def abre_atalhos():
+        showinfo(
+            title = 'Teclas de atalho',
+            message = '''
+            Abre tela de atalhos:\t\tF1
+            ----------------------------------------------------------------------
+            Abre tela de novo banco:\tF12
+            ----------------------------------------------------------------------
+            Salva questão:\t\tCtrl + S
+            ----------------------------------------------------------------------
+            Adiciona opção:\t\tCtrl + "+"
+            ----------------------------------------------------------------------
+            Remover opção:\t\tCtrl + "-"
+            ----------------------------------------------------------------------
+            Alterar tipo da questão:\tCtrl + 1, 2 ou 3
+            ----------------------------------------------------------------------
+            Alterar dificuldade:\t\tCtrl + 4, 5 ou 6
+            ----------------------------------------------------------------------
+            Desfazer:\t\t\tCtrl + Z
+            ----------------------------------------------------------------------
+            Refazer:\t\t\tCtrl + Y
+            ----------------------------------------------------------------------
+            Pular campos:\t\tCtrl + TAB ou TAB
+            ----------------------------------------------------------------------
+            Voltar campos:\tCtrl + Shift + TAB ou TAB + Shift
+            '''
+        )
+
+    def abrir_infos(self):
+        infos = Toplevel(master = self.root, **self.root_param)
+        infos.title('Informações')
+        infos.geometry('400x300')
+
+        Label(infos, **self.label_param, text = f'Versão: \t {self.versao}').pack(padx = 10, pady = 10)
+
+        versao = Button(
+            infos, **self.buttons_param, command = self.verifica_versao, text = 'Verifica atualização'
+        )
+        versao.pack(padx = 10, pady = 10)
+        versao.config(relief = 'raised', bg = 'Gray90')
+
+    def verifica_versao(self):
+        pass
 
 
 class Interface(FuncoesFrontEnd, Questoes, Configs):
@@ -292,6 +339,8 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
 
         # Abre o módulo de questões
         self.abre_quadro_questoes()
+
+        self.binds()
 
         self.top_lvl.focus_force()
 
@@ -324,18 +373,23 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
         root.configure(**self.root_param)
 
         self.frame_param['master'] = root
-        root.bind('<Control-s>', lambda e: self.on_root_ctrl_s())
-        root.bind('<<F12>>', lambda e: self.criar_novo())
         self.root = root
 
     def inicia_menu(self):
         menubar = Menu(self.root)
-        helpmenu = Menu(menubar, tearoff = 0)
-        helpmenu.add_command(label = 'Abrir', command = self.abrir_novo)
-        helpmenu.add_command(label = 'Criar novo', command = self.criar_novo)
-        helpmenu.add_separator()
-        helpmenu.add_command(label = 'Feedbacks', command = self.abre_feedback)
-        menubar.add_cascade(label = 'Opções', menu = helpmenu)
+        opcoes_menu = Menu(menubar, tearoff = 0)
+        menubar.add_cascade(label = 'Opções', menu = opcoes_menu)
+
+        opcoes_menu.add_command(label = 'Abrir', command = self.abrir_novo)
+        opcoes_menu.add_command(label = 'Criar novo', command = self.criar_novo)
+        opcoes_menu.add_separator()
+        opcoes_menu.add_command(label = 'Feedbacks', command = self.abre_feedback)
+
+        help_menu = Menu(menubar, tearoff = 0)
+        menubar.add_cascade(label = 'Ajuda', menu = help_menu)
+
+        help_menu.add_command(label = 'Atalhos', command = self.abre_atalhos)
+        help_menu.add_command(label = 'Info', command = self.abrir_infos)
 
         self.root.config(menu = menubar)
 
@@ -481,8 +535,6 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
             elif widget == 'buttons':
                 for botao in widgets[widget]:
                     Button(**widgets[widget][botao]['param']).place(**widgets[widget][botao]['place'])
-
-        frame_infos.children['tipo'].bind('<<ComboboxSelected>>', lambda e: self.altera_tipo_opcao())
         frame_infos.after(100, lambda: frame_infos.children['unidade'].focus_force())
         frame_infos.children['unidade'].current(1)
 
@@ -519,6 +571,49 @@ class Interface(FuncoesFrontEnd, Questoes, Configs):
         )
         # Posiciona o botão de salvar
         salvar.pack(fill = 'x', side = 'bottom')
+
+    def binds(self):
+        root = self.root
+        root.bind('<Control-Key>', lambda e: self.ctrl_events(e))
+        root.bind('<Key>', lambda e: self.f_events(e))
+
+        frame_infos = self.root.children['frame_infos']
+        frame_infos.children['tipo'].bind('<<ComboboxSelected>>', lambda e: self.altera_tipo_opcao())
+
+    def ctrl_events(self, e):
+        key = e.keysym
+        events = {
+            's':     self.on_root_ctrl_s,
+            'equal': self.add_alternativa,
+            'minus': self.remove_alternativa,
+            '1':     self.seleciona_tipo,
+            '2':     self.seleciona_tipo,
+            '3':     self.seleciona_tipo,
+            '4':     self.seleciona_dificuldade,
+            '5':     self.seleciona_dificuldade,
+            '6':     self.seleciona_dificuldade,
+        }
+        try:
+            int(key)
+        except ValueError:
+            return events[key]()
+        return events[key](key)
+
+    def f_events(self, e):
+        key = e.keysym
+        events = {
+            'F1':  self.abre_atalhos,
+            # 'F2': self.criar_novo,
+            # 'F3': self.criar_novo,
+            'F12': self.criar_novo,
+        }
+        return events[key]()
+
+    def seleciona_tipo(self, index):
+        return self.root.children['frame_infos'].children['tipo'].current(int(index) - 1)
+
+    def seleciona_dificuldade(self, index):
+        return self.root.children['frame_infos'].children['dificuldade'].current(int(index) - 4)
 
 
 if __name__ == '__main__':
