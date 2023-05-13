@@ -1,7 +1,8 @@
-from tkinter import Entry
+
+from customtkinter import CTkEntry
 
 
-class PlaceHolderEntry(Entry):
+class PlaceHolderEntry(CTkEntry):
     def __init__(self, master=None, placeholder="Texto padrão", color='gray30', **kw):
         super().__init__(master, kw)
 

@@ -1,8 +1,20 @@
 from tkinter import Toplevel
 from tkinter.ttk import Treeview
 
+from customtkinter import *
+
 from .question import Question
 
+
+class QuadroDeQuestoes(CTkScrollableFrame):
+    def __init__(self, master=None, **kwargs):
+        super(QuadroDeQuestoes, self).__init__(master=master)
+        self.__init_header()
+
+    def __init_header(self):
+        CTkLabel(self, text='Enunciado').grid(row=0, column=0)
+        CTkLabel(self, text='Editar').grid(row=0, column=1)
+        CTkLabel(self, text='Deletar').grid(row=0, column=2)
 
 class QuestionFrame:
     def __init__(self, root_configs):

@@ -2,13 +2,14 @@
   "cor_da_borda": "darkgreen",
   "cor_de_fundo": "lightgreen",
   "fonte": "Arial",
-  "tamanho_texto": 8,
-  "tamanho_titulo": 10,
+  "tamanho_texto": 12,
+  "tamanho_titulo": 14,
   "fonte_estilo": "bold",
   "tipos": [
     "Multipla escolha 1 correta",
     "Multipla escolha n corretas",
-    "Verdadeiro ou falso"
+    "Verdadeiro ou falso",
+    "Dissertativa"
   ],
   "unidades": [
     "Comunica\u00e7\u00e3o",
