@@ -1,42 +1,57 @@
-from datetime import datetime
-from os.path import abspath
+import urllib.request
+import urllib.parse
+import urllib.error
 from pathlib import Path
-from subprocess import call
-from time import ctime
+import json
+import subprocess
+
 
 class Atualizacao:
-    local_atual = abspath('./')
-    pasta_atualizacao = ''
+    def __init__(self, versao_atual, local):
+        self.url_base = 'https://www.efscode.com.br/atualizacoes/'
+        self.url_versao = 'verifica_versao/'
+        self.software_name = 'gerador_de_questoes_didaxis'
+        self.data = None
+        self.atualizacao = False
+        self.versao_atual = versao_atual
+        self.local = local
 
-    def __init__(self):
-        resp = self.__verifica_ping()
-        if resp:
-            atualizar = self.__verifica_versao()
-            if atualizar:
-                self.__gera_bkp()
-                self.__atualiza()
-                self.__inicia_atualizado()
+        if self.verifica_conexao_com_internet():
+            self.atualizacao = self.verifica_versao()
+
+    def verifica_conexao_com_internet(self):
+        try:
+            urllib.request.urlopen(self.__gera_url_versao(), timeout=4)
+            return True
+        except urllib.error.URLError:
+            return False
+
+    def __gera_url_versao(self) -> str:
+        url_versao = self.url_base + self.url_versao + self.software_name
+        encoded_url_versao = urllib.parse.quote(url_versao, safe=':/')
+        return encoded_url_versao
+
+    def verifica_versao(self):
+        response = urllib.request.urlopen(self.__gera_url_versao())
+        data = json.loads(response.read().decode('utf-8'))
+        self.data = data
+        return self.versao_atual < self.versao_recente
+
+    @property
+    def versao_recente(self):
+        return self.data.get('Versão')
+
+    def atualiza(self):
+        # Comando para iniciar o programa secundário
+        comando = None
+        if str(self.local) == r'C:\Users\Edimar\Documents\GitHub\gerador_de_questoes_didaxis':
+            comando = ['.venv/Scripts/python', 'QuestGenUpdater.py', f'-n {self.software_name}']
         else:
-            call('py main.py')
+            comando = [self.local / 'QuestGenUpdater/QuestGenUpdater.exe', f'-n {self.software_name}']
 
-    def __verifica_ping(self):
-        ping = call('ping -w 200 -n 1 8.8.8.8', shell = False, stdout = False)
-        return not ping
-
-    def __verifica_versao(self):
-        status_arquivo_atual = Path(self.local_atual).stat()
-        cdata_mod_arquivo_atual = status_arquivo_atual.st_mtime
-
-        status_arquivo_atualizacao = Path(self.pasta_atualizacao).stat()
-        cdata_mod_arquivo_atualizacao = status_arquivo_atualizacao.st_mtime
-
-        print(cdata_mod_arquivo_atual, cdata_mod_arquivo_atualizacao)
-
-        return cdata_mod_arquivo_atual < cdata_mod_arquivo_atualizacao
-
-    def __atualiza(self):
-        call('')
+        # Iniciar o programa secundário usando subprocess
+        subprocess.Popen(comando)
 
 
 if __name__ == '__main__':
-    Atualizacao()
+    Atualizacao(3.0)

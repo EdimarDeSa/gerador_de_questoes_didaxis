@@ -1,8 +1,9 @@
-__all__ = ['atualizacao', 'configuracoes', 'corretor_ortografico', 'place_holder', 'quadro_de_questoes', 'question']
+__all__ = ['atualizacao', 'configuracoes', 'corretor_ortografico', 'arquivo', 'quadro_de_questoes',
+           'models']
 
 LINK_FEEDBACK_FORM = 'https://forms.office.com/r/xpjpRED6KK'
 
-SHORTCUTS: tuple[tuple[str,str]] = (
+SHORTCUTS: list[tuple[str, str]] = [
     ('Abre tela de atalhos:', 'F1'),
     ('Salvar como:', 'F12'),
     ('Salva questão:', 'Ctrl + S'),
@@ -16,7 +17,7 @@ SHORTCUTS: tuple[tuple[str,str]] = (
     ('Refazer:', 'Ctrl + Y'),
     ('Pular campos:', 'Ctrl + TAB ou TAB'),
     ('Voltar campos:', 'Ctrl + Shift + TAB ou Shift + TAB'),
-)
+]
 
 FILETYPES: tuple[tuple[str, str]] = (
     ('Pasta de Trabalho do Excel', '*.xlsx'),
@@ -57,4 +58,9 @@ PERFIL: dict = {
     'aparencia_do_sistema': 'System',
 }
 
-ENCODER = 'utf-8'
+ENCODER: str = 'UTF-8'
+
+CABECALHO: list[str] = [
+    'ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA',
+    'CORRETA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE'
+]

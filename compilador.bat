@@ -1,1 +1,0 @@
-pyinstaller -y --clean -F --name "gerador_de_questões_didaxis" -w -i "./icons/prova.ico" --path "./.venv/Lib/site-packages" main.py
