@@ -56,6 +56,7 @@ PERFIL: dict = {
     'unidade_padrao': 'Comunicação',
     'apagar_enunciado': False,
     'aparencia_do_sistema': 'System',
+    'escala_do_sistema': '100%'
 }
 
 ENCODER: str = 'UTF-8'

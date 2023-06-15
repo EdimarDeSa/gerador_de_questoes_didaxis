@@ -18,13 +18,13 @@ from Modules.atualizacao import Atualizacao
 
 
 class Main(CTk, Configs):
-    __version__ = 2.0
+    __version__ = 3.0
     __author__ = 'Edimar Freitas de Sá'
     __annotations__ = 'edimarfreitas95@gmail.com'
 
     def __init__(self):
         self.local = Path(__file__).resolve().parent
-        self.caminho_arquivo: [str, None] = None
+        self.caminho_arquivo: str = ''
         self.lista_alternativas: list[dict] = []
 
         Configs.__init__(self, self.local)
@@ -188,6 +188,7 @@ class Main(CTk, Configs):
         busca = re.findall(r'(paineldeconfiguracoes)', ', '.join([str(widget) for widget in self.winfo_children()]))
         if busca:
             return self.painel_de_configuracoes.focus_force()
+
         self.painel_de_configuracoes = PainelDeConfiguracoes(self)
 
     def altera_dark_mode(self, modo: str):

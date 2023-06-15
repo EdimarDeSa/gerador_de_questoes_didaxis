@@ -1,5 +1,5 @@
 from threading import Thread
-from tkinter import Menu
+from tkinter import Menu, TclError
 
 from spellchecker.spellchecker import SpellChecker
 
@@ -52,8 +52,11 @@ class PowerfullSpellChecker(SpellChecker):
 
     def __destaca_palavras(self):
         for palavra in self.__text_widget.palavras_com_sugestoes.keys():
-            start_index = self.__text_widget.search(palavra, '1.0', 'end')
-            end_index = self.__text_widget.search(r'\s|[\.,!?:;\)]', start_index, stopindex='end', regexp=True)
+            try:
+                start_index = self.__text_widget.search(palavra, '1.0', 'end')
+                end_index = self.__text_widget.search(r'\s|[\.,!?:;\)]', start_index, stopindex='end', regexp=True)
+            except TclError:
+                return
             self.__text_widget.registra_posicao_inicial(palavra, start_index)
             self.__text_widget.registra_posicao_final(palavra, end_index)
             self.__text_widget.cria_tag(palavra, self.show_correction_menu)
