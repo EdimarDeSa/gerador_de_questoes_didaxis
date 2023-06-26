@@ -1,94 +1,110 @@
-from tkinter import Text, Label, Button
 from threading import Thread
+from tkinter import Menu, TclError
 
 from spellchecker.spellchecker import SpellChecker
 
+from .models.caixa_de_texto import CaixaDeTexto
+from .configuracoes import Dicionario
 
-class SpellCheck(SpellChecker):
-    def __init__(self, language:str = 'pt', local_dictionary: str=None):
-        SpellChecker.__init__(self, language=language, local_dictionary=local_dictionary, distance=2, case_sensitive=True)
 
-class PowerfullSpellChecker:
-    def __init__(self, text_widget, timeout: int=5000, max_threads: int=1, SPELLCHECK_FILE=None):
-        self.__text_widget: Text = text_widget
-        self.__corrections = dict()
+ADD = 'Adicionar'
+
+
+class PowerfullSpellChecker(SpellChecker):
+    def __init__(self, timeout=500, dicionario_pessoal: Dicionario=None, max_threads=2):
+        self.__dicionario_pessoal = dicionario_pessoal
         self.__timeout = timeout
         self.__max_threads = max_threads
         self.__timer = None
+        self.__timer = None
         self.__running_threads = 0
-        self.__checker = SpellCheck(local_dictionary=SPELLCHECK_FILE)
 
-    def start_timer(self):
+        self.__inicia_corretor()
+
+    def __inicia_corretor(self):
+        self.__corretor_ortografico = SpellChecker(
+            distance=2, case_sensitive=True, local_dictionary=self.__dicionario_pessoal.caminho_dicionario_pessoal,
+        )
+
+    def monitora_textbox(self, textbox: CaixaDeTexto):
+        textbox.bind('<KeyRelease>', lambda event: self.__inicia_temporizador(event))
+
+    def __inicia_temporizador(self, event):
+        if len(event.keysym) != 1:
+            return
+        self.__text_widget: CaixaDeTexto = event.widget.master
         if self.__timer:
             self.__text_widget.after_cancel(self.__timer)
-        self.__timer = self.__text_widget.after(self.__timeout, self.__check_spelling)
+        self.__timer = self.__text_widget.after(self.__timeout, self.__verifica_thread_para_inicio_da_correcao)
 
-    def __check_spelling(self):
+    def __verifica_thread_para_inicio_da_correcao(self):
         if self.__running_threads < self.__max_threads:
             self.__running_threads += 1
-            Thread(target=self.__start_thread_check).start()
-    
-    def __start_thread_check(self):
-        self.__clear_previous_corrections()
-        
-        words = self.__checker.split_words(self.__text_widget.get(1.0, "end-1c"))
-        for word in words:
-            if self.__checker.unknown([word]):
-                suggested = self.__checker.candidates(word)
-                if suggested:
-                    self.__corrections[word] = dict(suggested=list(suggested)[:5] if len(suggested) > 4 else suggested)
-                else:
-                    self.__corrections[word] = dict(suggested='Sem sugestões')
+            Thread(target=self.__inicia_correcao).start()
 
-                self.__highlight_word(word)
+    def __inicia_correcao(self):
+        self.__limpa_correcoes_anteriores()
+
+        palavras = self.__corretor_ortografico.split_words(self.__text_widget.get_texto_completo())
+        palavras_erradas = self.__corretor_ortografico.unknown(palavras)
+        for palavra in palavras_erradas:
+            sugeridas = self.__corretor_ortografico.candidates(palavra)
+            self.__text_widget.registr_possiveis_correcoes(palavra, sugeridas)
+            try:
+                start_index = self.__text_widget.search(palavra, '1.0', 'end')
+                end_index = self.__text_widget.search(r'\s|[\.,!?:;\)]', start_index, stopindex='end', regexp=True)
+            except TclError:
+                return
+            self.__text_widget.registra_posicao_inicial(palavra, start_index)
+            self.__text_widget.registra_posicao_final(palavra, end_index)
+            self.__text_widget.cria_tag(palavra, self.show_correction_menu)
 
         self.__running_threads -= 1
 
-    def __highlight_word(self, word):
-        start_index = self.__text_widget.search(word, 1.0, 'end')
-        end_index = self.__text_widget.search(r'\s|[\.,!?:;\)]', start_index, stopindex='end', regexp=True)
-        self.__corrections[word]['start_index'] = start_index
-        self.__corrections[word]['end_index'] = end_index
-        tag_name = f"spell_check_{start_index}"
-        self.__corrections[word]['tag_name'] = tag_name
-        self.__text_widget.tag_add(tag_name, start_index, end_index)
-        self.__text_widget.tag_configure(tag_name, underline=True, underlinefg="red")
-        self.__text_widget.tag_bind(tag_name, "<Button-3>", lambda event: self.__show_correction_menu(event, word))
+    def __limpa_correcoes_anteriores(self):
+        for nome_da_tag in self.__text_widget.tag_names():
+            if nome_da_tag.startswith("corretor_ortografico_"):
+                self.__text_widget.remove_correcao_pela_tag(nome_da_tag)
 
-    def __clear_previous_corrections(self):
-        for tag_name in self.__text_widget.tag_names():
-            if tag_name.startswith("spell_check_"):
-                self.__text_widget.tag_delete(tag_name)
-                word = tag_name.replace("spell_check_", "")
-                self.__corrections.pop(word, None)
-
-    def __show_correction_menu(self, event, word):
-        self.popup_menu = Label(relief="solid", borderwidth=0.5, border=0.5)
-        x_position = self.__text_widget.winfo_x() + event.x
-        y_position = self.__text_widget.winfo_y() + event.y
-        self.popup_menu.place(x=x_position, y=y_position)
-        self.popup_menu.bind("<Leave>", lambda e: self.hide_correction_menu())
-
-        for correction in self.__corrections[word]['suggested']:
-            button = Button(
-                master=self.popup_menu,
-                text=correction,
-                command=lambda correction=correction: self.__apply_correction(correction, word),
-                relief="flat",
-                overrelief="flat",
+    def show_correction_menu(self, event, palavra):
+        text_widget: CaixaDeTexto = event.widget.master
+        pop_up_menu = Menu(text_widget, tearoff=False, font='arial 12')
+        for correction in text_widget.get_possiveis_correcoes(palavra):
+            if correction == 'Sem sugestões':
+                pop_up_menu.add_command(label=correction, command=self.__nada_a_fazer)
+                break
+            pop_up_menu.add_command(
+                label=correction, command=lambda c=correction, p=palavra, w=text_widget: self.__aplica_correcao(c, p, w)
             )
-            button.pack(fill="both", ipadx=15, ipady=5)
+        pop_up_menu.add_separator()
+        pop_up_menu.add_command(
+            label=ADD, command=lambda c=ADD, p=palavra, w=text_widget: self.__aplica_correcao(c, p, w)
+        )
 
-    def __apply_correction(self, correction, word):
-        start_index = self.__corrections[word]['start_index']
-        end_index = self.__corrections[word]['end_index']
-        tag_name = self.__corrections[word]['tag_name']
+        pop_up_menu.tk_popup(x=event.x_root, y=event.y_root)
 
-        self.__text_widget.replace(start_index, end_index, correction)
-        self.__text_widget.tag_remove(tag_name, start_index, end_index)
-        self.__corrections.pop(word)
-        self.hide_correction_menu()
-        self.__text_widget.focus_set()
+    def __aplica_correcao(self, correction, palavra, text_widget):
+        start_index = text_widget.get_posicao_inicial(palavra)
+        end_index = text_widget.get_posicao_final(palavra)
+        tag_name = text_widget.get_nome_da_tag(palavra)
 
-    def hide_correction_menu(self):
-        self.popup_menu.place_forget()
+        if correction == ADD:
+            self.__aplica_adicao(text_widget, start_index, end_index, tag_name, palavra)
+        else:
+            self.__aplica_substituicao(text_widget, start_index, end_index, tag_name, correction)
+
+        text_widget.palavras_com_sugestoes.pop(palavra)
+        text_widget.focus_set()
+
+    def __aplica_adicao(self, text_widget, start_index, end_index, tag_name, palavra):
+        self.__dicionario_pessoal.add_palavra(palavra)
+        text_widget.tag_remove(tag_name, start_index, end_index)
+
+    def __aplica_substituicao(self, text_widget, start_index, end_index, tag_name, correction):
+        text_widget.tag_remove(tag_name, start_index, end_index)
+        text_widget.delete(start_index, end_index)
+        text_widget.insert(start_index, correction)
+
+    def __nada_a_fazer(self):
+        pass
+
