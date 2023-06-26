@@ -17,15 +17,21 @@ from Modules.models.caixa_de_texto import CaixaDeTexto
 from Modules.atualizacao import Atualizacao
 
 
+D = 'Dissertativa'
+ME = 'Multipla escolha 1 correta'
+MEN = 'Multipla escolha n corretas'
+VF = 'Verdadeiro ou falso'
+
+
+# noinspection PyAttributeOutsideInit
 class Main(CTk, Configs):
-    __version__ = 3.0
+    __version__ = 3.1
     __author__ = 'Edimar Freitas de Sá'
     __annotations__ = 'edimarfreitas95@gmail.com'
 
     def __init__(self):
         self.local = Path(__file__).resolve().parent
         self.caminho_arquivo: str = ''
-        self.lista_alternativas: list[dict] = []
 
         Configs.__init__(self, self.local)
         self.arquivos = Arquivos(self.local)
@@ -55,7 +61,7 @@ class Main(CTk, Configs):
         self.dificuldade: CTkOptionMenu
         self.peso: CTkEntry
 
-        self.questao_em_edicao: ModeloQuestao
+        self.questao_em_edicao: [ModeloQuestao, None] = None
         self.exportado: bool = True
         self.painel_de_configuracoes: PainelDeConfiguracoes
         self.corretor_ortografico = PowerfullSpellChecker(timeout=500, dicionario_pessoal=self.dicionario_pessoal)
@@ -97,9 +103,9 @@ class Main(CTk, Configs):
         question_frame.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
         self.create_question_frame_widgets(question_frame)
 
-        self.options_frame = CTkFrame(self)
-        self.options_frame.place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
-        self.create_options_frame_widgets(self.options_frame)
+        texto_opcao_frame = CTkFrame(self)
+        texto_opcao_frame.place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
+        self.create_options_frame_widgets(texto_opcao_frame)
 
         bts_frame = CTkFrame(self)
         bts_frame.place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
@@ -162,6 +168,19 @@ class Main(CTk, Configs):
     def create_options_frame_widgets(self, frame):
         CTkLabel(frame, text='Opções', **self.label_configs).place(relx=0.47, rely=0.01)
 
+        for index in range(5):
+            texto = CaixaDeTexto(frame, **self.text_configs, height=50)
+            setattr(self, f'txt_opcao{index}', texto)
+            self.corretor_ortografico.monitora_textbox(texto)
+
+            rd_button = CTkRadioButton(frame, text='', value=index, variable=self.var_opcao_correta_radio_bt)
+            setattr(self, f'rd_button_opcao{index}', rd_button)
+
+            ck_button = CTkCheckBox(frame, text='')
+            setattr(self, f'ck_button_opcao{index}', ck_button)
+
+        self.contador_de_opcoes = 0
+
     def create_bts_frame_widgets(self, frame):
         self.bt_configs = CTkButton(frame, **self.buttons_configs, text='', width=30, height=30,
                                     image=self.imagens.bt_configs_img(), command=self.abre_menu_configuracoes)
@@ -195,7 +214,7 @@ class Main(CTk, Configs):
         set_appearance_mode(modo)
         self.salva_informacao('perfil', 'dark_mode', self.var_dark_mode.get())
 
-    def altera_escala_do_sistema(self, nova_escala: str):
+    def altera_escala_do_sistema(self, nova_escala):
         nova_escala_float = int(nova_escala.replace("%", "")) / 100
         set_widget_scaling(nova_escala_float)
         if getattr(self, 'var_escala_do_sistema', False):
@@ -204,39 +223,32 @@ class Main(CTk, Configs):
     def altera_opcao_apagar_enunciado(self):
         self.salva_informacao('perfil', 'apagar_enunciado', self.var_apagar_enunciado.get())
 
-    def add_alternativa(self, texto=None):
-        qnt_opcoes = len(self.lista_alternativas)
-        limite_de_opcoes = 5
-        tamanho_opcao = 50
-
-        if self.tipo.get() == 'Dissertativa':
-            limite_de_opcoes -= 5
-            tamanho_opcao += 50
-
-        if qnt_opcoes >= limite_de_opcoes:
+    def add_alternativa(self, texto_alternativa=None):
+        if self.contador_de_opcoes == 5 or self.get_tipo == D:
             return
 
-        opcao = CaixaDeTexto(self.options_frame, **self.text_configs, height=tamanho_opcao)
-        opcao.place(relx=0.01, rely=self.calcula_posicao_y(qnt_opcoes), relwidth=0.92)
-        self.corretor_ortografico.monitora_textbox(opcao)
+        texto: CaixaDeTexto = self.txt_opcao(self.contador_de_opcoes)
+        texto.place(relx=0.01, rely=self.calcula_posicao_y(self.contador_de_opcoes), relwidth=0.92)
 
-        if texto:
-            opcao.insert(0.0, texto)
+        if texto_alternativa:
+            texto.insert(0.0, texto_alternativa)
 
-        self.lista_alternativas.append({'alternativa': opcao, 'bt_opcao': self.constroi_opcao(qnt_opcoes)})
-        self.organiza_ordem_tabulacao()
+        self.show_opcao(self.contador_de_opcoes)
 
-    @staticmethod
-    def calcula_posicao_y(multiplo):
-        return 0.1 + (0.18 * multiplo)
+        self.contador_de_opcoes += 1
 
     def rm_alternativa(self):
-        if len(self.lista_alternativas) and self.tipo.get() != 'Dissertativa':
-            self.lista_alternativas[-1]['bt_opcao'][0].place_forget()
-            self.lista_alternativas[-1]['bt_opcao'][0].destroy()
-            self.lista_alternativas[-1]['alternativa'].place_forget()
-            self.lista_alternativas[-1]['alternativa'].destroy()
-            self.lista_alternativas.pop()
+        if self.contador_de_opcoes:
+            self.contador_de_opcoes -= 1
+            texto: CaixaDeTexto = self.txt_opcao(self.contador_de_opcoes)
+            texto.place_forget()
+
+            ck_bt: CTkCheckBox = getattr(self, f'ck_button_opcao{self.contador_de_opcoes}')
+            ck_bt.deselect()
+            ck_bt.place_forget()
+
+            rd_bt: CTkRadioButton = getattr(self, f'rd_button_opcao{self.contador_de_opcoes}')
+            rd_bt.place_forget()
 
     def exportar(self):
         if not self.caminho_arquivo:
@@ -253,35 +265,34 @@ class Main(CTk, Configs):
     def salvar(self):
         self.exportado = False
 
+        if not self.get_pergunta or self.verifica_texto_opcoes():
+            return showwarning('Pergunta em branco', 'Para salvar uma questão é necessário que a pergunta e as '
+                                                     'alternativas ativas não esteja em branco.')
+
         if self.questao_em_edicao:
             self.salvar_edicao()
             return
 
-        if not self.get_pergunta or (not self.lista_alternativas and self.get_tipo != 'Dissertativa'):
-            return showwarning('Pergunta em branco', 'Para salvar uma questão é necessário que a pergunta não'
-                                                     ' esteja em branco.')
-
         if self.questions_board.verifica_se_pergunta_ja_existe(self.get_pergunta):
             return showinfo('Pergunta repetida', 'Já existe uma questão com a mesma pergunta')
 
-        for opcao in self.lista_alternativas:
-            if not self.get_alternativa_textbox(opcao).get('0.0', 'end').rstrip('\n') or not self.lista_alternativas:
-                return showwarning('Opção em branco', 'Para salvar uma questão é necessário que nenhuma opção esteja '
-                                                      'em branco e é necesário ter ao menos uma opção.')
-        questao = self.cria_questao()
-
+        questao = ModeloQuestao(self.get_unidade, self.get_codigo, self.get_tempo, self.get_tipo,
+                                self.get_dificuldade, self.get_peso, self.get_pergunta, self.get_opcoes)
         self.questions_board.adiciona_questao(questao)
         self.set_quantidade_de_questoes()
-
-        self.questao_em_edicao = None
 
         self.reseta_informacoes()
 
     def abrir(self):
-        self.reseta_question_board()
-        if self.lista_alternativas:
-            self.salvar_como()
+        if self.contador_de_opcoes:
+            resposta = askyesno(
+                'Questão em edição',
+                'Você tem questões em edição, deseja salva-la antes de abrir um novo arquivo?'
+            )
+            if resposta:
+                self.salvar_como()
 
+        self.reseta_question_board()
         self.exportado = True
         self.reseta_informacoes()
 
@@ -310,16 +321,16 @@ class Main(CTk, Configs):
         self.unidade.set(nova_unidade)
         self.salva_informacao('perfil', 'unidade_padrao', nova_unidade)
 
-    def altera_alternativa(self, tipo):
-        if len(self.lista_alternativas) and tipo != 'Dissertativa':
-            for indice, alternativa in enumerate(self.lista_alternativas):
-                alternativa['bt_opcao'][0].destroy()
-                alternativa['bt_opcao'] = self.constroi_opcao(indice)
+    def altera_alternativa(self, e=None):
+        quantidade_de_questoes = self.contador_de_opcoes
+        for indice in range(quantidade_de_questoes):
+            self.rm_alternativa()
+        for indice in range(quantidade_de_questoes):
+            self.add_alternativa()
         self.organiza_ordem_tabulacao()
 
     def set_titulo(self):
-        nome = basename(self.caminho_arquivo) if self.caminho_arquivo else ''
-        self.title(f'Gerador de questões - {nome}')
+        self.title(f'Gerador de questões - {basename(self.caminho_arquivo)}' if self.caminho_arquivo else 'Gerador de questões')
 
     def set_quantidade_de_questoes(self):
         self.var_quantidade_de_questoes.set(f'Número de questões: '
@@ -336,34 +347,31 @@ class Main(CTk, Configs):
         for widget in ordem_widgets:
             widget.lift()
 
-    def constroi_opcao(self, valor):
-        def cria_radio_bt():
-            var = self.var_opcao_correta_radio_bt
-            bt_opcao = CTkRadioButton(self.options_frame, value=valor, text='', width=0,
-                                      variable=self.var_opcao_correta_radio_bt)
-            bt_opcao.place(relx=pos_x, rely=pos_y)
-            return bt_opcao, var
+    def get_opcao_bt(self, indice) -> [CTkRadioButton, CTkCheckBox]:
+        def show_rd_bt() -> CTkRadioButton:
+            rd_bt = getattr(self, f'rd_button_opcao{indice}')
+            return rd_bt
 
-        def cria_check_bt():
-            var = BooleanVar()
-            bt_opcao = CTkCheckBox(self.options_frame, variable=var, text='')
-            bt_opcao.place(relx=pos_x, rely=pos_y)
-            return bt_opcao, var
+        def show_ck_bt() -> CTkCheckBox:
+            ck_bt = getattr(self, f'ck_button_opcao{indice}')
+            return ck_bt
 
-        def cria_dissertativa():
-            if self.lista_alternativas:
-                self.lista_alternativas[-1].get('alternativa').place_forget()
-
-        pos_y = self.calcula_posicao_y(valor) + 0.04
-        pos_x = 0.95
+        def show_dissert():
+            pass
 
         tipos_btn = {
-            'Multipla escolha 1 correta': cria_radio_bt,
-            'Multipla escolha n corretas': cria_check_bt,
-            'Verdadeiro ou falso': cria_check_bt,
-            'Dissertativa': cria_dissertativa
+            ME: show_rd_bt,
+            MEN: show_ck_bt,
+            VF: show_ck_bt,
+            D: show_dissert
         }
-        return tipos_btn[self.tipo.get()]()
+        return tipos_btn[self.get_tipo]()
+
+    def show_opcao(self, indice):
+        pos_y = self.calcula_posicao_y(indice) + 0.04
+        pos_x = 0.95
+
+        self.get_opcao_bt(indice).place(relx=pos_x, rely=pos_y)
 
     def editar_questao(self, questao: ModeloQuestao):
         self.reseta_informacoes()
@@ -377,20 +385,21 @@ class Main(CTk, Configs):
         for alternativa, correta in questao.alternativas:
             self.add_alternativa(alternativa)
             if correta:
-                opcao_dict = self.get_alternativa_button(self.lista_alternativas[-1])
-                opcao_dict.select()
+                opcao_bt = self.get_opcao_bt(self.contador_de_opcoes - 1)
+                opcao_bt.select()
 
     @property
-    def get_opcoes(self):
-        def verifica_correta(resposta, indice):
-            if self.tipo.get() == 'Multipla escolha 1 correta':
-                return resposta == indice
-            return resposta
+    def get_opcoes(self) -> list[tuple[str, bool]]:
+        def verifica_correta(botao, indice):
+            if self.get_tipo == ME:
+                return self.var_opcao_correta_radio_bt.get() == indice
+            return botao.get()
 
         opcoes = list()
-        for indice, dict_opcao in enumerate(self.lista_alternativas):
-            alternativa = dict_opcao['alternativa'].get(0.0, 'end-1c')
-            correta = verifica_correta(dict_opcao['bt_opcao'][1].get(), indice)
+        for indice in range(self.contador_de_opcoes):
+            texto: CaixaDeTexto = self.txt_opcao(indice)
+            alternativa = texto.get_texto_completo()
+            correta = verifica_correta(self.get_opcao_bt(indice), indice)
             opcoes.append((alternativa, correta))
         return opcoes
 
@@ -426,33 +435,28 @@ class Main(CTk, Configs):
 
     @property
     def get_pergunta(self):
-        return self.pergunta.get(0.0, 'end-1c').rstrip('\n')
+        return self.pergunta.get_texto_completo()
+
+    @staticmethod
+    def calcula_posicao_y(multiplo):
+        return (0.18 * multiplo) + 0.1
 
     def reseta_informacoes(self):
         self.unidade.set(self.configuracao_unidade_padrao)
         self.codigo_do_curso.delete(0, 'end')
         self.tempo.delete(0, 'end')
         self.peso.delete(0, 'end')
+        self.var_opcao_correta_radio_bt.set(0)
 
         if self.var_apagar_enunciado:
             self.pergunta.delete(0.0, 'end')
 
-        qtd_alternativas = len(self.lista_alternativas)
-        if qtd_alternativas:
-            for _ in range(qtd_alternativas):
-                self.rm_alternativa()
+        for indice in range(5):
+            self.txt_opcao(indice).delete(0.0, 'end')
+            self.rm_alternativa()
 
-        self.lista_alternativas.clear()
         self.pergunta.focus()
         self.set_quantidade_de_questoes()
-
-    @staticmethod
-    def get_alternativa_textbox(opcao):
-        return opcao['alternativa']
-
-    @staticmethod
-    def get_alternativa_button(opcao):
-        return opcao['bt_opcao'][0]
 
     def salvar_edicao(self):
         self.questao_em_edicao.unidade = self.get_unidade
@@ -469,17 +473,13 @@ class Main(CTk, Configs):
         self.questao_em_edicao = None
         self.reseta_informacoes()
 
-    def cria_questao(self):
-        return ModeloQuestao(self.get_unidade, self.get_codigo, self.get_tempo, self.get_tipo,
-                             self.get_dificuldade, self.get_peso, self.get_pergunta, self.get_opcoes)
-
     def init_binds(self):
         def ctrl_events(e):
             key = str(e.keysym).lower()
 
             def seleciona_tipo(indice: int):
                 self.tipo.set(self.tipos[indice])
-                self.altera_alternativa('')
+                self.altera_alternativa()
 
             def seleciona_dificuldade(indice: int):
                 self.dificuldade.set(self.dificuldades[indice - 4])
@@ -567,6 +567,19 @@ class Main(CTk, Configs):
         if resposta:
             self.atualizador.atualiza()
             self.after(1200, self.evento_de_fechamento_da_tela)
+
+    def verifica_texto_opcoes(self):
+        if self.get_tipo == D:
+            return False
+        for indice in range(self.contador_de_opcoes):
+            opcao: CaixaDeTexto = self.txt_opcao(indice)
+            texto = opcao.get_texto_completo()
+            if not texto:
+                return True
+        return False
+
+    def txt_opcao(self, indice):
+        return getattr(self, f'txt_opcao{indice}')
 
 
 if __name__ == '__main__':

@@ -126,8 +126,8 @@ class PainelDeConfiguracoes(CTkToplevel):
         self.__master.altera_dark_mode(modo)
         self.focus()
 
-    def altera_escala_do_sistema(self):
-        self.__master.altera_escala_do_sistema()
+    def altera_escala_do_sistema(self, nova_escala):
+        self.__master.altera_escala_do_sistema(nova_escala)
         self.focus()
 
     @staticmethod

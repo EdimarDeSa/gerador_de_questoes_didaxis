@@ -4,7 +4,6 @@ import os.path as path
 from typing import Literal
 
 from customtkinter import CTkFont
-import pandas as pd
 
 from . import CONFIGURACOES, PERFIL, ENCODER
 

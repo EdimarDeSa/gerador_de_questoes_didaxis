@@ -35,7 +35,7 @@ class CaixaDeTexto(CTkTextbox):
 
         self.tag_add(tag_name, self.get_posicao_inicial(palavra), self.get_posicao_final(palavra))
         self.tag_config(tag_name, underline=True, underlinefg="red")
-        self.tag_bind(tag_name, '<Button-3>', lambda event: comando(event, palavra))
+        self.tag_bind(tag_name, '<3>', lambda event, p=palavra: comando(event, p))
 
     def get_nome_da_tag(self, palavra) -> str:
         return self.palavras_com_sugestoes.get(palavra, {}).get('nome_da_tag')

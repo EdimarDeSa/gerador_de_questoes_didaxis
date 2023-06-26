@@ -5,7 +5,6 @@ import urllib.parse
 import tempfile as temp
 import zipfile
 import time
-import argparse
 import shutil
 import tkinter as tk
 from pathlib import Path
@@ -16,13 +15,14 @@ import requests
 
 
 ZIP = '.zip'
-URL_base = 'https://www.efscode.com.br/atualizacoes/'
-URL_download = 'downloads/'
+URL_BASE = 'https://www.efscode.com.br/atualizacoes/'
+DOWNLOAD = 'downloads/'
+NOME_DO_SOFTWARE = 'gerador_de_questoes_didaxis'
 
 
 class Atualizacao(ctk.CTk):
-    def __init__(self, nome='gerador_de_questoes_didaxis'):
-        self.nome_do_software = nome
+    def __init__(self):
+        self.nome_do_software = NOME_DO_SOFTWARE
         self.url_encodada = self.gera_url_atualizacao()
         self.pasta_software = self.busca_arquivo_local()
 
@@ -71,14 +71,14 @@ class Atualizacao(ctk.CTk):
     def verifica_conexao_com_internet(self) -> bool:
         self.atualiza_informacao('Verificando conexão com servidor.')
         try:
-            requests.get(URL_base, timeout=100)
+            requests.get(URL_BASE, timeout=100)
             return True
         except requests.exceptions.ConnectTimeout or requests.exceptions.ConnectionError:
             self.atualiza_informacao('Não foi possível se conectar à internet.')
             self.after(2000, self.evento_de_fechamento_da_tela)
 
     def gera_url_atualizacao(self) -> str:
-        url_versao = URL_base + URL_download + self.nome_do_software + '.zip'
+        url_versao = URL_BASE + DOWNLOAD + self.nome_do_software + '.zip'
         encoded_url_versao = urllib.parse.quote(url_versao, safe=':/')
         return encoded_url_versao
 
@@ -195,12 +195,5 @@ class Atualizacao(ctk.CTk):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-n', '--name', type=str, help='Name of the software')
-    args = parser.parse_args()
-    nome = str(args.name).lstrip(' ')
-    if not nome:
-        del nome
-
     app = Atualizacao()
     app.mainloop()
