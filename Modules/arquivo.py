@@ -5,7 +5,7 @@ import pandas as pd
 from customtkinter import CTkFont, CTkImage
 from PIL import Image
 
-from . import DEFAULT_EXTENSION, FILETYPES, CABECALHO
+from Modules. constants import *
 from Modules.models.questao import ModeloQuestao
 
 

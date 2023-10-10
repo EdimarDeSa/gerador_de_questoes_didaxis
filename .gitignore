@@ -50,5 +50,5 @@ Scripts/
 *.bak
 *.cfg
 *.xlsx
-*.exe
+auto-py-to-exe/
 teste*.py

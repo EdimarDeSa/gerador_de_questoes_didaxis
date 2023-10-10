@@ -6,7 +6,7 @@ from tkinter.messagebox import showerror, showinfo, showwarning, askyesnocancel,
 
 from customtkinter import *
 
-from Modules import FILETYPES, DEFAULT_EXTENSION
+from Modules. constants import *
 from Modules.arquivo import Arquivos, Imagens
 from Modules.configuracoes import Configs
 from Modules.quadro_de_questoes.quadro_de_questoes import QuadroDeQuestoes
@@ -15,12 +15,6 @@ from Modules.corretor_ortografico import PowerfullSpellChecker
 from Modules.models.questao import ModeloQuestao
 from Modules.models.caixa_de_texto import CaixaDeTexto
 from Modules.atualizacao import Atualizacao
-
-
-D = 'Dissertativa'
-ME = 'Multipla escolha 1 correta'
-MEN = 'Multipla escolha n corretas'
-VF = 'Verdadeiro ou falso'
 
 
 # noinspection PyAttributeOutsideInit

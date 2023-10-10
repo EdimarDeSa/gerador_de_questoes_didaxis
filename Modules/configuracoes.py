@@ -5,10 +5,10 @@ from typing import Literal
 
 from customtkinter import CTkFont
 
-from . import CONFIGURACOES, PERFIL, ENCODER
+from Modules. constants import *
 
 
-class Perfil(object):
+class Perfil:
     def __init__(self, local: str):
         self.__PERFIL_FILE = path.join(local, 'perfil.json')
         self.__verifica_dependencias()
@@ -45,7 +45,7 @@ class Perfil(object):
         return self.__profile_dict['escala_do_sistema']
 
 
-class Configuracoes(object):
+class Configuracoes:
     def __init__(self, local: str):
         self.__CONFIGS_FILE = path.join(local, 'configs.json')
         self.__verifica_dependencias()

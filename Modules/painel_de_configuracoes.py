@@ -2,7 +2,7 @@ from subprocess import call
 
 from customtkinter import *
 
-from . import SHORTCUTS, LINK_FEEDBACK_FORM
+from Modules. constants import *
 
 
 class PainelDeConfiguracoes(CTkToplevel):
