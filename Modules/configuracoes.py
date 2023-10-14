@@ -5,7 +5,11 @@ from typing import Literal
 
 from customtkinter import CTkFont
 
-from Modules. constants import *
+from Modules.constants import *
+from Modules.arquivos import Arquivos
+
+
+__all__ = ['Configuracoes']
 
 
 class Perfil:
@@ -46,128 +50,99 @@ class Perfil:
 
 
 class Configuracoes:
-    def __init__(self, local: str):
-        self.__CONFIGS_FILE = path.join(local, 'configs.json')
-        self.__verifica_dependencias()
-        self.__abre_arquivo()
+    def __init__(self, arquivos: Arquivos):
+        self.arquivos = arquivos
 
-        self.root_configs: dict = self.__root_configs
-        self.frame_configs: dict = self.__frame_configs
-        # self.label: dict = self.__label_configs
-        self.list_configs: dict = self.__list_configs
-        self.buttons_configs: dict = self.__buttons_configs
-        self.bt_opcoes_configs: dict = self.__bt_opcoes_configs
-        self.label_configs: dict = self.__label_configs
-        self.scrollable_label_configs: dict = self.__scrollable_label_configs
-        self.text_configs: dict = self.__text_configs
-        self.entry_configs: dict = self.__entry_configs
+        self._CONFIGS_FILE = self.arquivos.BASE / 'configs/configs.json'
+        self._verifica_dependencias()
+        self._configuracoes_dict = self.arquivos.abre_json(self._CONFIGS_FILE)
 
-    def __verifica_dependencias(self):
-        if not path.exists(self.__CONFIGS_FILE):
-            with open(self.__CONFIGS_FILE, mode='w', encoding=ENCODER) as json_file:
-                json.dump(CONFIGURACOES, json_file, indent=2, ensure_ascii=False)
-
-    def __abre_arquivo(self):
-        with open(self.__CONFIGS_FILE, mode='r', encoding=ENCODER) as json_file:
-            self.__configuracoes_dict: dict = json.load(json_file)
+    def _verifica_dependencias(self):
+        if not self._CONFIGS_FILE.exists():
+            self.arquivos.salva_json(self._CONFIGS_FILE, CONFIGURACOES)
 
     def salva_informacao_configuracao(self, param, value):
-        with open(file=self.__CONFIGS_FILE, mode='w', encoding=ENCODER) as json_file:
-            self.__configuracoes_dict[param] = value
-            json.dump(self.__configuracoes_dict, json_file, indent=2, sort_keys=True, ensure_ascii=False)
+        self._configuracoes_dict[param] = value
+        self.arquivos.salva_json(self._CONFIGS_FILE, self._configuracoes_dict)
 
     @property
-    def __fonte_titulo(self):
-        return CTkFont(
-            family=self.__configuracoes_dict['fonte'],
-            size=self.__configuracoes_dict['tamanho_titulo'],
-            weight=self.__configuracoes_dict['fonte_estilo'],
+    def _fonte_titulo(self) -> CTkFont:
+        font = CTkFont(
+            family=self._configuracoes_dict['fonte'],
+            size=self._configuracoes_dict['tamanho_titulo'],
+            weight=self._configuracoes_dict['fonte_estilo'],
             slant='roman',
             underline=False,
             overstrike=False
         )
+        return font
 
     @property
-    def __fonte_texto(self):
-        return CTkFont(
-            family=self.__configuracoes_dict['fonte'],
-            size=self.__configuracoes_dict['tamanho_texto'],
-            weight=self.__configuracoes_dict['fonte_estilo'],
+    def _fonte_texto(self) -> CTkFont:
+        font = CTkFont(
+            family=self._configuracoes_dict['fonte'],
+            size=self._configuracoes_dict['tamanho_texto'],
+            weight=self._configuracoes_dict['fonte_estilo'],
             slant='roman',
             underline=False,
             overstrike=False
         )
+        return font
 
     @property
-    def __root_configs(self) -> dict:
-        return {'background': self.__configuracoes_dict['cor_da_borda']}
+    def root_configs(self) -> dict:
+        return {'background': self._configuracoes_dict['cor_da_borda']}
 
     @property
-    def __frame_configs(self) -> dict:
-        return {'fg_color': self.__configuracoes_dict['cor_de_fundo']}
+    def frame_configs(self) -> dict:
+        return {'fg_color': self._configuracoes_dict['cor_de_fundo']}
 
     @property
-    def __label_configs(self) -> dict:
+    def label_titulos_configs(self) -> dict:
+        return {'font': self._fonte_titulo}
+
+    @property
+    def list_configs(self) -> dict:
+        return {'font': self._fonte_texto}
+
+    @property
+    def buttons_configs(self) -> dict:
+        return {'font': self._fonte_texto}
+
+    @property
+    def bt_opcoes_configs(self) -> dict:
         return {
-            'font': self.__fonte_titulo
+            'background': self._configuracoes_dict['cor_de_fundo'],
+            'activebackground': self._configuracoes_dict['cor_de_fundo']
         }
 
     @property
-    def __list_configs(self) -> dict:
-        return {
-            'font': self.__fonte_texto,
-        }
+    def text_configs(self) -> dict:
+        return {'undo': True, 'wrap': 'word', 'autoseparators': True, 'exportselection': True, 'maxundo': 5}
 
     @property
-    def __buttons_configs(self) -> dict:
-        return {
-            'font': self.__fonte_texto,
-        }
+    def entry_configs(self) -> dict:
+        return {'font': self._fonte_texto, 'exportselection': True}
 
     @property
-    def __bt_opcoes_configs(self) -> dict:
-        return {
-            'background': self.__configuracoes_dict['cor_de_fundo'],
-            'activebackground': self.__configuracoes_dict['cor_de_fundo']
-        }
-
-    @property
-    def __text_configs(self) -> dict:
-        return dict(
-            undo=True, wrap='word',
-            autoseparators=True,
-            exportselection=True,
-            maxundo=5,
-        )
-
-    @property
-    def __entry_configs(self) -> dict:
-        return dict(
-            font=self.__fonte_texto,
-            exportselection=True
-        )
-
-    @property
-    def __scrollable_label_configs(self):
-        return dict(
-            label_font=self.__fonte_texto
-        )
+    def scrollable_label_configs(self):
+        return {'label_font': self._fonte_texto}
 
     @property
     def tipos(self) -> list:
-        tipos: list = self.__configuracoes_dict['tipos']
+        tipos: list = self._configuracoes_dict['tipos']
         tipos.sort()
         return tipos
 
     @property
     def unidades(self) -> list:
-        unidades: list = self.__configuracoes_dict['unidades']
+        unidades: list = self._configuracoes_dict['unidades']
         unidades.sort()
         return unidades
 
     @property
     def dificuldades(self) -> list:
-        return self.__configuracoes_dict['dificuldades']
+        return self._configuracoes_dict['dificuldades']
 
 
 class Dicionario:
@@ -202,7 +177,7 @@ class Configs(Configuracoes, Perfil):
         if diretorio_base is None:
             diretorio_base = self.__get_desktop_directory()
         self.__CONFIGS_DIR = path.join(diretorio_base, 'configs')
-        self.__verifica_dependencias()
+        self._verifica_dependencias()
         self.__DICIONARIO_FILE = path.join(self.__CONFIGS_DIR, 'dicionario_pessoal.json')
         self.dicionario_pessoal = Dicionario(self.__CONFIGS_DIR)
 
@@ -220,7 +195,7 @@ class Configs(Configuracoes, Perfil):
         Configuracoes.__init__(self, self.__CONFIGS_DIR)
         Perfil.__init__(self, self.__CONFIGS_DIR)
 
-    def __verifica_dependencias(self):
+    def _verifica_dependencias(self):
         if not path.exists(self.__CONFIGS_DIR):
             os.mkdir(self.__CONFIGS_DIR)
 

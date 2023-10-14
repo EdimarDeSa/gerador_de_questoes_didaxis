@@ -6,30 +6,33 @@ from tkinter.messagebox import showerror, showinfo, showwarning, askyesnocancel,
 
 from customtkinter import *
 
-from Modules. constants import *
-from Modules.arquivo import Arquivos, Imagens
-from Modules.configuracoes import Configs
+from Modules.constants import *
+from Modules.arquivos import Arquivos
+from Modules.imagens import Imagens
+from Modules.perfil import Perfil
+from Modules.configuracoes import *
 from Modules.quadro_de_questoes.quadro_de_questoes import QuadroDeQuestoes
 from Modules.painel_de_configuracoes import PainelDeConfiguracoes
-from Modules.corretor_ortografico import PowerfullSpellChecker
+from Modules.corretor_ortografico import CorretorOrtografico
 from Modules.models.questao import ModeloQuestao
 from Modules.models.caixa_de_texto import CaixaDeTexto
 from Modules.atualizacao import Atualizacao
 
 
 # noinspection PyAttributeOutsideInit
-class Main(CTk, Configs):
+class Main(CTk):
     __version__ = 3.1
     __author__ = 'Edimar Freitas de Sá'
     __annotations__ = 'edimarfreitas95@gmail.com'
 
     def __init__(self):
-        self.local = Path(__file__).resolve().parent
         self.caminho_arquivo: str = ''
-
-        Configs.__init__(self, self.local)
-        self.arquivos = Arquivos(self.local)
-        self.imagens = Imagens(self.local)
+        CTk.__init__(self)
+        
+        self.arquivos = Arquivos()
+        self.configs = Configuracoes(self.arquivos)
+        self.perfil = Perfil(self.arquivos)
+        self.imagens = Imagens(self.arquivos)
         self.init_root()
 
         self.var_opcao_correta_radio_bt = IntVar()
@@ -58,31 +61,30 @@ class Main(CTk, Configs):
         self.questao_em_edicao: [ModeloQuestao, None] = None
         self.exportado: bool = True
         self.painel_de_configuracoes: PainelDeConfiguracoes
-        self.corretor_ortografico = PowerfullSpellChecker(timeout=500, dicionario_pessoal=self.dicionario_pessoal)
+        self.corretor_ortografico = CorretorOrtografico(timeout=500, dicionario_pessoal=self.perfil.dicionario_pessoal)
         self.atualizador: Atualizacao
 
         self.init_frames()
-        self.configure_form()
-        self.init_binds()
+        # self.configure_form()
+        # self.init_binds()
 
-        self.after(500, self.verifica_atualizacao)
+        # self.after(500, self.verifica_atualizacao)
 
     def init_root(self):
-        CTk.__init__(self)
-        self.abre_configuracoes_e_perfil()
         largura_tela = self.winfo_screenwidth()
         altura_tela = self.winfo_screenheight()
         largura_do_quadro = int(largura_tela * 0.95)
         altura_do_quadro = int(altura_tela * 0.9)
-        x_inicial = int((largura_tela - largura_do_quadro) / 2)
-        y_inicial = int((altura_tela - altura_do_quadro - 50) / 10)
+        x_inicial = (largura_tela - largura_do_quadro) // 2
+        y_inicial = (altura_tela - altura_do_quadro - 75) // 2
+
         self.geometry(f'{largura_do_quadro}x{altura_do_quadro}+{x_inicial}+{y_inicial}')
-        self.minsize(largura_do_quadro, altura_do_quadro)
-        self.configure(**self.root_configs)
+        self.resizable(False, False)
+        self.configure(**self.configs.root_configs)
         self.set_titulo()
 
         set_default_color_theme('green')
-        self.altera_escala_do_sistema(self.perfil_escala_do_sistema)
+        self.altera_escala_do_sistema(self.perfil.escala_do_sistema)
 
     def init_frames(self):
         n_question_frame = CTkFrame(self)
@@ -112,58 +114,58 @@ class Main(CTk, Configs):
     def create_questions_frame(self):
         questions_frame = CTkFrame(self)
         questions_frame.place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
-        self.questions_board = QuadroDeQuestoes(questions_frame, self.imagens, **self.scrollable_label_configs)
+        self.questions_board = QuadroDeQuestoes(questions_frame, self.imagens, **self.configs.scrollable_label_configs)
 
     def create_n_questoes_frame_widgets(self, frame):
-        CTkLabel(frame, textvariable=self.var_quantidade_de_questoes, **self.label_configs, wraplength=85).pack(
+        CTkLabel(frame, textvariable=self.var_quantidade_de_questoes, **self.configs.label_titulos_configs, wraplength=85).pack(
             expand=True)
 
     def create_question_configs_frame_widgets(self, frame):
-        CTkLabel(frame, **self.label_configs, text='Unidade').grid(column=0, row=0, padx=20)
-        self.unidade = CTkOptionMenu(frame, **self.list_configs, values=self.unidades, width=165,
+        CTkLabel(frame, **self.configs.label_titulos_configs, text='Unidade').grid(column=0, row=0, padx=20)
+        self.unidade = CTkOptionMenu(frame, **self.configs.list_configs, values=self.configs.unidades, width=165,
                                      dynamic_resizing=False)
         self.unidade.grid(column=0, row=1, padx=20, pady=(0, 20))
 
-        CTkLabel(frame, **self.label_configs, text='Código do curso').grid(column=1, row=0, padx=20)
-        self.codigo_do_curso = CTkEntry(frame, **self.entry_configs, placeholder_text=f'TELEC-XXXX')
+        CTkLabel(frame, **self.configs.label_titulos_configs, text='Código do curso').grid(column=1, row=0, padx=20)
+        self.codigo_do_curso = CTkEntry(frame, **self.configs.entry_configs, placeholder_text=f'TELEC-XXXX')
         self.codigo_do_curso.grid(column=1, row=1, padx=20, pady=(0, 20))
 
-        CTkLabel(frame, **self.label_configs, text='Tempo de resposta').grid(column=2, row=0, padx=20)
-        self.tempo = CTkEntry(frame, **self.entry_configs, placeholder_text='00:00:00')
+        CTkLabel(frame, **self.configs.label_configs, text='Tempo de resposta').grid(column=2, row=0, padx=20)
+        self.tempo = CTkEntry(frame, **self.configs.entry_configs, placeholder_text='00:00:00')
         self.tempo.grid(column=2, row=1, padx=20, pady=(0, 20))
 
-        CTkLabel(frame, **self.label_configs, text='Tipo da questão').grid(column=0, row=2, padx=20)
-        self.tipo = CTkOptionMenu(frame, **self.list_configs, values=self.tipos, width=165,
+        CTkLabel(frame, **self.configs.label_configs, text='Tipo da questão').grid(column=0, row=2, padx=20)
+        self.tipo = CTkOptionMenu(frame, **self.configs.list_configs, values=self.tipos, width=165,
                                   command=self.altera_alternativa, dynamic_resizing=False)
         self.tipo.grid(column=0, row=3, padx=20, pady=(0, 20))
 
-        CTkLabel(frame, **self.label_configs, text='Dificuldade').grid(column=1, row=2, padx=20)
-        self.dificuldade = CTkOptionMenu(frame, **self.list_configs, values=self.dificuldades,
+        CTkLabel(frame, **self.configs.label_configs, text='Dificuldade').grid(column=1, row=2, padx=20)
+        self.dificuldade = CTkOptionMenu(frame, **self.configs.list_configs, values=self.dificuldades,
                                          dynamic_resizing=False)
         self.dificuldade.grid(column=1, row=3, padx=20, pady=(0, 20))
 
-        CTkLabel(frame, **self.label_configs, text='Peso da questão').grid(column=2, row=2, padx=20)
-        self.peso = CTkEntry(frame, **self.entry_configs, placeholder_text='1')
+        CTkLabel(frame, **self.configs.label_configs, text='Peso da questão').grid(column=2, row=2, padx=20)
+        self.peso = CTkEntry(frame, **self.configs.entry_configs, placeholder_text='1')
         self.peso.grid(column=2, row=3, padx=20, pady=(0, 20))
 
     def create_question_frame_widgets(self, frame):
-        CTkLabel(frame, **self.label_configs, text='Enunciado da questão').grid(row=0, column=0, padx=20)
-        self.pergunta = CaixaDeTexto(frame, **self.text_configs, height=90)
+        CTkLabel(frame, **self.configs.label_configs, text='Enunciado da questão').grid(row=0, column=0, padx=20)
+        self.pergunta = CaixaDeTexto(frame, **self.configs.text_configs, height=90)
         self.pergunta.grid(row=1, column=0, rowspan=2, padx=10, pady=10, ipadx=260)
 
-        CTkLabel(frame, **self.label_configs, text='Opção').grid(row=0, column=1)
-        self.bt_add_opcao = CTkButton(frame, **self.buttons_configs, text='+', command=self.add_alternativa,
+        CTkLabel(frame, **self.configs.label_configs, text='Opção').grid(row=0, column=1)
+        self.bt_add_opcao = CTkButton(frame, **self.configs.buttons_configs, text='+', command=self.add_alternativa,
                                       width=30, height=30)
         self.bt_add_opcao.grid(row=1, column=1, padx=10)
-        self.bt_rm_opcao = CTkButton(frame, **self.buttons_configs, text='-',
+        self.bt_rm_opcao = CTkButton(frame, **self.configs.buttons_configs, text='-',
                                      command=self.rm_alternativa, width=30, height=30)
         self.bt_rm_opcao.grid(row=2, column=1, padx=10)
 
     def create_options_frame_widgets(self, frame):
-        CTkLabel(frame, text='Opções', **self.label_configs).place(relx=0.47, rely=0.01)
+        CTkLabel(frame, text='Opções', **self.configs.label_configs).place(relx=0.47, rely=0.01)
 
         for index in range(5):
-            texto = CaixaDeTexto(frame, **self.text_configs, height=50)
+            texto = CaixaDeTexto(frame, **self.configs.text_configs, height=50)
             setattr(self, f'txt_opcao{index}', texto)
             self.corretor_ortografico.monitora_textbox(texto)
 
@@ -176,15 +178,15 @@ class Main(CTk, Configs):
         self.contador_de_opcoes = 0
 
     def create_bts_frame_widgets(self, frame):
-        self.bt_configs = CTkButton(frame, **self.buttons_configs, text='', width=30, height=30,
+        self.bt_configs = CTkButton(frame, **self.configs.buttons_configs, text='', width=30, height=30,
                                     image=self.imagens.bt_configs_img(), command=self.abre_menu_configuracoes)
         self.bt_configs.grid(column=0, row=0, pady=10, padx=5)
 
-        self.bt_exportar = CTkButton(frame, **self.buttons_configs, text='Exportar', width=400, height=30,
+        self.bt_exportar = CTkButton(frame, **self.configs.buttons_configs, text='Exportar', width=400, height=30,
                                      command=self.exportar)
         self.bt_exportar.grid(column=1, row=0, pady=10)
 
-        self.bt_salvar = CTkButton(frame, **self.buttons_configs, text='Salvar', width=400, height=30,
+        self.bt_salvar = CTkButton(frame, **self.configs.buttons_configs, text='Salvar', width=400, height=30,
                                    command=self.salvar)
         self.bt_salvar.grid(column=2, row=0, pady=10, padx=5)
 

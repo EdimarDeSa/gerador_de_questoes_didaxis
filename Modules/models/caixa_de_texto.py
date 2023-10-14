@@ -1,6 +1,9 @@
 from customtkinter import CTkTextbox
 
 
+__all__ = ['CaixaDeTexto']
+
+
 class CaixaDeTexto(CTkTextbox):
     def __init__(self, master=None, **kwargs):
         super(CaixaDeTexto, self).__init__(master=master, **kwargs)

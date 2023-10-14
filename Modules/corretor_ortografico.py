@@ -1,30 +1,25 @@
 from threading import Thread
 from tkinter import Menu, TclError
 
-from spellchecker.spellchecker import SpellChecker
+from spellchecker import *
 
-from .models.caixa_de_texto import CaixaDeTexto
-from .configuracoes import Dicionario
-
-
-ADD = 'Adicionar'
+from .models.caixa_de_texto import *
+from Modules.perfil import *
+from Modules.constants import *
 
 
-class PowerfullSpellChecker(SpellChecker):
-    def __init__(self, timeout=500, dicionario_pessoal: Dicionario=None, max_threads=2):
-        self.__dicionario_pessoal = dicionario_pessoal
+class CorretorOrtografico(SpellChecker):
+    def __init__(self, perfil: Perfil, timeout=500, max_threads=2):
+        self.perfil = perfil
+        self.__corretor_ortografico = SpellChecker(
+            distance=2, case_sensitive=True, local_dictionary=str(perfil.CAMINHO_DICIONARIO_PESSOAL),
+        )
+
         self.__timeout = timeout
         self.__max_threads = max_threads
         self.__timer = None
         self.__timer = None
         self.__running_threads = 0
-
-        self.__inicia_corretor()
-
-    def __inicia_corretor(self):
-        self.__corretor_ortografico = SpellChecker(
-            distance=2, case_sensitive=True, local_dictionary=self.__dicionario_pessoal.caminho_dicionario_pessoal,
-        )
 
     def monitora_textbox(self, textbox: CaixaDeTexto):
         textbox.bind('<KeyRelease>', lambda event: self.__inicia_temporizador(event))
@@ -97,7 +92,7 @@ class PowerfullSpellChecker(SpellChecker):
         text_widget.focus_set()
 
     def __aplica_adicao(self, text_widget, start_index, end_index, tag_name, palavra):
-        self.__dicionario_pessoal.add_palavra(palavra)
+        self.dicionario_pessoal.add_palavra(palavra)
         text_widget.tag_remove(tag_name, start_index, end_index)
 
     def __aplica_substituicao(self, text_widget, start_index, end_index, tag_name, correction):

@@ -63,20 +63,20 @@ class PainelDeConfiguracoes(CTkToplevel):
                  **self.__master.label_configs).grid(row=1, column=0, padx=20, pady=(10, 0))
         CTkSwitch(frame_configs, variable=self.__master.var_apagar_enunciado, text='',
                   command=self.altera_opcao_apagar_enunciado).grid(row=2, column=0, padx=20, sticky='e')
-        self.__master.var_apagar_enunciado.set(self.__master.perfil_apagar_enunciado)
+        self.__master.var_apagar_enunciado.set(self.__master.apagar_enunciado)
 
         CTkLabel(frame_configs, text='Dark mode',
                  **self.__master.label_configs).grid(row=3, column=0, padx=20, pady=(10, 0))
         CTkOptionMenu(frame_configs, values=["Light", "Dark", "System"], variable=self.__master.var_dark_mode,
                       command=self.altera_dark_mode).grid(row=4, column=0, padx=20)
-        self.__master.var_dark_mode.set(self.__master.perfil_aparencia_do_sistema)
+        self.__master.var_dark_mode.set(self.__master.aparencia_do_sistema)
 
         CTkLabel(frame_configs, text='Escala do sistema', **self.__master.label_configs).grid(row=5, column=0, padx=20,
                                                                                               pady=(10, 0))
         porcentagens = ["80%", "90%", "100%", "110%", "120%"]
         CTkOptionMenu(frame_configs, values=porcentagens, variable=self.__master.var_escala_do_sistema,
                       command=self.altera_escala_do_sistema).grid(row=6, column=0, padx=20, pady=(0, 20))
-        self.__master.var_escala_do_sistema.set(self.__master.perfil_escala_do_sistema)
+        self.__master.var_escala_do_sistema.set(self.__master.escala_do_sistema)
 
     def create_tab_ajuda_widgets(self, tabela):
         frame_atalhos = CTkScrollableFrame(tabela, height=260)

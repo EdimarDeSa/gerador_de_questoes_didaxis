@@ -1,3 +1,5 @@
+from tkinter.constants import *
+
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'
 MEN = 'Multipla escolha n corretas'
@@ -67,3 +69,10 @@ CABECALHO: list[str] = [
     'ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA',
     'CORRETA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE'
 ]
+
+# Place Holders
+PLACE_HOLDER_CODIGO = 'TELEC-PXXXX'
+PLACE_HOLDER_TEMPO = '00:00:00'
+PLACE_HOLDER_PESO = '1'
+
+ADD = 'Adicionar'
