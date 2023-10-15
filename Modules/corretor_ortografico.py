@@ -8,6 +8,9 @@ from Modules.perfil import *
 from Modules.constants import *
 
 
+__all__ = ['CorretorOrtografico']
+
+
 class CorretorOrtografico(SpellChecker):
     def __init__(self, perfil: Perfil, timeout=500, max_threads=2):
         self.perfil = perfil
@@ -22,7 +25,7 @@ class CorretorOrtografico(SpellChecker):
         self.__running_threads = 0
 
     def monitora_textbox(self, textbox: CaixaDeTexto):
-        textbox.bind('<KeyRelease>', lambda event: self.__inicia_temporizador(event))
+        textbox.bind('<KeyRelease>', lambda event: self.__inicia_temporizador(event), add='+')
 
     def __inicia_temporizador(self, event):
         if len(event.keysym) != 1:
@@ -44,7 +47,7 @@ class CorretorOrtografico(SpellChecker):
         palavras_erradas = self.__corretor_ortografico.unknown(palavras)
         for palavra in palavras_erradas:
             sugeridas = self.__corretor_ortografico.candidates(palavra)
-            self.__text_widget.registr_possiveis_correcoes(palavra, sugeridas)
+            self.__text_widget.registra_possiveis_correcoes(palavra, sugeridas)
             try:
                 start_index = self.__text_widget.search(palavra, '1.0', 'end')
                 end_index = self.__text_widget.search(r'\s|[\.,!?:;\)]', start_index, stopindex='end', regexp=True)

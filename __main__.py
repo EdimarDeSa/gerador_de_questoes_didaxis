@@ -7,8 +7,10 @@ from Modules.constants import *
 from Modules.configuracoes import *
 from Modules.perfil import *
 from Modules.janelas import *
+from Modules.models.caixa_de_texto import *
 
 
+# noinspection PyAttributeOutsideInit
 class Main(CTk):
     def __init__(self):
         super(Main, self).__init__()
@@ -59,23 +61,38 @@ class Main(CTk):
         self.var_escala_do_sistema = StringVar(value='100%')
         self.var_unidade_padrao = StringVar()
 
+        # Variaveis das opcoes
+        self.var_lista_txt_box: list[CaixaDeTexto] = []
+        self.var_lista_rd_bts: list[CTkRadioButton] = []
+        self.var_lista_ck_bts: list[CTkCheckBox] = []
+
     def configura_ui_form_questao(self):
-        self.janela_quantidade_de_questoes = JanelaQuantidadeDeQuestoes(self, self.configs, self.var_quantidade_de_questoes)
+        self.janela_quantidade_de_questoes = JanelaQuantidadeDeQuestoes(
+            self, self.configs, self.var_quantidade_de_questoes
+        )
         self.janela_quantidade_de_questoes.place(relx=0.01, rely=0.02, relwidth=0.08, relheight=0.19)
 
-        self.janela_parametros_da_questao = JanelaParametrosDaQuestao(self, self.configs, self.var_unidade_padrao)
+        self.janela_parametros_da_questao = JanelaParametrosDaQuestao(
+            self, self.configs, self.var_unidade_padrao
+        )
         self.janela_parametros_da_questao.place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
 
-        self.janela_enunciado_da_questao = JanelaEnunciadoDaQuestao(self, self.configs)
+        self.janela_enunciado_da_questao = JanelaEnunciadoDaQuestao(
+            self, self.configs, self.var_contador_de_opcoes, self.janela_parametros_da_questao.tipo,
+            self.var_lista_txt_box, self.var_lista_rd_bts, self.var_lista_ck_bts, corretor=self.corretor_ortografico
+        )
         self.janela_enunciado_da_questao.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
 
         self.janela_opcoes_da_questao = JanelaOpcoesDaQuestao(
-            self, self.configs, self.var_opcao_correta_radio_bt, self.var_contador_de_opcoes,
-            corretor=self.corretor_ortografico
+            self, self.configs, self.var_opcao_correta_radio_bt, self.var_lista_txt_box, self.var_lista_rd_bts,
+            self.var_lista_ck_bts, corretor=self.corretor_ortografico
         )
         self.janela_opcoes_da_questao.place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
-        self.janela_de_botoes = JanelaDeBotoes(self, self.configs, self.imagens, self.arquivos)
+        self.janela_de_botoes = JanelaDeBotoes(
+            self, self.configs, self.imagens, self.arquivos, self.perfil,
+            self.var_unidade_padrao, self.var_apagar_enunciado, self.var_dark_mode, self.var_escala_do_sistema
+        )
         self.janela_de_botoes.place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
     def configura_ui_quadro_de_questoes(self):

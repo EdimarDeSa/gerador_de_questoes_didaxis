@@ -8,7 +8,7 @@ __all__ = ['JanelaParametrosDaQuestao']
 
 class JanelaParametrosDaQuestao(CTkFrame):
     def __init__(
-            self, master: CTk, configs: Configuracoes, var_unidade_padrao: StringVar, cmd_altera_tipo_questao=None,
+            self, master: CTk, configs: Configuracoes, var_unidade_padrao: StringVar,
             **kwargs
     ):
         super().__init__(master)
@@ -29,11 +29,9 @@ class JanelaParametrosDaQuestao(CTkFrame):
         self.tempo.grid(column=2, row=1, padx=20, pady=(0, 20))
 
         CTkLabel(self, **configs.label_titulos_configs, text='Tipo da questão').grid(column=0, row=2, padx=20)
-        self.tipo = CTkOptionMenu(
-            self, **configs.list_configs, values=configs.tipos, width=165, dynamic_resizing=False,
-            command=cmd_altera_tipo_questao
-        )
+        self.tipo = CTkOptionMenu(self, **configs.list_configs, values=configs.tipos, width=165, dynamic_resizing=False)
         self.tipo.grid(column=0, row=3, padx=20, pady=(0, 20))
+        self.tipo.set(configs.tipos[1])
 
         CTkLabel(self, **configs.label_titulos_configs, text='Dificuldade').grid(column=1, row=2, padx=20)
         self.dificuldade = CTkOptionMenu(

@@ -1,5 +1,8 @@
 from tkinter.constants import *
 
+__version__ = '3.2.1'
+
+
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'
 MEN = 'Multipla escolha n corretas'
@@ -76,3 +79,9 @@ PLACE_HOLDER_TEMPO = '00:00:00'
 PLACE_HOLDER_PESO = '1'
 
 ADD = 'Adicionar'
+RED = '#FA0000'
+
+MAXIMO_DE_CARACTERES = 255
+PORCENTAGENS = ["80%", "90%", "100%", "110%", "120%"]
+APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
+

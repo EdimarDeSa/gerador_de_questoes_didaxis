@@ -2,13 +2,29 @@ from subprocess import call
 
 from customtkinter import *
 
-from Modules. constants import *
+from Modules.constants import *
+from Modules.configuracoes import *
+from Modules.perfil import *
+from Modules.constants import __version__
+
+
+__all__ = ['PainelDeConfiguracoes']
 
 
 class PainelDeConfiguracoes(CTkToplevel):
-    def __init__(self, master=None, **kwargs):
-        self.__master = master
-        super(PainelDeConfiguracoes, self).__init__(master, **kwargs)
+    def __init__(
+            self, master, configs: Configuracoes, perfil: Perfil, var_unidade_padrao: StringVar,
+            var_apagar_enunciado: BooleanVar, var_dark_mode: StringVar, var_escala_do_sistema: StringVar, **kwargs
+    ):
+        self._master = master
+        self.perfil = perfil
+        self.configs = configs
+        self.var_unidade_padrao = var_unidade_padrao
+        self.var_apagar_enunciado = var_apagar_enunciado
+        self.var_dark_mode = var_dark_mode
+        self.var_escala_do_sistema = var_escala_do_sistema
+
+        super().__init__(master, **kwargs)
         self.configura_tela()
 
         self.__init_tabela()
@@ -47,57 +63,59 @@ class PainelDeConfiguracoes(CTkToplevel):
 
         frame_unidade = CTkScrollableFrame(tabela, label_text='Unidade padrão')
         frame_unidade.grid(row=0, column=1, rowspan=2, ipady=60, pady=(10, 0))
-        for indice, unidade in enumerate(self.__master.unidades):
-            CTkRadioButton(frame_unidade, text=unidade, value=unidade, variable=self.__master.var_nova_unidade_padrao,
+        for indice, unidade in enumerate(self.configs.unidades):
+            CTkRadioButton(frame_unidade, text=unidade, value=unidade, variable=self.var_unidade_padrao,
                            command=self.altera_unidade_padrao).pack(ipadx=10, padx=5, pady=(0, 5), anchor='e', fill='x')
 
-        self.__master.var_nova_unidade_padrao.set(self.__master.configuracao_unidade_padrao)
+        self.var_unidade_padrao.set(self.perfil)
 
         frame_configs = CTkFrame(tabela)
         frame_configs.grid(row=1, column=0, pady=(30, 0))
         frame_configs.columnconfigure(0, weight=2)
         CTkLabel(frame_configs, text='Configurações gerais',
-                 **self.__master.label_configs).grid(row=0, column=0, padx=20)
+                 **self.configs.label_titulos_configs).grid(row=0, column=0, padx=20)
 
         CTkLabel(frame_configs, text='Apagar enunciado ao salvar',
-                 **self.__master.label_configs).grid(row=1, column=0, padx=20, pady=(10, 0))
-        CTkSwitch(frame_configs, variable=self.__master.var_apagar_enunciado, text='',
+                 **self.configs.label_titulos_configs).grid(row=1, column=0, padx=20, pady=(10, 0))
+        CTkSwitch(frame_configs, variable=self.var_apagar_enunciado, text='',
                   command=self.altera_opcao_apagar_enunciado).grid(row=2, column=0, padx=20, sticky='e')
-        self.__master.var_apagar_enunciado.set(self.__master.apagar_enunciado)
+        self.var_apagar_enunciado.set(self.perfil.apagar_enunciado)
 
         CTkLabel(frame_configs, text='Dark mode',
-                 **self.__master.label_configs).grid(row=3, column=0, padx=20, pady=(10, 0))
-        CTkOptionMenu(frame_configs, values=["Light", "Dark", "System"], variable=self.__master.var_dark_mode,
+                 **self.configs.label_titulos_configs).grid(row=3, column=0, padx=20, pady=(10, 0))
+        CTkOptionMenu(frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self.var_dark_mode,
                       command=self.altera_dark_mode).grid(row=4, column=0, padx=20)
-        self.__master.var_dark_mode.set(self.__master.aparencia_do_sistema)
+        self.var_dark_mode.set(self.perfil.aparencia_do_sistema)
 
-        CTkLabel(frame_configs, text='Escala do sistema', **self.__master.label_configs).grid(row=5, column=0, padx=20,
-                                                                                              pady=(10, 0))
-        porcentagens = ["80%", "90%", "100%", "110%", "120%"]
-        CTkOptionMenu(frame_configs, values=porcentagens, variable=self.__master.var_escala_do_sistema,
+        CTkLabel(
+            frame_configs, text='Escala do sistema', **self.configs.label_titulos_configs
+        ).grid(row=5, column=0, padx=20, pady=(10, 0))
+
+        CTkOptionMenu(frame_configs, values=PORCENTAGENS, variable=self.var_escala_do_sistema,
                       command=self.altera_escala_do_sistema).grid(row=6, column=0, padx=20, pady=(0, 20))
-        self.__master.var_escala_do_sistema.set(self.__master.escala_do_sistema)
+        self.var_escala_do_sistema.set(self.perfil.escala_do_sistema)
 
     def create_tab_ajuda_widgets(self, tabela):
         frame_atalhos = CTkScrollableFrame(tabela, height=260)
-        frame_atalhos.pack(fill='both', expand=True, padx=20, pady=(0, 10))
+        frame_atalhos.pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
         frame_atalhos.columnconfigure((0, 1), weight=1)
         posicao = {'padx': 2, 'pady': 5}
+
         for i, informacoes_atalho in enumerate(SHORTCUTS):
             descricao, atalho = informacoes_atalho
             CTkLabel(frame_atalhos, text=descricao,
-                     **self.__master.label_configs).grid(column=0, row=i, sticky='e', **posicao)
+                     **self.configs.label_titulos_configs).grid(column=0, row=i, sticky='e', **posicao)
             CTkLabel(frame_atalhos, text=atalho,
-                     **self.__master.label_configs).grid(column=1, row=i, sticky='w', **posicao)
+                     **self.configs.label_titulos_configs).grid(column=1, row=i, sticky='w', **posicao)
 
         frame_versao = CTkFrame(tabela, height=32)
         frame_versao.pack(fill='both', expand=True, padx=20, pady=(0, 10))
         frame_versao.columnconfigure((0, 1), weight=1)
         frame_versao.rowconfigure(0, weight=3)
-        CTkLabel(frame_versao, **self.__master.label_configs,
-                 text=f'Versão: {self.__master.__version__}').grid(row=0, column=0)
+        CTkLabel(frame_versao, **self.configs.label_titulos_configs,
+                 text=f'Versão: {__version__}').grid(row=0, column=0)
         CTkButton(frame_versao, text='Verificar atualização',
-                  command=self.__master.verifica_atualizacao).grid(row=0, column=1)
+                  command='self._master.verifica_atualizacao').grid(row=0, column=1)
 
         frame_feedback = CTkFrame(tabela, height=32)
         frame_feedback.pack(fill='both', expand=True, padx=20, pady=(0, 10))
@@ -107,27 +125,27 @@ class PainelDeConfiguracoes(CTkToplevel):
                   command=self.abre_feedback).grid(row=0, column=0, padx=10)
 
     def abrir(self):
-        self.__master.abrir()
+        self._master.abrir()
         self.destroy()
 
     def salvar_como(self):
-        self.__master.salvar_como()
+        self._master.salvar_como()
         self.destroy()
 
     def altera_unidade_padrao(self):
-        self.__master.altera_unidade_padrao()
+        self._master.altera_unidade_padrao()
         self.focus()
 
     def altera_opcao_apagar_enunciado(self):
-        self.__master.altera_opcao_apagar_enunciado()
+        self._master.altera_opcao_apagar_enunciado()
         self.focus()
 
     def altera_dark_mode(self, modo: str):
-        self.__master.altera_dark_mode(modo)
+        self._master.altera_dark_mode(modo)
         self.focus()
 
     def altera_escala_do_sistema(self, nova_escala):
-        self.__master.altera_escala_do_sistema(nova_escala)
+        self._master.altera_escala_do_sistema(nova_escala)
         self.focus()
 
     @staticmethod
@@ -135,7 +153,7 @@ class PainelDeConfiguracoes(CTkToplevel):
         call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)
 
     def focus(self):
-        self.__master.after(300, self.focus_force)
+        self._master.after(300, self.focus_force)
 
     def abre_ajuda(self):
         self.tabview.set('Ajuda')
