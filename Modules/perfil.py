@@ -27,7 +27,7 @@ class Perfil:
             self.arquivos.cria_dicionario_pessoal(self.CAMINHO_DICIONARIO_PESSOAL)
 
     @property
-    def configuracao_unidade_padrao(self) -> str:
+    def unidade_padrao(self) -> str:
         return self._profile_dict['unidade_padrao']
 
     @property

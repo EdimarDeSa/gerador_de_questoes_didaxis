@@ -1,32 +1,25 @@
-from customtkinter import CTk, CTkFrame, CTkLabel, CTkRadioButton, CTkCheckBox, IntVar, CTkScrollableFrame
-from Modules.configuracoes import *
-from Modules.models.caixa_de_texto import CaixaDeTexto
-from Modules.corretor_ortografico import CorretorOrtografico
-
-from Modules.constants import *
-
-__all__ = ['JanelaOpcoesDaQuestao']
+from Modules.models.globalvars import *
 
 
-class JanelaOpcoesDaQuestao(CTkScrollableFrame):
-    def __init__(
-            self, master: CTk, configs: Configuracoes, var_opcao_rd_bt: IntVar,  lista_txt_box: list,
-            lista_rd_bts: list, lista_ck_bts: list, **kwargs
-    ):
-        super().__init__(master)
-        corretor: CorretorOrtografico = kwargs['corretor']
+class JanelaOpcoesDaQuestao(CTkFrame):
+    def __init__(self, master: CTk, variaveis_globais: VariaveisGlobais, **kwargs):
+        super().__init__(master, **kwargs)
 
-        CTkLabel(self, text=None).grid(row=0, column=0)
-        CTkLabel(self, text='Opções', **configs.label_titulos_configs).place(relx=0.47, rely=0.01)
-        self.grid_columnconfigure(0, minsize=800)
+        self.gvar = variaveis_globais
+
+        sc_frame = CTkScrollableFrame(self)
+        sc_frame.pack(expand=ON, fill=BOTH)
+
+        CTkLabel(sc_frame, text=None).grid(row=0, column=0)
+        CTkLabel(sc_frame, text='Opções', **self.gvar.configs.label_titulos_configs).place(relx=0.47, rely=0.01)
 
         for index in range(10):
-            texto = CaixaDeTexto(self, **configs.text_configs, height=50)
-            corretor.monitora_textbox(texto)
-            lista_txt_box.append(texto)
+            texto = CaixaDeTexto(sc_frame, width=650, height=50, **self.gvar.configs.text_configs)
+            self.gvar.corretor_ortografico.monitora_textbox(texto)
+            self.gvar.lista_txt_box.append(texto)
 
-            rd_button = CTkRadioButton(self, text=None, value=index, variable=var_opcao_rd_bt)
-            lista_rd_bts.append(rd_button)
+            rd_button = CTkRadioButton(sc_frame, text=None, value=index, variable=self.gvar.opcao_correta_radio_bt)
+            self.gvar.lista_rd_bts.append(rd_button)
 
-            ck_button = CTkCheckBox(self, text=None)
-            lista_ck_bts.append(ck_button)
+            ck_button = CTkCheckBox(sc_frame, text=None)
+            self.gvar.lista_ck_bts.append(ck_button)

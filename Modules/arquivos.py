@@ -4,16 +4,14 @@ import pickle
 import tempfile
 
 from Modules.constants import *
-
-
-__all__ = ['Arquivos']
+from tkinter.filedialog import asksaveasfilename
 
 
 class Arquivos:
     def __init__(self):
         self.BASE = Path(__file__).resolve().parent.parent
 
-        self.exportado = False
+        self.caminho_atual: Path | None = None
 
         self._temp_dir = tempfile.gettempdir()
 
@@ -36,3 +34,10 @@ class Arquivos:
 
     def cria_dicionario_pessoal(self, path: Path):
         self.salva_json(path, self.abre_bin(self.BASE / './configs/lista_de_paralvras.bin').split())
+
+    def caminho_para_salvar(self, titulo):
+        caminho = asksaveasfilename(
+            confirmoverwrite=ON, defaultextension=DEFAULT_EXTENSION, filetypes=FILETYPES, initialdir=self.BASE,
+            title=titulo, initialfile='novo_banco'
+        )
+        return Path(caminho).resolve()

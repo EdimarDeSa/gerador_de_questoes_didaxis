@@ -1,43 +1,42 @@
-from tkinter.messagebox import askyesno
-
-from customtkinter import CTkFrame, CTkLabel, CTkButton
-from ..models.questao import ModeloQuestao
+from Modules.models.globalvars import *
 
 
 class LinhaDeQuestao(CTkFrame):
-    def __init__(self, master=None, questao=None, eraser_btn_img=None, edit_btn_img=None, **kwargs):
-        super(LinhaDeQuestao, self).__init__(master=master, **kwargs)
+    def __init__(
+            self, master: CTkScrollableFrame, questao: ModeloQuestao, variaveis_globais: VariaveisGlobais, **kwargs
+    ):
+        super().__init__(master, **kwargs)
+        self.gvar = variaveis_globais
+
+        self._master = master
+
         self.questao: ModeloQuestao = questao
-        self.__eraser_btn_img = eraser_btn_img
-        self.__edit_btn_img = edit_btn_img
 
-        self.__configura_colunas()
+        self._label = CTkLabel(self, text=self.questao.pergunta, width=550, anchor=W, height=30, wraplength=540)
+        self._label.grid(row=0, column=0, pady=5, padx=(5, 0))
 
-    def __configura_colunas(self):
-        self.__label = CTkLabel(self, text=self.questao.pergunta, width=550, anchor='w', height=30, wraplength=540)
-        self.__label.grid(row=0, column=0, pady=5, padx=(5, 0))
+        CTkButton(
+            self, text=None, width=30, height=30, command=self._botao_editar,
+            image=self.gvar.imagens.bt_editar_questao_img()
+        ).grid(column=1, row=0, padx=15)
 
-        CTkButton(self, text="", width=30, height=30, image=self.__edit_btn_img,
-                  command=self.__editar).grid(column=1, row=0, padx=15)
+        CTkButton(
+            self, text=None, width=30, height=30, command=self._botao_deletar,
+            image=self.gvar.imagens.bt_deletar_questao_img()
+        ).grid(column=2, row=0, padx=15)
 
-        CTkButton(self, text="", width=30, height=30, image=self.__eraser_btn_img,
-                  command=self.__botao_delete).grid(column=2, row=0, padx=15)
-
-    def __botao_delete(self):
-        if self.__tem_certeza():
-            self.master.delete_event(self)
-            self.destroy()
-
-    @staticmethod
-    def __tem_certeza() -> bool:
+    def _botao_deletar(self):
         resposta = askyesno('Deseja deletar a questão?',
                             'Tem certeza que deseja deletar a questão? Esse processo não poderá ser desfeito.')
-        return resposta
 
-    def __editar(self):
-        self.master.master.master.master.master.editar_questao(self.questao)
+        if resposta:
+            self.gvar.cmd_delete_event(self)
+            self.destroy()
+
+    def _botao_editar(self):
+        self.gvar.cmd_editar_questao(self.questao)
 
     def salva_questao_editada(self, nova_questao: ModeloQuestao):
-        del self.questao
+        self.questao = None
         self.questao = nova_questao
-        self.__label.configure(text=self.questao.pergunta)
+        self._label.configure(text=self.questao.pergunta)

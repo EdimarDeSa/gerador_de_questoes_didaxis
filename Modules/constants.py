@@ -8,6 +8,10 @@ ME = 'Multipla escolha 1 correta'
 MEN = 'Multipla escolha n corretas'
 VF = 'Verdadeiro ou falso'
 
+V = 'V'
+F = 'F'
+CORRETA = 'CORRETA'
+
 LINK_FEEDBACK_FORM = 'https://forms.office.com/r/xpjpRED6KK'
 
 SHORTCUTS: list[tuple[str, str]] = [
@@ -80,6 +84,8 @@ PLACE_HOLDER_PESO = '1'
 
 ADD = 'Adicionar'
 RED = '#FA0000'
+VERDE = ['#2cbe79', '#2FA572']
+TRANSPARENTE = 'transparent'
 
 MAXIMO_DE_CARACTERES = 255
 PORCENTAGENS = ["80%", "90%", "100%", "110%", "120%"]

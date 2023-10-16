@@ -9,9 +9,6 @@ from Modules.constants import *
 from Modules.arquivos import Arquivos
 
 
-__all__ = ['Configuracoes']
-
-
 class Configuracoes:
     def __init__(self, arquivos: Arquivos):
         self.arquivos = arquivos
