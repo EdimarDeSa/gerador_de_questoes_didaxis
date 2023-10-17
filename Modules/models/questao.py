@@ -14,9 +14,9 @@ class ModeloQuestao:
         self.id = _id
 
     def para_salvar(self) -> list:
-        data = [self._informacao_padrao()]
-        if self.tipo != D:
-            data.extend(self._informacao_padrao(alternativa) for alternativa in self.alternativas)
+        data = [self._informacao_padrao(alternativa) for alternativa in self.alternativas]
+        if self.tipo == D:
+            data = [self._informacao_padrao()]
         return data
 
     def _informacao_padrao(self, alternativa: tuple[str, bool] = None):
