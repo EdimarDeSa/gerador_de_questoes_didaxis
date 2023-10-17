@@ -19,7 +19,7 @@ class QuadroDeQuestoes(CTkFrame):
 
         # ------ Adiciona variáveis globais ------ #
 
-        self.gvar.cmd_delete_event = self.delete_event
+        self.gvar.delete_event = self.delete_event
         self.gvar.quadro_de_questoes = self
 
     def _init_header(self):
@@ -78,7 +78,7 @@ class QuadroDeQuestoes(CTkFrame):
         perguntas = []
         if self._row_list:
             perguntas = [questao.pergunta for questao in self.lista_de_questoes()]
-        return self.gvar.campo_pergunta.get_texto_completo() in perguntas
+        return self.gvar.pergunta.get_texto_completo() in perguntas
 
     def quantidade_de_questoes_registradas(self) -> int:
         total = len(self._row_list)

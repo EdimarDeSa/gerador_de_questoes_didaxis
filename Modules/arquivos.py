@@ -3,21 +3,23 @@ import json
 import pickle
 import tempfile
 
+import pandas as pd
+
 from Modules.constants import *
 from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import showwarning
+from Modules.models.questao import ModeloQuestao
 
 
 class Arquivos:
     def __init__(self):
         self.BASE = Path(__file__).resolve().parent.parent
 
-        self.caminho_atual: Path | None = None
-
         self._temp_dir = tempfile.gettempdir()
 
     @staticmethod
     def salva_json(path: Path, data: [dict, list]):
-        with open(path, mode='w', encoding=ENCODER) as json_file:
+        with open(path, mode=W, encoding=ENCODER) as json_file:
             json.dump(data, json_file, sort_keys=True)
 
     @staticmethod
@@ -41,3 +43,38 @@ class Arquivos:
             title=titulo, initialfile='novo_banco'
         )
         return Path(caminho).resolve()
+
+    @staticmethod
+    def exportar(caminho: Path, lista_de_questoes: list[ModeloQuestao]):
+        lista_questoes = []
+        for questao in lista_de_questoes:
+            lista_questoes.extend(questao.para_salvar())
+        df_questoes = pd.DataFrame(lista_questoes, columns=COLUNAS_PADRAO, dtype='string')
+
+        try:
+            df_questoes.to_excel(caminho, engine='openpyxl', sheet_name='questoes', index=OFF)
+        except PermissionError as err:
+            showwarning(
+                'PermissionError',
+                'Não foi possível salvar o arquivo pois você não tem permissão.\n'
+                'Verifique se o arquivo não está aberto antes de continuar.\n'
+                f'Código: {err}'
+            )
+            return False
+        except FileExistsError as err:
+            showwarning(
+                'FileExistsError',
+                f'Código: {err}'
+            )
+            return False
+        except Exception as err:
+            showwarning(
+                'Exception',
+                f'Código: {err}'
+            )
+            return False
+
+        df_questoes.truncate()
+
+        del df_questoes
+        return True

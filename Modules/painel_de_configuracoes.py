@@ -83,17 +83,17 @@ class PainelDeConfiguracoes(CTkToplevel):
         CTkLabel(frame_configs, text='Dark mode',
                  **self.gvar.configs.label_titulos_configs).grid(row=3, column=0, padx=20, pady=(10, 0))
         CTkOptionMenu(
-            frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self.gvar.var_dark_mode, command=self.altera_dark_mode
+            frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self.gvar.cmd_var_dark_mode, command=self.altera_dark_mode
         ).grid(row=4, column=0, padx=20)
 
-        self.gvar.var_dark_mode.set(self.gvar.perfil.aparencia_do_sistema)
+        self.gvar.cmd_var_dark_mode.set(self.gvar.perfil.aparencia_do_sistema)
 
         CTkLabel(
             frame_configs, text='Escala do sistema', **self.gvar.configs.label_titulos_configs
         ).grid(row=5, column=0, padx=20, pady=(10, 0))
         CTkOptionMenu(
             frame_configs, values=PORCENTAGENS, variable=self.var_escala_do_sistema,
-            command=self.gvar.altera_escala_do_sistema
+            command=self.gvar.cmd_altera_escala_do_sistema
         ).grid(row=6, column=0, padx=20, pady=(0, 20))
 
         self.var_escala_do_sistema.set(self.gvar.perfil.escala_do_sistema)
@@ -134,11 +134,11 @@ class PainelDeConfiguracoes(CTkToplevel):
                   command=self.abre_feedback).grid(row=0, column=0, padx=10)
 
     def abrir(self):
-        self.gvar.cmd_abrir()
+        self.gvar.abrir()
         self.destroy()
 
     def salvar_como(self):
-        self.gvar.cmd_salver_como()
+        self.gvar.salver_como()
         self.destroy()
 
     def altera_unidade_padrao(self):
@@ -150,7 +150,7 @@ class PainelDeConfiguracoes(CTkToplevel):
         self.focus()
 
     def altera_dark_mode(self, _):
-        self.gvar.perfil.salva_informacao_perfil('dark_mode', self.gvar.var_dark_mode.get())
+        self.gvar.perfil.salva_informacao_perfil('dark_mode', self.gvar.cmd_var_dark_mode.get())
         set_appearance_mode(self.gvar.perfil.aparencia_do_sistema)
         self.focus()
 
@@ -176,4 +176,4 @@ class PainelDeConfiguracoes(CTkToplevel):
 
         if resposta:
             self.atualizador.atualiza()
-            self.gvar.cmd_exit()
+            self.gvar.exit()

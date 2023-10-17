@@ -52,9 +52,9 @@ class JanelaParametrosDaQuestao(CTkFrame):
         
         # ------ Adiciona variáveis globais ------ #
 
-        self.gvar.campo_unidade = self.unidade
-        self.gvar.campo_codigo_do_curso = self.codigo_do_curso
-        self.gvar.campo_tempo = self.tempo
-        self.gvar.campo_tipo = self.tipo
-        self.gvar.campo_dificuldade = self.dificuldade
-        self.gvar.campo_peso = self.peso
+        self.gvar.unidade = self.unidade
+        self.gvar.codigo_do_curso = self.codigo_do_curso
+        self.gvar.tempo = self.tempo
+        self.gvar.tipo = self.tipo
+        self.gvar.dificuldade = self.dificuldade
+        self.gvar.peso = self.peso

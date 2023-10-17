@@ -1,3 +1,5 @@
+from tkinter.messagebox import askyesno
+
 from Modules.models.globalvars import *
 
 
@@ -30,11 +32,11 @@ class LinhaDeQuestao(CTkFrame):
                             'Tem certeza que deseja deletar a questão? Esse processo não poderá ser desfeito.')
 
         if resposta:
-            self.gvar.cmd_delete_event(self)
+            self.gvar.delete_event(self)
             self.destroy()
 
     def _botao_editar(self):
-        self.gvar.cmd_editar_questao(self.questao)
+        self.gvar.editar_questao(self.questao)
 
     def salva_questao_editada(self, nova_questao: ModeloQuestao):
         self.questao = None

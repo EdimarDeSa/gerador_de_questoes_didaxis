@@ -2,19 +2,18 @@ from Modules.constants import *
 
 
 class ModeloQuestao:
-    def __init__(self, unidade: str, codigo: str, tempo: str, tipo: str, dificuldade: str, peso: str, pergunta: str,
-                 alternativas: list[tuple[str, bool]], _id=None):
-        self.unidade = unidade
-        self.codigo = codigo
-        self.tempo = tempo
-        self.tipo = tipo
-        self.dificuldade = dificuldade
-        self.peso = peso
-        self.pergunta = pergunta
+    def __init__(self, unidade, codigo, tempo, tipo, dificuldade, peso, pergunta, alternativas, _id=None):
+        self.unidade = str(unidade)
+        self.codigo = str(codigo)
+        self.tempo = str(tempo)
+        self.tipo = str(tipo)
+        self.dificuldade = str(dificuldade)
+        self.peso = str(peso)
+        self.pergunta = str(pergunta)
         self.alternativas = alternativas
         self.id = _id
 
-    def para_salvar(self):
+    def para_salvar(self) -> list:
         data = [self._informacao_padrao()]
         if self.tipo != D:
             data.extend(self._informacao_padrao(alternativa) for alternativa in self.alternativas)
@@ -22,17 +21,8 @@ class ModeloQuestao:
 
     def _informacao_padrao(self, alternativa: tuple[str, bool] = None):
         infos = [
-            None,
-            self._verifica_tipo(),
-            self.peso,
-            self.tempo,
-            None,
-            self.pergunta,
-            None,
-            None,
-            self.unidade,
-            self.codigo,
-            self.dificuldade,
+            None, self._verifica_tipo(), self.peso, self.tempo, self.id, self.pergunta, None, None, self.unidade,
+            self.codigo, self.dificuldade
         ]
         if alternativa is not None:
             infos[6] = alternativa[0]
@@ -61,7 +51,7 @@ class ModeloQuestao:
         return f'Pergunta: {self.pergunta}\nID: {self.id}'
 
     def __repr__(self):
-        return f'<ID: {self.id}>'
+        return f'<ID: {self.pergunta}>'
 
     def __bool__(self):
         return True

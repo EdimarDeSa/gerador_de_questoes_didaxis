@@ -36,6 +36,8 @@ FILETYPES: tuple[tuple[str, str]] = (
 
 DEFAULT_EXTENSION: str = '.xlsx'
 
+COLUNAS_PADRAO = ['ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA', 'CORRETA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE']
+
 CONFIGURACOES: dict = {
     'cor_da_borda': 'darkgreen',
     'cor_de_fundo': 'lightgreen',

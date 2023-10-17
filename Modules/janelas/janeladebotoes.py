@@ -1,3 +1,5 @@
+from tkinter.messagebox import showwarning, showinfo
+
 from Modules.models.globalvars import *
 from Modules.painel_de_configuracoes import PainelDeConfiguracoes
 
@@ -33,14 +35,12 @@ class JanelaDeBotoes(CTkFrame):
         PainelDeConfiguracoes(self, self.gvar)
 
     def salvar_questao(self):
-        if not self.gvar.campo_pergunta.get_texto_completo() or self.verifica_texto_opcoes():
+        if not self.gvar.pergunta.get_texto_completo() or self.verifica_texto_opcoes():
             return showwarning(
                 'Pergunta em branco',
                 'Para salvar uma questão é necessário que a pergunta e as alternativas ativas não esteja em '
                 'branco.'
             )
-
-        print(self.gvar.questao_em_edicao)
 
         if self.gvar.questao_em_edicao:
             self.salvar_edicao()
@@ -50,17 +50,17 @@ class JanelaDeBotoes(CTkFrame):
             return showinfo('Pergunta repetida', 'Já existe uma questão com a mesma pergunta')
 
         questao = ModeloQuestao(
-            self.gvar.campo_unidade.get(), self.gvar.campo_codigo_do_curso.get(), self.gvar.campo_tempo.get(),
-            self.gvar.campo_tipo.get(), self.gvar.campo_dificuldade.get(), self.gvar.campo_peso.get(),
-            self.gvar.campo_pergunta.get_texto_completo(), self.get_opcoes()
+            self.gvar.unidade.get(), self.gvar.codigo_do_curso.get(), self.gvar.tempo.get(),
+            self.gvar.tipo.get(), self.gvar.dificuldade.get(), self.gvar.peso.get(),
+            self.gvar.pergunta.get_texto_completo(), self.get_opcoes()
         )
         self.gvar.quadro_de_questoes.adiciona_questao(questao)
 
-        self.gvar.cmd_reseta_informacoes()
-        self.gvar.exportado.set(False)
+        self.gvar.reseta_informacoes()
+        self.gvar.exportado = False
 
     def verifica_texto_opcoes(self):
-        if self.gvar.campo_tipo.get() != D:
+        if self.gvar.tipo.get() != D:
             if not self.gvar.contador_de_opcoes.get():
                 return True
             for indice in range(self.gvar.contador_de_opcoes.get()):
@@ -70,30 +70,30 @@ class JanelaDeBotoes(CTkFrame):
         return False
 
     def salvar_edicao(self):
-        self.gvar.questao_em_edicao.unidade = self.gvar.campo_unidade.get()
-        self.gvar.questao_em_edicao.codigo = self.gvar.campo_codigo_do_curso.get()
-        self.gvar.questao_em_edicao.tempo = self.gvar.campo_tempo.get()
-        self.gvar.questao_em_edicao.tipo = self.gvar.campo_tipo.get()
-        self.gvar.questao_em_edicao.dificuldade = self.gvar.campo_dificuldade.get()
-        self.gvar.questao_em_edicao.peso = self.gvar.campo_peso.get()
-        self.gvar.questao_em_edicao.pergunta = self.gvar.campo_pergunta.get_texto_completo()
+        self.gvar.questao_em_edicao.unidade = self.gvar.unidade.get()
+        self.gvar.questao_em_edicao.codigo = self.gvar.codigo_do_curso.get()
+        self.gvar.questao_em_edicao.tempo = self.gvar.tempo.get()
+        self.gvar.questao_em_edicao.tipo = self.gvar.tipo.get()
+        self.gvar.questao_em_edicao.dificuldade = self.gvar.dificuldade.get()
+        self.gvar.questao_em_edicao.peso = self.gvar.peso.get()
+        self.gvar.questao_em_edicao.pergunta = self.gvar.pergunta.get_texto_completo()
         self.gvar.questao_em_edicao.alternativas = self.get_opcoes()
 
         self.gvar.quadro_de_questoes.salvar_edicao_de_questao()
 
         self.gvar.questao_em_edicao = None
-        self.gvar.cmd_reseta_informacoes()
+        self.gvar.reseta_informacoes()
 
     def get_opcoes(self) -> list[tuple[str, bool]]:
         def seleciona_bt(indice: int) -> [CTkRadioButton, CTkCheckBox]:
-            tipo = self.gvar.campo_tipo.get()
+            tipo = self.gvar.tipo.get()
             if tipo == ME:
                 return self.gvar.lista_rd_bts[indice]
             elif tipo == MEN or tipo == VF:
                 return self.gvar.lista_ck_bts[indice]
 
         def verifica_correta(botao: [CTkRadioButton, CTkCheckBox], indice: int) -> bool:
-            if self.gvar.campo_tipo.get() == ME:
+            if self.gvar.tipo.get() == ME:
                 return self.gvar.opcao_correta_radio_bt.get() == indice
             return botao.get()
 
@@ -109,13 +109,11 @@ class JanelaDeBotoes(CTkFrame):
         return opcoes
 
     def exportar(self):
-        if self.gvar.arquivos.caminho_atual is None:
-            self.gvar.arquivos.caminho_atual = self.gvar.arquivos.caminho_para_salvar('Exportar para')
+        if self.gvar.caminho_atual is None:
+            self.gvar.caminho_atual = self.gvar.arquivos.caminho_para_salvar('Exportar')
 
-        retorno = self.arquivos(self.caminho_arquivo, self.questions_board.lista_de_questoes())
-        if not retorno:
-            showerror('Não foi possível exportar', 'Para exportar é necessário que o arqivo esteja fechado.'
-                                                   '\nConfirme que nenhum arquivo xlsx com mesmo nome esteja aberto.')
-        self.exportado = True
-        showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
-        self.reseta_geral()
+        self.gvar.arquivos.exportar(self.gvar.caminho_atual, self.gvar.quadro_de_questoes.lista_de_questoes())
+
+        self.gvar.exportado = True
+
+        # self.reseta_geral()
