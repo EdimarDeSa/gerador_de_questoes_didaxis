@@ -1,3 +1,5 @@
+from typing import Literal
+
 from Modules.arquivos import Arquivos
 from Modules.constants import *
 
@@ -35,7 +37,7 @@ class Perfil:
         return self._profile_dict['apagar_enunciado']
 
     @property
-    def aparencia_do_sistema(self) -> str:
+    def aparencia_do_sistema(self) -> Literal['system', 'dark', 'light']:
         return self._profile_dict['dark_mode']
 
     @property

@@ -1,3 +1,4 @@
+from typing import Callable
 from pathlib import Path
 
 from customtkinter import *
@@ -21,10 +22,9 @@ class VariaveisGlobais:
         self.imagens = imagens
 
         # Variáveis de perfil
-        self.var_unidade_padrao = None
-        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=True)
+        self.var_unidade_padrao = StringVar(value=self.perfil.unidade_padrao)
+        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self.perfil.apagar_enunciado)
         self.var_dark_mode: StringVar = StringVar(value=self.perfil.aparencia_do_sistema)
-        self.altera_escala_do_sistema = None
 
         # Variáveis de controle
         self.caminho_atual: Path | None = None

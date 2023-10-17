@@ -1,8 +1,11 @@
-from subprocess import call
+from tkinter.messagebox import askyesno
+from typing import Literal
 
-from Modules.atualizacao import *
+from Modules.atualizacao import Atualizacao
 from Modules.constants import __version__
 from Modules.models.globalvars import *
+from Modules.funcoes.funcoes_aparencia import altera_aparencia, altera_escala
+from Modules.funcoes.funcoes_feedback import abre_feedback
 
 
 class PainelDeConfiguracoes(CTkToplevel):
@@ -10,7 +13,8 @@ class PainelDeConfiguracoes(CTkToplevel):
         super().__init__(master=master, **kwargs)
 
         self.gvar = variaveis_globais
-        self.var_escala_do_sistema = StringVar()
+        self.var_escala_do_sistema = StringVar(value=self.gvar.perfil.escala_do_sistema)
+        self.var_on_off = StringVar(value='ON')
 
         self.atualizador = Atualizacao(__version__, self.gvar.arquivos.BASE)
         self.configura_tela()
@@ -19,16 +23,16 @@ class PainelDeConfiguracoes(CTkToplevel):
         self.focus()
 
     def configura_tela(self):
-        largura, altura = (700, 500)
+        largura, altura = 700, 500
         pos_x = (self.winfo_screenwidth() - largura) // 2
         pos_y = (self.winfo_screenheight() - altura) // 2
 
-        self.geometry(f'700x500+{pos_x}+{pos_y}')
-        self.resizable(False, False)
+        self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
+        self.resizable(OFF, OFF)
 
     def _init_tabela(self):
         self.tabview = CTkTabview(self)
-        self.tabview.pack(expand=True, fill=BOTH, padx=10, pady=10)
+        self.tabview.pack(expand=ON, fill=BOTH, padx=10, pady=10)
 
         self.tabview.add('Opções')
         tab_opcoes = self.tabview.tab('Opções')
@@ -62,45 +66,42 @@ class PainelDeConfiguracoes(CTkToplevel):
                 command=self.altera_unidade_padrao
             ).pack(ipadx=10, padx=5, pady=(0, 5), fill=BOTH)
 
-        self.gvar.var_unidade_padrao.set(self.gvar.perfil.unidade_padrao)
-
         frame_configs = CTkFrame(master)
         frame_configs.grid(row=1, column=0, pady=(30, 0))
+
+        position_top = dict(padx=10, anchor=CENTER, expand=ON)
+        position_bottom = dict(padx=10, pady=(0, 20), anchor=CENTER, expand=ON)
+
         CTkLabel(
             frame_configs, text='Configurações gerais', **self.gvar.configs.label_titulos_configs
-        ).grid(row=0, column=0, padx=20)
+        ).pack(**position_bottom)
 
-        CTkLabel(
-            frame_configs, text='Apagar enunciado ao salvar', **self.gvar.configs.label_titulos_configs
-        ).grid(row=1, column=0, padx=20, pady=(10, 0))
-
+        CTkLabel(frame_configs, text='Apagar enunciado ao salvar',
+                 **self.gvar.configs.label_titulos_configs).pack(**position_top)
+        # noinspection PyTypeChecker
         CTkSwitch(
-            frame_configs, variable=self.gvar.var_apagar_enunciado, text=None, command=self.altera_opcao_apagar_enunciado
-        ).grid(row=2, column=0, padx=20, sticky=E)
+            frame_configs, variable=self.gvar.var_apagar_enunciado, text=None, width=0, switch_width=75,
+            command=self.altera_opcao_apagar_enunciado, textvariable=self.var_on_off
+        ).pack(**position_bottom)
 
-        self.gvar.var_apagar_enunciado.set(self.gvar.perfil.apagar_enunciado)
-
-        CTkLabel(frame_configs, text='Dark mode',
-                 **self.gvar.configs.label_titulos_configs).grid(row=3, column=0, padx=20, pady=(10, 0))
+        CTkLabel(frame_configs, text='Dark mode', **self.gvar.configs.label_titulos_configs).pack(**position_top)
+        # noinspection PyTypeChecker
         CTkOptionMenu(
-            frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self.gvar.cmd_var_dark_mode, command=self.altera_dark_mode
-        ).grid(row=4, column=0, padx=20)
-
-        self.gvar.cmd_var_dark_mode.set(self.gvar.perfil.aparencia_do_sistema)
+            frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self.gvar.var_dark_mode,
+            command=self.salva_e_altera_aparencia
+        ).pack(**position_bottom)
 
         CTkLabel(
             frame_configs, text='Escala do sistema', **self.gvar.configs.label_titulos_configs
-        ).grid(row=5, column=0, padx=20, pady=(10, 0))
+        ).pack(**position_top)
         CTkOptionMenu(
             frame_configs, values=PORCENTAGENS, variable=self.var_escala_do_sistema,
-            command=self.gvar.cmd_altera_escala_do_sistema
-        ).grid(row=6, column=0, padx=20, pady=(0, 20))
-
-        self.var_escala_do_sistema.set(self.gvar.perfil.escala_do_sistema)
+            command=self.salva_e_altera_escala_do_sistema
+        ).pack(**position_bottom)
 
     def create_tab_ajuda_widgets(self, tabela):
         frame_atalhos = CTkScrollableFrame(tabela, height=260)
-        frame_atalhos.pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
+        frame_atalhos.pack(fill=BOTH, expand=ON, padx=20, pady=(0, 10))
         frame_atalhos.columnconfigure(0, weight=1)
         frame_atalhos.columnconfigure(1, weight=2)
         pad = dict(padx=2, pady=5)
@@ -116,29 +117,27 @@ class PainelDeConfiguracoes(CTkToplevel):
             ).grid(column=1, row=i, sticky=W, **pad)
 
         frame_versao = CTkFrame(tabela, height=32)
-        frame_versao.pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
+        frame_versao.pack(fill=BOTH, expand=ON, padx=20, pady=(0, 10))
         frame_versao.columnconfigure(0, weight=1)
         frame_versao.columnconfigure(1, weight=1)
         frame_versao.rowconfigure(0, weight=3)
 
         CTkLabel(
-            frame_versao, **self.gvar.configs.label_titulos_configs, text=f'Versão: {__version__}'
+            frame_versao, text=f'Versão: {__version__}', **self.gvar.configs.label_titulos_configs
         ).grid(row=0, column=0)
         CTkButton(frame_versao, text='Verificar atualização', command=self.verifica_atualizacao).grid(row=0, column=1)
 
-        frame_feedback = CTkFrame(tabela, height=32)
-        frame_feedback.pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
-        frame_feedback.rowconfigure(0, weight=1)
-        frame_feedback.columnconfigure(0, weight=1)
-        CTkButton(frame_feedback, text='Enviar feedback', width=700, height=32, anchor=CENTER,
-                  command=self.abre_feedback).grid(row=0, column=0, padx=10)
+        CTkButton(
+            tabela, text='Enviar feedback', width=700, height=32, border_color=VERDE, border_width=2,
+            fg_color=TRANSPARENTE, anchor=CENTER, command=abre_feedback, **self.gvar.configs.buttons_configs
+        ).pack(fill=BOTH, expand=ON, padx=20, pady=(0, 10))
 
     def abrir(self):
-        self.gvar.abrir()
+        self.gvar.arquivos.abrir_novo()
         self.destroy()
 
     def salvar_como(self):
-        self.gvar.salver_como()
+        self.gvar.arquivos.salvar_como()
         self.destroy()
 
     def altera_unidade_padrao(self):
@@ -146,20 +145,26 @@ class PainelDeConfiguracoes(CTkToplevel):
         self.focus()
 
     def altera_opcao_apagar_enunciado(self):
+        apagar = 'DESLIGADO'
+        if self.gvar.var_apagar_enunciado.get():
+            apagar = 'LIGADO'
+        self.var_on_off.set(apagar)
+
         self.gvar.perfil.salva_informacao_perfil('apagar_enunciado', self.gvar.var_apagar_enunciado.get())
         self.focus()
 
-    def altera_dark_mode(self, _):
-        self.gvar.perfil.salva_informacao_perfil('dark_mode', self.gvar.cmd_var_dark_mode.get())
-        set_appearance_mode(self.gvar.perfil.aparencia_do_sistema)
+    def salva_e_altera_aparencia(self, config: Literal['system', 'dark', 'light']):
+        self.gvar.perfil.salva_informacao_perfil('dark_mode', config)
+        altera_aparencia(config)
         self.focus()
 
-    @staticmethod
-    def abre_feedback():
-        call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)
+    def salva_e_altera_escala_do_sistema(self, nova_escala):
+        self.gvar.perfil.salva_informacao_perfil('escala_do_sistema', nova_escala)
+        altera_escala(nova_escala)
+        self.focus()
 
     def focus(self):
-        self.master.after(300, self.focus_force)
+        self.after(100, self.focus_force)
 
     def abre_ajuda(self):
         self.tabview.set('Ajuda')
