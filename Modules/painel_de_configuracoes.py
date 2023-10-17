@@ -1,8 +1,8 @@
 from tkinter.messagebox import askyesno
 from typing import Literal
 
+from Modules import __version__
 from Modules.atualizacao import Atualizacao
-from Modules.constants import __version__
 from Modules.models.globalvars import *
 from Modules.funcoes.funcoes_aparencia import altera_aparencia, altera_escala
 from Modules.funcoes.funcoes_feedback import abre_feedback

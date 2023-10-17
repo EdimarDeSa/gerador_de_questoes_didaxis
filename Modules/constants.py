@@ -1,7 +1,5 @@
 from tkinter.constants import *
 
-__version__ = '3.2.1'
-
 
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'

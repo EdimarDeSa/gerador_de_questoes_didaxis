@@ -1,4 +1,3 @@
-from typing import Callable
 from pathlib import Path
 
 from customtkinter import *
