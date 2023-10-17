@@ -1,3 +1,4 @@
+from tkinter import Event
 from tkinter.messagebox import askyesnocancel, showinfo
 
 from Modules.janelas import *
@@ -19,6 +20,7 @@ class Main(CTk):
         self.configura_ui_master()
         self.configura_variaveis()
         self.configura_ui()
+        self.configura_binds()
 
         # self.after(500, self.verifica_atualizacao)
 
@@ -68,12 +70,53 @@ class Main(CTk):
             if resposta is None:
                 return
             elif resposta:
-                result = self.gvar.arquivos.exportar(self.gvar.caminho_atual, self.gvar.quadro_de_questoes.lista_de_questoes())
-                if not result:
-                    return
-                showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
-
+                self.gvar.exportar()
         exit(0)
+
+    def configura_binds(self):
+        def ctrl_events(e: Event):
+            key = str(e.keysym).lower()
+
+            # def seleciona_tipo(indice: int):
+            #     self.gvar.tipo.set(self.gvar.configs.tipos[indice])
+            #     self.gvar.altera_alternativa()
+
+            def seleciona_dificuldade(indice: int):
+                self.gvar.dificuldade.set(self.gvar.configs.dificuldades[indice - 4])
+
+            events = {
+                # 'e': self.exportar,
+                # 's': self.salvar,
+                'o': self.gvar.arquivos.abrir_banco,
+                'equal': self.gvar.add_alternativa,
+                'plus': self.gvar.add_alternativa,
+                'minus': self.gvar.rm_alternativa,
+                # 'backspace': self.limpa_tab
+                # '1': seleciona_tipo,
+                # '2': seleciona_tipo,
+                # '3': seleciona_tipo,
+                '4': seleciona_dificuldade,
+                '5': seleciona_dificuldade,
+                '6': seleciona_dificuldade,
+            }
+
+            if key in events:
+                if key.isdigit():
+                    return events[key](int(key))
+                else:
+                    return events[key]()
+
+        def key_events(e):
+            key = e.keysym
+            events = {
+                # 'F1': self.abre_atalhos,
+                # 'F12': self.gvar.arquivos.salvar_como,
+            }
+            if key in events.keys():
+                return events[key]()
+
+        self.bind('<Control-Key>', ctrl_events)
+        self.bind('<KeyRelease>', key_events)
 
 
 if __name__ == '__main__':

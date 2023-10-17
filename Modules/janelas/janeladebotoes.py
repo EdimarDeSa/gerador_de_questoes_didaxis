@@ -28,6 +28,10 @@ class JanelaDeBotoes(CTkFrame):
         )
         self.bt_salvar.grid(column=2, row=0, pady=10, padx=5, sticky=NSEW)
 
+        # ------ Adiciona variáveis globais ------ #
+
+        self.gvar.exportar = self.exportar
+
     def abre_menu_configuracoes(self):
         painel = self.children.get('!paineldeconfiguracoes')
         if painel: return painel.focus_force()
@@ -56,7 +60,7 @@ class JanelaDeBotoes(CTkFrame):
         )
         self.gvar.quadro_de_questoes.adiciona_questao(questao)
 
-        # self.gvar.reseta_informacoes()
+        self.gvar.reseta_informacoes()
         self.gvar.exportado = False
 
     def verifica_texto_opcoes(self):
@@ -115,5 +119,4 @@ class JanelaDeBotoes(CTkFrame):
         self.gvar.arquivos.exportar(self.gvar.caminho_atual, self.gvar.quadro_de_questoes.lista_de_questoes())
 
         self.gvar.exportado = True
-
-        # self.reseta_geral()
+        showinfo('Exportado', 'O banco de dados foi criado com sucesso!')

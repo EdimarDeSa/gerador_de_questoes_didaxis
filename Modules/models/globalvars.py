@@ -23,6 +23,7 @@ class VariaveisGlobais:
         # Variáveis de perfil
         self.var_unidade_padrao = StringVar(value=self.perfil.unidade_padrao)
         self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self.perfil.apagar_enunciado)
+        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=False)
         self.var_dark_mode: StringVar = StringVar(value=self.perfil.aparencia_do_sistema)
 
         # Variáveis de controle
@@ -31,10 +32,18 @@ class VariaveisGlobais:
         self.questao_em_edicao: ModeloQuestao | None = None
         self.opcao_correta_radio_bt: IntVar = IntVar(value=0)
         self.display_quantidade_de_questoes: IntVar = IntVar(value=0)
-        self.exportado: bool = False
+        self.exportado: bool = True
 
         # Funcoes de Controle
         self.corretor_ortografico: CorretorOrtografico | None = None
+        self.reseta_informacoes = None
+        self.add_alternativa = None
+        self.rm_alternativa = None
+        self.editar_questao = None
+        self.delete_event = None
+        self.exportar = None
+        self.exit = None
+        self.atualiza_titulo = None
 
         # Campos da questao
         self.unidade: CTkOptionMenu | None = None
