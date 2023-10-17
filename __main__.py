@@ -22,6 +22,8 @@ class Main(CTk):
 
         # self.after(500, self.verifica_atualizacao)
 
+        self.protocol('WM_DELETE_WINDOW', self.evento_de_fechamento_da_tela)
+
         self.mainloop()
 
     def configura_ui_master(self):
@@ -69,9 +71,9 @@ class Main(CTk):
                 result = self.gvar.arquivos.exportar(self.gvar.caminho_atual, self.gvar.quadro_de_questoes.lista_de_questoes())
                 if not result:
                     return
-        self.gvar.corretor_ortografico = None
-        showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
-        os.kill(os.getpid(), os.CLD_KILLED)
+                showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
+
+        exit(0)
 
 
 if __name__ == '__main__':

@@ -56,7 +56,7 @@ class JanelaDeBotoes(CTkFrame):
         )
         self.gvar.quadro_de_questoes.adiciona_questao(questao)
 
-        self.gvar.reseta_informacoes()
+        # self.gvar.reseta_informacoes()
         self.gvar.exportado = False
 
     def verifica_texto_opcoes(self):

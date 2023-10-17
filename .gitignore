@@ -47,8 +47,10 @@ __pypackages__/
 .idea/
 Scripts/
 
+# Others
 *.bak
 *.cfg
 *.xlsx
 auto-py-to-exe/
 teste*.py
+configs/*.json
