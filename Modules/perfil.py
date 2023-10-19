@@ -11,8 +11,8 @@ class Perfil:
     def __init__(self, arquivos: Arquivos):
         self.arquivos = arquivos
 
-        self._PERFIL_FILE = self.arquivos.BASE / 'configs/perfil.json'
-        self.CAMINHO_DICIONARIO_PESSOAL = self.arquivos.BASE / 'configs/dicionario_pessoal.json'
+        self._PERFIL_FILE = self.arquivos.base_dir / 'configs/perfil.json'
+        self.CAMINHO_DICIONARIO_PESSOAL = self.arquivos.base_dir / 'configs/dicionario_pessoal.json'
         self._verifica_dependencias()
         self._profile_dict = self.arquivos.abre_json(self._PERFIL_FILE)
         self.dicionario_pessoal = self.arquivos.abre_json(self.CAMINHO_DICIONARIO_PESSOAL)

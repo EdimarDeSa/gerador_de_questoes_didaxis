@@ -109,7 +109,7 @@ class JanelaEnunciadoDaQuestao(CTkFrame):
 
         self.gvar.questao_em_edicao = questao
 
-        self.gvar.codigo_do_curso.insert(0, questao.codigo)
+        self.gvar.codigo_do_curso.insert(0, questao.subcategoria)
         self.gvar.tempo.insert(0, questao.tempo)
         self.gvar.tipo.set(questao.tipo)
         self.gvar.dificuldade.set(questao.dificuldade)

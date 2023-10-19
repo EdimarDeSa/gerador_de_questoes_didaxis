@@ -1,18 +1,23 @@
 from tkinter.constants import *
 
 
+# Constantes para tipos de questão
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'
 MEN = 'Multipla escolha n corretas'
 VF = 'Verdadeiro ou falso'
 
+# Constantes para respostas
 V = 'V'
 F = 'F'
 CORRETA = 'CORRETA'
+ERRADA = ''
 
+# Link para o formulário de feedback
 LINK_FEEDBACK_FORM = 'https://forms.office.com/r/xpjpRED6KK'
 
-SHORTCUTS: list[tuple[str, str]] = [
+# Atalhos do teclado
+SHORTCUTS = [
     ('Abre tela de atalhos:', 'F1'),
     ('Salvar como:', 'F12'),
     ('Salva questão:', 'Ctrl + S'),
@@ -25,18 +30,17 @@ SHORTCUTS: list[tuple[str, str]] = [
     ('Desfazer:', 'Ctrl + Z'),
     ('Refazer:', 'Ctrl + Y'),
     ('Pular campos:', 'Ctrl + TAB ou TAB'),
-    ('Voltar campos:', 'Ctrl + Shift + TAB ou Shift + TAB'),
+    ('Voltar campos:', 'Ctrl + Shift + TAB ou Shift + TAB')
 ]
 
-FILETYPES: tuple[tuple[str, str]] = (
-    ('Pasta de Trabalho do Excel', '*.xlsx'),
-)
+# Tipos de arquivo permitidos
+FILETYPES = (('Pasta de Trabalho do Excel', '*.xlsx'),)
 
-DEFAULT_EXTENSION: str = '.xlsx'
+# Extensão padrão de arquivo
+EXTENSIONS = '.xlsx'
 
-COLUNAS_PADRAO = ['ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA', 'CORRETA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE']
-
-CONFIGURACOES: dict = {
+# Configurações gerais
+CONFIGURACOES = {
     'cor_da_borda': 'darkgreen',
     'cor_de_fundo': 'lightgreen',
     'fonte': 'Arial',
@@ -45,49 +49,47 @@ CONFIGURACOES: dict = {
     'fonte_estilo': 'bold',
     'tipos': ['Multipla escolha 1 correta', 'Multipla escolha n corretas', 'Verdadeiro ou falso'],
     'unidades': [
-        'Comunicação',
-        'Redes',
-        'Segurança eletrônica',
-        'Controle de acesso',
-        'Incêndio e iluminação',
-        'Varejo',
-        'Verticais',
-        'Soluções',
-        'Solar',
-        'Negócios',
-        'Gestão',
-        'Energia',
-        'Astec',
-        'Exportação',
+        'Astec', 'Comunicação', 'Controle de acesso', 'Energia', 'Exportação', 'Gestão', 'Incêndio e iluminação',
+        'Negócios', 'Redes', 'Segurança eletrônica', 'Solar', 'Soluções', 'Varejo', 'Verticais'
     ],
     'dificuldades': ['Fácil', 'Médio', 'Difícil']
 }
 
-PERFIL: dict = {
+# Perfil do usuário
+PERFIL = {
     'unidade_padrao': '',
     'apagar_enunciado': False,
     'aparencia_do_sistema': 'System',
     'escala_do_sistema': '100%'
 }
 
-ENCODER: str = 'UTF-8'
+# Configurações para codificação de caracteres
+ENCODER = 'UTF-8'
 
-CABECALHO: list[str] = [
-    'ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA',
-    'CORRETA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE'
-]
+# Cabeçalhos das colunas
+CABECALHO_DIDAXIS = ['ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA', 'CORRETA',
+                     'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE']
 
-# Place Holders
+CABECALHO_DIDAXIS_LOWER = ['id', 'tipo', 'peso', 'tempo', 'controle', 'pergunta', 'alternativas',
+                           'categoria', 'subcategoria', 'dificuldade']
+
+CABECALHO_PERGUNTA = ['ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE']
+
+CABECALHO_ALTERNATIVAS = ['ALTERNATIVA', 'CORRETA']
+
+# Placeholders
 PLACE_HOLDER_CODIGO = 'TELEC-PXXXX'
 PLACE_HOLDER_TEMPO = '00:00:00'
 PLACE_HOLDER_PESO = '1'
 
+# Outras constantes
 ADD = 'Adicionar'
 RED = '#FA0000'
 VERDE = ['#2cbe79', '#2FA572']
 TRANSPARENTE = 'transparent'
-
 MAXIMO_DE_CARACTERES = 255
 PORCENTAGENS = ["80%", "90%", "100%", "110%", "120%"]
 APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
 
+# Motor (engine) para manipulação de arquivos Excel
+ENGINE = 'openpyxl'

@@ -11,7 +11,7 @@ __all__ = ['Imagens']
 class Imagens:
     def __init__(self, arquivos: Arquivos):
         self.arquivos = arquivos
-        self._ICONS_DIR = self.arquivos.BASE / 'icons'
+        self._ICONS_DIR = self.arquivos.base_dir / 'icons'
 
     def bt_configs_img(self) -> CTkImage:
         bt_configs_img_light_mode = self._abre_imagem('configuracoes_light_mode.png')
@@ -57,17 +57,17 @@ class Imagens:
 #             raise OSError("Unsupported operating system")
 #
 #     def buscar_arquivo_para_abrir(self) -> str:
-#         arquivo = askopenfilename(defaultextension=DEFAULT_EXTENSION, filetypes=FILETYPES, title='Abrir',
+#         arquivo = askopenfilename(defaultextension=EXTENSIONS, filetypes=FILETYPES, title='Abrir',
 #                                   initialdir=self.__get_desktop_directory())
 #         return arquivo
 #
 #     def caminho_salvar_para_salvar(self, titulo: str):
-#         caminho = asksaveasfilename(confirmoverwrite=True, defaultextension=DEFAULT_EXTENSION,
+#         path = asksaveasfilename(confirmoverwrite=True, defaultextension=EXTENSIONS,
 #                                     filetypes=FILETYPES, initialdir=self.__get_desktop_directory(), title=titulo)
-#         return caminho
+#         return path
 #
-#     def carrega_banco_de_dados(self, caminho):
-#         df_questoes = pd.read_excel(caminho, engine='openpyxl', dtype='string')
+#     def carrega_banco_de_dados(self, path):
+#         df_questoes = pd.read_excel(path, engine='openpyxl', dtype='string')
 #         df_questoes.fillna(value='', inplace=True)
 #         df_questoes.set_axis(self.__normatiza_cabecalho(df_questoes.columns), axis='columns')
 #
@@ -76,14 +76,14 @@ class Imagens:
 #         for pergunta, dados in grouped:
 #             self.__dados_da_pergunta = dados
 #             questao = ModeloQuestao(_id=self.__atribui_id())
-#             questao.unidade = self.__get_unidade
-#             questao.codigo = self.__get_codigo
+#             questao.categoria = self.__get_unidade
+#             questao.subcategoria = self.__get_codigo
 #             questao.tempo = self.__get_tempo
 #             questao.tipo = self.__get_tipo
 #             questao.dificuldade = self.__get_dificuldade
 #             questao.peso = self.__get_peso
 #             questao.pergunta = pergunta
-#             questao.alternativas = self.__get_alternativas_com_resposta
+#             questao.np_alternativas = self.__get_alternativas_com_resposta
 #
 #             questoes.append(questao)
 #
@@ -99,8 +99,8 @@ class Imagens:
 #
 #     @property
 #     def __get_unidade(self) -> str:
-#         unidade: str = self.__dados_da_pergunta.get('CATEGORIA', '').tolist()[0]
-#         return unidade.capitalize()
+#         categoria: str = self.__dados_da_pergunta.get('CATEGORIA', '').tolist()[0]
+#         return categoria.capitalize()
 #
 #     @property
 #     def __get_codigo(self) -> str:
@@ -131,10 +131,10 @@ class Imagens:
 #
 #     @property
 #     def __get_alternativas_com_resposta(self) -> list[tuple[str, bool]]:
-#         alternativas = self.__dados_da_pergunta.get('ALTERNATIVA', '')
+#         np_alternativas = self.__dados_da_pergunta.get('ALTERNATIVA', '')
 #         corretas = self.__dados_da_pergunta.get('CORRETA', '')
 #         corretas_convertidas_booleanas = [self.__converte_correta_para_booleanas(correta) for correta in corretas]
-#         alternativas_com_resposta = list(zip(alternativas, corretas_convertidas_booleanas))
+#         alternativas_com_resposta = list(zip(np_alternativas, corretas_convertidas_booleanas))
 #         return alternativas_com_resposta
 #
 #     @staticmethod
@@ -181,13 +181,13 @@ class Imagens:
 #         return tipos[tipo]()
 #
 #     @staticmethod
-#     def exportar(caminho: str, questoes: list[ModeloQuestao]):
-#         data = []
+#     def exportar(path: str, questoes: list[ModeloQuestao]):
+#         to_normalize = []
 #         for questao in questoes:
-#             data.extend(questao.para_salvar())
-#         df = pd.DataFrame(data, columns=CABECALHO)
+#             to_normalize.extend(questao.para_salvar())
+#         df = pd.DataFrame(to_normalize, columns=CABECALHO)
 #         try:
-#             df.to_excel(caminho, index=False)
+#             df.to_excel(path, index=False)
 #             return True
 #         except PermissionError:
 #             return False

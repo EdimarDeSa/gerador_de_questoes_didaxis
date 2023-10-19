@@ -4,8 +4,8 @@ from typing import Literal
 from Modules import __version__
 from Modules.atualizacao import Atualizacao
 from Modules.models.globalvars import *
-from Modules.funcoes.funcoes_aparencia import altera_aparencia, altera_escala
-from Modules.funcoes.funcoes_feedback import abre_feedback
+from Modules.funcoes.aparencia import altera_aparencia, altera_escala
+from Modules.funcoes import abrir, get_desktop_path, abre_feedback
 
 
 class PainelDeConfiguracoes(CTkToplevel):
@@ -14,9 +14,10 @@ class PainelDeConfiguracoes(CTkToplevel):
 
         self.gvar = variaveis_globais
         self.var_escala_do_sistema = StringVar(value=self.gvar.perfil.escala_do_sistema)
-        self.var_on_off = StringVar(value='ON')
+        self.var_auto_clean_on_off = StringVar(value='ON')
+        self.var_auto_export_on_off = StringVar(value='ON')
 
-        self.atualizador = Atualizacao(__version__, self.gvar.arquivos.BASE)
+        self.atualizador = Atualizacao(__version__, self.gvar.arquivos.base_dir)
         self.configura_tela()
 
         self._init_tabela()
@@ -76,12 +77,22 @@ class PainelDeConfiguracoes(CTkToplevel):
             frame_configs, text='Configurações gerais', **self.gvar.configs.label_titulos_configs
         ).pack(**position_bottom)
 
-        CTkLabel(frame_configs, text='Apagar enunciado ao salvar',
-                 **self.gvar.configs.label_titulos_configs).pack(**position_top)
+        CTkLabel(
+            frame_configs, text='Apagar enunciado ao salvar?', **self.gvar.configs.label_titulos_configs
+        ).pack(**position_top)
         # noinspection PyTypeChecker
         CTkSwitch(
             frame_configs, variable=self.gvar.var_apagar_enunciado, text=None, width=0, switch_width=75,
-            command=self.altera_opcao_apagar_enunciado, textvariable=self.var_on_off
+            command=self.altera_opcao_apagar_enunciado, textvariable=self.var_auto_clean_on_off
+        ).pack(**position_bottom)
+
+        CTkLabel(
+            frame_configs, text='Exportar automaticamente?', **self.gvar.configs.label_titulos_configs
+        ).pack(**position_top)
+        # noinspection PyTypeChecker
+        CTkSwitch(
+            frame_configs, variable=self.gvar.var_exportar_automaticamente, text=None, width=0, switch_width=75,
+            command=self.altera_opcao_auto_exportar, textvariable=self.var_auto_export_on_off
         ).pack(**position_bottom)
 
         CTkLabel(frame_configs, text='Dark mode', **self.gvar.configs.label_titulos_configs).pack(**position_top)
@@ -133,7 +144,7 @@ class PainelDeConfiguracoes(CTkToplevel):
         ).pack(fill=BOTH, expand=ON, padx=20, pady=(0, 10))
 
     def abrir(self):
-        self.gvar.arquivos.abrir_novo()
+        abrir()
         self.destroy()
 
     def salvar_como(self):
@@ -148,9 +159,18 @@ class PainelDeConfiguracoes(CTkToplevel):
         apagar = 'DESLIGADO'
         if self.gvar.var_apagar_enunciado.get():
             apagar = 'LIGADO'
-        self.var_on_off.set(apagar)
+        self.var_auto_clean_on_off.set(apagar)
 
         self.gvar.perfil.salva_informacao_perfil('apagar_enunciado', self.gvar.var_apagar_enunciado.get())
+        self.focus()
+
+    def altera_opcao_auto_exportar(self):
+        apagar = 'DESLIGADO'
+        if self.gvar.var_exportar_automaticamente.get():
+            apagar = 'LIGADO'
+        self.var_auto_export_on_off.set(apagar)
+
+        self.gvar.perfil.salva_informacao_perfil('exportar_automaticamente', self.gvar.var_apagar_enunciado.get())
         self.focus()
 
     def salva_e_altera_aparencia(self, config: Literal['system', 'dark', 'light']):

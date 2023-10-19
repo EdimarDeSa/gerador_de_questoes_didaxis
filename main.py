@@ -67,7 +67,7 @@ class Main(CTk):
         self.set_titulo()
 
     def seleciona_caminho(self, titulo: str):
-        self.caminho_arquivo = asksaveasfilename(confirmoverwrite=True, defaultextension=DEFAULT_EXTENSION,
+        self.caminho_arquivo = asksaveasfilename(confirmoverwrite=True, defaultextension=EXTENSIONS,
                                                  filetypes=FILETYPES, initialdir=self.local, title=titulo)
 
     def altera_unidade_padrao(self):
@@ -130,7 +130,7 @@ class Main(CTk):
     def editar_questao(self, questao: ModeloQuestao):
         self.reseta_informacoes()
         self.questao_em_edicao = questao
-        self.codigo_do_curso.insert(0, questao.codigo)
+        self.codigo_do_curso.insert(0, questao.subcategoria)
         self.tempo.insert(0, questao.tempo)
         self.tipo.set(questao.tipo)
         self.dificuldade.set(questao.dificuldade)
@@ -214,7 +214,7 @@ class Main(CTk):
 
     def salvar_edicao(self):
         self.questao_em_edicao.campo_unidade = self.get_unidade
-        self.questao_em_edicao.codigo = self.get_codigo
+        self.questao_em_edicao.subcategoria = self.get_codigo
         self.questao_em_edicao.tempo = self.get_tempo
         self.questao_em_edicao.tipo = self.get_tipo
         self.questao_em_edicao.dificuldade = self.get_dificuldade

@@ -45,10 +45,10 @@ class Atualizacao:
 
     def atualiza(self):
         # Comando para iniciar o programa secundário
-        if str(self.arquivos.BASE) == 'C:/Users/Edimar/Documents/GitHub/gerador_de_questoes_didaxis':
+        if str(self.arquivos.base_dir) == 'C:/Users/Edimar/Documents/GitHub/gerador_de_questoes_didaxis':
             comando = ['.venv/Scripts/python', 'QuestGenUpdater.py', f'-n {self.software_name}']
         else:
-            comando = [self.arquivos.BASE / 'QuestGenUpdater/QuestGenUpdater.exe', f'-n {self.software_name}']
+            comando = [self.arquivos.base_dir / 'QuestGenUpdater/QuestGenUpdater.exe', f'-n {self.software_name}']
 
         subprocess.Popen(comando)
 

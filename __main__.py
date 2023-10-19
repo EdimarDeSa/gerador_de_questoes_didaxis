@@ -1,10 +1,10 @@
 from tkinter import Event
-from tkinter.messagebox import askyesnocancel, showinfo
+from tkinter.messagebox import askyesnocancel
 
 from Modules.janelas import *
 from Modules.models.globalvars import *
-from Modules.funcoes.funcoes_aparencia import altera_aparencia, altera_escala, altera_cor_padrao
 from Modules.quadro_de_questoes.quadro_de_questoes import QuadroDeQuestoes
+from Modules.funcoes import abrir, altera_aparencia, altera_escala, altera_cor_padrao
 
 
 # noinspection PyAttributeOutsideInit
@@ -87,7 +87,7 @@ class Main(CTk):
             events = {
                 # 'e': self.exportar,
                 # 's': self.salvar,
-                'o': self.gvar.arquivos.abrir_banco,
+                'o': abrir,
                 'equal': self.gvar.add_alternativa,
                 'plus': self.gvar.add_alternativa,
                 'minus': self.gvar.rm_alternativa,

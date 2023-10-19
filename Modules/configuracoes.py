@@ -13,7 +13,7 @@ class Configuracoes:
     def __init__(self, arquivos: Arquivos):
         self.arquivos = arquivos
 
-        self._CONFIGS_FILE = self.arquivos.BASE / 'configs/configs.json'
+        self._CONFIGS_FILE = self.arquivos.base_dir / 'configs/configs.json'
         self._verifica_dependencias()
         self._configuracoes_dict = self.arquivos.abre_json(self._CONFIGS_FILE)
 

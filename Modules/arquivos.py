@@ -2,25 +2,26 @@ from pathlib import Path
 import json
 import pickle
 import tempfile
+from functools import cached_property
 
 import pandas as pd
 
-from Modules.constants import *
-from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showwarning
 from Modules.models.questao import ModeloQuestao
+
+from Modules.constants import *
+from Modules.funcoes import get_desktop_path
 
 
 class Arquivos:
     def __init__(self):
-        self.BASE = Path(__file__).resolve().parent.parent
-
         self._temp_dir = tempfile.gettempdir()
+        self.dir_atual: Path | None = None
 
     @staticmethod
     def salva_json(path: Path, data: [dict, list]):
         with open(path, mode=W, encoding=ENCODER) as json_file:
-            json.dump(data, json_file, sort_keys=True)
+            json.dump(data, json_file, indent=2, sort_keys=True)
 
     @staticmethod
     def abre_json(path: Path) -> dict:
@@ -35,11 +36,11 @@ class Arquivos:
         return list_palavras
 
     def cria_dicionario_pessoal(self, path: Path):
-        self.salva_json(path, self.abre_bin(self.BASE / './configs/lista_de_paralvras.bin').split())
+        self.salva_json(path, self.abre_bin(self.base_dir / './configs/lista_de_paralvras.bin').split())
 
     def caminho_para_salvar(self, titulo):
         caminho = asksaveasfilename(
-            confirmoverwrite=ON, defaultextension=DEFAULT_EXTENSION, filetypes=FILETYPES, initialdir=self.BASE,
+            confirmoverwrite=ON, defaultextension=EXTENSIONS, filetypes=FILETYPES, initialdir=get_desktop_path(),
             title=titulo, initialfile='novo_banco'
         )
         return Path(caminho).resolve()
@@ -49,10 +50,12 @@ class Arquivos:
         lista_questoes = []
         for questao in lista_de_questoes:
             lista_questoes.extend(questao.para_salvar())
+
         df_questoes = pd.DataFrame(lista_questoes, columns=COLUNAS_PADRAO, dtype='string')
 
         try:
-            df_questoes.to_excel(caminho, engine='openpyxl', sheet_name='questoes', index=OFF)
+            with pd.ExcelWriter(caminho, engine='openpyxl') as writer:
+                df_questoes.to_excel(writer, sheet_name='questoes', index=False)
         except PermissionError as err:
             showwarning(
                 'PermissionError',
@@ -74,7 +77,4 @@ class Arquivos:
             )
             return False
 
-        df_questoes.truncate()
-
-        del df_questoes
         return True

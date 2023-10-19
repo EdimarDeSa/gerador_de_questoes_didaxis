@@ -42,7 +42,7 @@ class JanelaDeBotoes(CTkFrame):
         if not self.gvar.pergunta.get_texto_completo() or self.verifica_texto_opcoes():
             return showwarning(
                 'Pergunta em branco',
-                'Para salvar uma questão é necessário que a pergunta e as alternativas ativas não esteja em '
+                'Para salvar uma questão é necessário que a pergunta e as np_alternativas ativas não esteja em '
                 'branco.'
             )
 
@@ -74,8 +74,8 @@ class JanelaDeBotoes(CTkFrame):
         return False
 
     def salvar_edicao(self):
-        self.gvar.questao_em_edicao.unidade = self.gvar.unidade.get()
-        self.gvar.questao_em_edicao.codigo = self.gvar.codigo_do_curso.get()
+        self.gvar.questao_em_edicao.categoria = self.gvar.unidade.get()
+        self.gvar.questao_em_edicao.subcategoria = self.gvar.codigo_do_curso.get()
         self.gvar.questao_em_edicao.tempo = self.gvar.tempo.get()
         self.gvar.questao_em_edicao.tipo = self.gvar.tipo.get()
         self.gvar.questao_em_edicao.dificuldade = self.gvar.dificuldade.get()
