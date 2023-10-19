@@ -1,19 +1,18 @@
-import json
-import os
-import os.path as path
-from typing import Literal
-
 from customtkinter import CTkFont
+from dataclasses import dataclass, field
 
 from Modules.constants import *
 from Modules.arquivos import Arquivos
+from .data_classes import Configuracoes, Perfil
 
 
-class Configuracoes:
+class ConfigurationManager:
     def __init__(self, arquivos: Arquivos):
         self.arquivos = arquivos
 
         self._CONFIGS_FILE = self.arquivos.base_dir / 'configs/configs.json'
+        self._PERFIL_FILE = self.arquivos.base_dir / 'configs/perfil.json'
+
         self._verifica_dependencias()
         self._configuracoes_dict = self.arquivos.abre_json(self._CONFIGS_FILE)
 

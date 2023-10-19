@@ -3,84 +3,88 @@ from tkinter.filedialog import asksaveasfilename
 
 from pandas import DataFrame, ExcelWriter
 
-from ..constants import *
+from ..constants import CABECALHO_DIDAXIS_LOWER, ERRADA, CORRETA, F, V, EXTENSIONS, FILETYPES, CABECALHO_DIDAXIS, ENGINE
 
 
-__all__ = ['save_file']
+__all__ = ['SalvarArquivo']
 
 
-def verify_keys(serial_keys: dict.keys) -> bool:
-    return set(serial_keys) == set(CABECALHO_DIDAXIS_LOWER)
+class SalvarArquivo:
+    _success = False
 
+    def __init__(self, *, lista_serial: list[dict], path: Path):
+        self.save_file(lista_serial, path)
 
-def _normalize_keys(to_normalize: dict) -> dict:
-    """
-    Normaliza as chaves do dicionário para letras minúsculas.
+    @staticmethod
+    def _verify_keys(serial_keys: dict.keys) -> bool:
+        return set(serial_keys) == set(CABECALHO_DIDAXIS_LOWER)
 
-    Normalizes dictionary keys to lowercase.
+    @staticmethod
+    def _normalize_keys(to_normalize: dict) -> dict:
+        """
+        Normaliza as chaves do dicionário para letras minúsculas.
 
-    :param to_normalize: Um dicionário a ser normalizado.
-    :return: Um dicionário com chaves em letras minúsculas.
-    """
-    return {key.upper(): value for key, value in to_normalize.items()}
+        Normalizes dictionary keys to lowercase.
 
+        :param to_normalize: Um dicionário a ser normalizado.
+        :return: Um dicionário com chaves em letras minúsculas.
+        """
+        return {key.upper(): value for key, value in to_normalize.items()}
 
-def _converte_correta(correct: bool, _type: str) -> None | str:
-    """
-    Converte o valor da resposta correta de acordo com o tipo de questão.
+    @staticmethod
+    def _converte_correta(correct: bool, _type: str) -> None | str:
+        """
+        Converte o valor da resposta correta de acordo com o tipo de questão.
 
-    Convert the value of the correct answer based on the question type.
-    """
-    tipo_para_correto = {
-        'me': (ERRADA, CORRETA),
-        'men': (ERRADA, CORRETA),
-        'vf': (F, V),
-        'd': (ERRADA, ERRADA)
-    }
-    return tipo_para_correto.get(_type)[int(correct)]
+        Convert the value of the correct answer based on the question type.
+        """
+        tipo_para_correto = {
+            'me': (ERRADA, CORRETA),
+            'men': (ERRADA, CORRETA),
+            'vf': (F, V),
+            'd': (ERRADA, ERRADA)
+        }
+        return tipo_para_correto.get(_type)[int(correct)]
 
+    @classmethod
+    def _normalize_serials(cls, lista_serial: list[dict]) -> list[dict]:
+        """
+        Normaliza as entradas da lista de questões serializadas.
 
-def _normalize_serials(lista_serial: list[dict]) -> list[dict]:
-    """
-    Normaliza as entradas da lista de questões serializadas.
+        Normalize the entries in the list of serialized questions.
+        """
+        new_serialized_list = []
+        for serial in lista_serial:
+            choices = serial.get('alternativas')
+            _type = serial.get('tipo')
+            del serial['alternativas']
+            for choice, correct in choices:
+                resultado = dict(alternativa=choice, correta=cls._converte_correta(correct, _type))
+                new_serial = serial.copy()  # Create a new copy of the 'serial' dictionary
+                new_serial.update(resultado)
+                new_serial = cls._normalize_keys(new_serial)
+                new_serialized_list.append(new_serial)
 
-    Normalize the entries in the list of serialized questions.
-    """
-    new_serialized_list = []
-    for serial in lista_serial:
-        choices = serial.get('alternativas')
-        _type = serial.get('tipo')
-        del serial['alternativas']
-        for choice, correct in choices:
-            resultado = dict(alternativa=choice, correta=_converte_correta(correct, _type))
-            new_serial = serial.copy()  # Create a new copy of the 'serial' dictionary
-            new_serial.update(resultado)
-            new_serial = _normalize_keys(new_serial)
-            new_serialized_list.append(new_serial)
+        return new_serialized_list
 
-    return new_serialized_list
+    @classmethod
+    def save_file(cls, lista_serial: list[dict], path: Path):
+        for serial in lista_serial:
 
+            if not cls._verify_keys(serial.keys()):
+                raise KeyError(f'Os dicionários devem conter as chaves: {CABECALHO_DIDAXIS_LOWER}')
 
+        normalized_path = Path(path).resolve()
 
-def save_file(lista_serial: list[dict], path: Path = None) -> bool | Exception:
-    for serial in lista_serial:
+        normalized_lista_serial = cls._normalize_serials(lista_serial)
 
-        if not verify_keys(serial.keys()):
-            raise KeyError(f'Os dicionários devem conter as chaves: {CABECALHO_DIDAXIS_LOWER}')
+        data_frame = DataFrame(normalized_lista_serial, columns=CABECALHO_DIDAXIS)
+        try:
+            with ExcelWriter(normalized_path, engine=ENGINE) as writer:
+                data_frame.to_excel(writer, index=False)
+        except PermissionError as err:
+            raise PermissionError(err)
+        cls._success = True
 
-    if path is None:
-        path = asksaveasfilename(
-            confirmoverwrite=ON, defaultextension=EXTENSIONS, filetypes=FILETYPES, initialfile='Novo banco'
-        )
-
-    normalized_path = Path(path).resolve()
-
-    normalized_lista_serial = _normalize_serials(lista_serial)
-
-    data_frame = DataFrame(normalized_lista_serial, columns=CABECALHO_DIDAXIS)
-    try:
-        with ExcelWriter(normalized_path, engine=ENGINE) as writer:
-            data_frame.to_excel(writer, index=False)
-    except PermissionError as err:
-        raise PermissionError(err)
-    return True
+    def __bool__(self):
+        return self._success

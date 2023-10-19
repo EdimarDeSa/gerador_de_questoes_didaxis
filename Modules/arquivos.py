@@ -1,80 +1,41 @@
 from pathlib import Path
-import json
-import pickle
 import tempfile
-from functools import cached_property
+from tkinter.filedialog import asksaveasfilename
 
-import pandas as pd
-
-from tkinter.messagebox import showwarning
-from Modules.models.questao import ModeloQuestao
-
-from Modules.constants import *
-from Modules.funcoes import get_desktop_path
+from Modules.constants import EXTENSIONS, FILETYPES
+from Modules.funcoes import AbrirArquivo, SalvarArquivo, FileSerializer
 
 
 class Arquivos:
     def __init__(self):
         self._temp_dir = tempfile.gettempdir()
         self.dir_atual: Path | None = None
-
-    @staticmethod
-    def salva_json(path: Path, data: [dict, list]):
-        with open(path, mode=W, encoding=ENCODER) as json_file:
-            json.dump(data, json_file, indent=2, sort_keys=True)
-
-    @staticmethod
-    def abre_json(path: Path) -> dict:
-        with open(path, encoding=ENCODER) as json_file:
-            return json.load(json_file)
-
-    @staticmethod
-    def abre_bin(path: Path) -> str:
-        with open(path, 'rb') as bin_file:
-            list_palavras = pickle.load(bin_file)
-        del bin_file
-        return list_palavras
+        self.base_dir = Path(__file__).resolve().parent.parent
 
     def cria_dicionario_pessoal(self, path: Path):
-        self.salva_json(path, self.abre_bin(self.base_dir / './configs/lista_de_paralvras.bin').split())
-
-    def caminho_para_salvar(self, titulo):
-        caminho = asksaveasfilename(
-            confirmoverwrite=ON, defaultextension=EXTENSIONS, filetypes=FILETYPES, initialdir=get_desktop_path(),
-            title=titulo, initialfile='novo_banco'
-        )
-        return Path(caminho).resolve()
+        unserialized_dictionary = FileSerializer.abre_bin(self.base_dir / './configs/lista_de_paralvras.bin')
+        FileSerializer.save_json(path, unserialized_dictionary)
 
     @staticmethod
-    def exportar(caminho: Path, lista_de_questoes: list[ModeloQuestao]):
-        lista_questoes = []
-        for questao in lista_de_questoes:
-            lista_questoes.extend(questao.para_salvar())
+    def _open_save_dir() -> Path | None:
+        caminho = asksaveasfilename(
+            confirmoverwrite=True, defaultextension=EXTENSIONS, filetypes=FILETYPES, initialfile='novo_banco',
+            initialdir=AbrirArquivo.get_desktop_path(),
+        )
+        if not caminho:
+            return None
 
-        df_questoes = pd.DataFrame(lista_questoes, columns=COLUNAS_PADRAO, dtype='string')
+        return Path(caminho).resolve()
 
-        try:
-            with pd.ExcelWriter(caminho, engine='openpyxl') as writer:
-                df_questoes.to_excel(writer, sheet_name='questoes', index=False)
-        except PermissionError as err:
-            showwarning(
-                'PermissionError',
-                'Não foi possível salvar o arquivo pois você não tem permissão.\n'
-                'Verifique se o arquivo não está aberto antes de continuar.\n'
-                f'Código: {err}'
-            )
-            return False
-        except FileExistsError as err:
-            showwarning(
-                'FileExistsError',
-                f'Código: {err}'
-            )
-            return False
-        except Exception as err:
-            showwarning(
-                'Exception',
-                f'Código: {err}'
-            )
-            return False
+    def exportar(self, lista_serial: list[dict]) -> bool | None:
+        if self.dir_atual is None:
+            caminho = self._open_save_dir()
+            if caminho is None:
+                return None
+            self.dir_atual = self._open_save_dir()
 
+        salvo = SalvarArquivo(lista_serial=lista_serial, path=self.dir_atual)
+
+        if not salvo:
+            return False
         return True

@@ -4,7 +4,7 @@ from tkinter.messagebox import askyesnocancel
 from Modules.janelas import *
 from Modules.models.globalvars import *
 from Modules.quadro_de_questoes.quadro_de_questoes import QuadroDeQuestoes
-from Modules.funcoes import abrir, altera_aparencia, altera_escala, altera_cor_padrao
+from Modules.funcoes import altera_aparencia, altera_escala, altera_cor_padrao
 
 
 # noinspection PyAttributeOutsideInit

@@ -1,5 +1,4 @@
-from ..constants import *
-from .questao import ModeloQuestao
+from ..data_classes import ModeloQuestao
 
 
 class ListaDeQuestoes:

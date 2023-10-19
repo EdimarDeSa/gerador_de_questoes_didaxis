@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 
 from Modules.arquivos import Arquivos
@@ -7,7 +8,13 @@ from Modules.constants import *
 __all__ = ['Perfil']
 
 
+@dataclass
 class Perfil:
+    unidade_padrao: str = ''
+    apagar_enunciado: bool = False
+    aparencia_do_sistema: str = 'System'
+    escala_do_sistema: str = '100%'
+
     def __init__(self, arquivos: Arquivos):
         self.arquivos = arquivos
 

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
-from Modules.constants import D, ME, MEN, VF, CORRETA, V, F
+
+__all__ = ['ModeloQuestao']
 
 
 @dataclass
