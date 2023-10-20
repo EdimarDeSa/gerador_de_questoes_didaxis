@@ -58,7 +58,7 @@ class Main(CTk):
 
     def configura_ui(self):
         JanelaQuantidadeDeQuestoes(self, self.gvar).place(relx=0.01, rely=0.02, relwidth=0.08, relheight=0.19)
-        # JanelaParametrosDaQuestao(self, self.gvar).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
+        JanelaParametrosDaQuestao(self, self.gvar).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
         # JanelaEnunciadoDaQuestao(self, self.gvar).place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
         # JanelaOpcoesDaQuestao(self, self.gvar).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
         # JanelaDeQuestoes(self, self.gvar).place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
@@ -84,17 +84,17 @@ class Main(CTk):
         def ctrl_events(e: Event):
             key = str(e.keysym).lower()
 
-            # def seleciona_tipo(indice: int):
-            #     self.gvar.tipo.set(self.gvar.configs.tipos[indice])
-            #     self.gvar.altera_alternativa()
+            def seleciona_tipo(indice: int):
+                self.gvar.tipo.set(self.cnf_manager.configs.tipos[indice])
+                self.gvar.altera_alternativa()
 
             def seleciona_dificuldade(indice: int):
-                self.gvar.dificuldade.set(self.gvar.configs.dificuldades[indice - 4])
+                self.gvar.dificuldade.set(self.cnf_manager.dificuldades[indice - 4])
 
             events = {
                 # 'e': self.exportar,
                 # 's': self.salvar,
-                'o': abrir,
+                # 'o': abrir,
                 'equal': self.gvar.add_alternativa,
                 'plus': self.gvar.add_alternativa,
                 'minus': self.gvar.rm_alternativa,

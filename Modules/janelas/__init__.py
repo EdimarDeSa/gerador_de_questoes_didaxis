@@ -1,5 +1,5 @@
 from .janelaquantidadedequestoes import JanelaQuantidadeDeQuestoes
-# from .janelaparametrosdaquestao import JanelaParametrosDaQuestao
+from .janelaparametrosdaquestao import JanelaParametrosDaQuestao
 # from .janelaenunciadodaquestao import JanelaEnunciadoDaQuestao
 # from .janelaopcoesdaquestao import JanelaOpcoesDaQuestao
 # from .janeladequestoes import JanelaDeQuestoes
