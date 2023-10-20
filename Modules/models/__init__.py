@@ -1,4 +1,2 @@
-__all__ = [
-    'questao',
-    'caixa_de_texto'
-]
+from .globalvars import *
+from .caixa_de_texto import *
