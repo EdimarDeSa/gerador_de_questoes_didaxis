@@ -172,3 +172,6 @@ class ConfigurationManager:
     @cor_padrao.setter
     def cor_padrao(self, value) -> None:
         self.perfil.atualiza_atributo(path=self._PERFIL_FILE, key='cor_padrao', value=value)
+
+    def add_palavra(self, palavra: str) -> None:
+        self._dicionario_pessoal.atualiza_atributo(self.PERSONAL_DICT_FILE, palavra)

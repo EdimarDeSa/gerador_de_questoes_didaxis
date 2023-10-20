@@ -10,9 +10,9 @@ __all__ = ['Configuracoes']
 
 @dataclass
 class Configuracoes:
-    fonte: str = 'Arial'
-    tamanho_texto: int = 8
-    tamanho_titulo: int = 10
+    fonte: str = 'Roboto'
+    tamanho_texto: int = 12
+    tamanho_titulo: int = 15
     fonte_estilo: Literal['bold', 'normal'] = 'bold'
     tipos: list[str] = field(default_factory=lambda: [
         'Multipla escolha 1 correta', 'Multipla escolha n corretas', 'Verdadeiro ou falso'

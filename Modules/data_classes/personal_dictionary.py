@@ -11,6 +11,6 @@ __all__ = ['PersonalDictionary']
 class PersonalDictionary:
     dictionary: set | None = None
 
-    def atualiza_atributo(self, *, path: Path, value: any):
+    def atualiza_atributo(self, path: Path, value: any):
         self.dictionary.add(value)
         FileSerializer.save_json(path, list(self.dictionary))

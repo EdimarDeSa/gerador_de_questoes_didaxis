@@ -1,7 +1,10 @@
 from tkinter.messagebox import showwarning, showinfo
 
-from Modules.models.globalvars import *
-from Modules.janelas.painel_de_configuracoes import PainelDeConfiguracoes
+from customtkinter import CTkFrame, CTk, CTkButton, NSEW, CTkCheckBox, CTkRadioButton
+
+from ..models.globalvars import VariaveisGlobais
+from ..models.caixa_de_texto import CaixaDeTexto
+from ..constants import D, ME, MEN, VF
 
 
 class JanelaDeBotoes(CTkFrame):

@@ -1,4 +1,7 @@
-from Modules.models.globalvars import *
+from customtkinter import CTkFrame, CTk, CTkLabel, CTkScrollableFrame, CTkRadioButton, CTkCheckBox, BOTH
+
+from ..models.globalvars import *
+from ..models.caixa_de_texto import CaixaDeTexto
 
 
 class JanelaOpcoesDaQuestao(CTkFrame):
@@ -8,7 +11,7 @@ class JanelaOpcoesDaQuestao(CTkFrame):
         self.gvar = variaveis_globais
 
         sc_frame = CTkScrollableFrame(self)
-        sc_frame.pack(expand=ON, fill=BOTH)
+        sc_frame.pack(expand=True, fill=BOTH)
 
         CTkLabel(sc_frame, text=None).grid(row=0, column=0)
         CTkLabel(sc_frame, text='Opções', **self.gvar.configs.label_titulos_configs).place(relx=0.47, rely=0.01)

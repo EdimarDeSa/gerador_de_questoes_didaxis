@@ -1,12 +1,11 @@
 from pathlib import Path
 
-from customtkinter import *
+from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, CTkEntry, CTkOptionMenu
 
 from ..arquivos import Arquivos
 from ..configuration_manager import ConfigurationManager
-from ..constants import *
 from ..imagens import Imagens
-from ..models import CaixaDeTexto
+from .caixa_de_texto import CaixaDeTexto
 from ..corretor_ortografico import CorretorOrtografico
 
 
@@ -16,19 +15,18 @@ __all__ = ['VariaveisGlobais']
 class VariaveisGlobais:
     def __init__(self, arquivos: Arquivos, configs_manager: ConfigurationManager, imagens: Imagens):
         self.arquivos = arquivos
-        self.configs = configs_manager
+        self.cnf_manager = configs_manager
         self.imagens = imagens
 
         # Variáveis de perfil
-        self.var_unidade_padrao = StringVar(value=self.perfil.unidade_padrao)
-        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self.perfil.apagar_enunciado)
-        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=False)
-        self.var_dark_mode: StringVar = StringVar(value=self.perfil.aparencia_do_sistema)
+        self.var_unidade_padrao = StringVar(value=self.cnf_manager.unidade_padrao)
+        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self.cnf_manager.apagar_enunciado)
+        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=self.cnf_manager.apagar_enunciado)
+        self.var_dark_mode: StringVar = StringVar(value=self.cnf_manager.aparencia_do_sistema)
 
         # Variáveis de controle
         self.caminho_atual: Path | None = None
         self.contador_de_opcoes: IntVar = IntVar(value=0)
-        self.questao_em_edicao: ModeloQuestao | None = None
         self.opcao_correta_radio_bt: IntVar = IntVar(value=0)
         self.display_quantidade_de_questoes: IntVar = IntVar(value=0)
         self.exportado: bool = True

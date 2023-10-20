@@ -1,4 +1,8 @@
+from customtkinter import CTkFrame, CTk, CTkLabel, CTkButton, END, CTkRadioButton, CTkCheckBox, NSEW
+
 from ..models.globalvars import *
+from ..models.caixa_de_texto import CaixaDeTexto
+from ..constants import VF, D, ME, MEN
 
 
 class JanelaEnunciadoDaQuestao(CTkFrame):
@@ -104,7 +108,7 @@ class JanelaEnunciadoDaQuestao(CTkFrame):
     def _get_ck_bt(self, indice) -> CTkCheckBox:
         return self.gvar.lista_ck_bts[indice]
 
-    def editar_questao(self, questao: ModeloQuestao):
+    def editar_questao(self, questao: int):
         self.gvar.reseta_informacoes()
 
         self.gvar.questao_em_edicao = questao

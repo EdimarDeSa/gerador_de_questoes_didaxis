@@ -1,7 +1,7 @@
 from customtkinter import CTkTextbox
 from tkinter.messagebox import showwarning
 
-from Modules.constants import *
+from ..constants import *
 
 
 __all__ = ['CaixaDeTexto']

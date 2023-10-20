@@ -1,4 +1,7 @@
-from Modules.models.globalvars import *
+from customtkinter import CTkFrame, CTk, CTkLabel, CTkOptionMenu, CTkEntry
+
+from ..models.globalvars import VariaveisGlobais
+from ..constants import PLACE_HOLDER_PESO, PLACE_HOLDER_CODIGO, PLACE_HOLDER_TEMPO
 
 
 class JanelaParametrosDaQuestao(CTkFrame):
@@ -11,7 +14,7 @@ class JanelaParametrosDaQuestao(CTkFrame):
             self, **self.gvar.configs.label_titulos_configs, text='Unidade'
         ).grid(column=0, row=0, padx=20)
         self.unidade = CTkOptionMenu(
-            self, values=self.gvar.configs.unidades, width=165, dynamic_resizing=OFF,
+            self, values=self.gvar.configs.unidades, width=165, dynamic_resizing=False,
             variable=self.gvar.var_unidade_padrao, **self.gvar.configs.list_configs
         )
         self.unidade.grid(column=0, row=1, padx=20, pady=(0, 20))
@@ -34,7 +37,7 @@ class JanelaParametrosDaQuestao(CTkFrame):
             self, text='Tipo da questão', **self.gvar.configs.label_titulos_configs
         ).grid(column=0, row=2, padx=20)
         self.tipo = CTkOptionMenu(
-            self, values=self.gvar.configs.tipos, width=165, dynamic_resizing=OFF,
+            self, values=self.gvar.configs.tipos, width=165, dynamic_resizing=False,
             **self.gvar.configs.list_configs
         )
         self.tipo.grid(column=0, row=3, padx=20, pady=(0, 20))
@@ -42,7 +45,7 @@ class JanelaParametrosDaQuestao(CTkFrame):
 
         CTkLabel(self, text='Dificuldade', **self.gvar.configs.label_titulos_configs).grid(column=1, row=2, padx=20)
         self.dificuldade = CTkOptionMenu(
-            self, values=self.gvar.configs.dificuldades, dynamic_resizing=OFF, **self.gvar.configs.list_configs
+            self, values=self.gvar.configs.dificuldades, dynamic_resizing=False, **self.gvar.configs.list_configs
         )
         self.dificuldade.grid(column=1, row=3, padx=20, pady=(0, 20))
 

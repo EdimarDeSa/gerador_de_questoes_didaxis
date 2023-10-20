@@ -1,4 +1,6 @@
-from Modules.models.globalvars import *
+from customtkinter import CTk, CTkFrame, CTkLabel, S, N
+
+from ..models.globalvars import VariaveisGlobais
 
 
 class JanelaQuantidadeDeQuestoes(CTkFrame):
@@ -8,10 +10,10 @@ class JanelaQuantidadeDeQuestoes(CTkFrame):
         self.gvar = variaveis_globais
 
         CTkLabel(
-            self, text='Total de questões:', **self.gvar.configs.label_titulos_configs, wraplength=85
-        ).pack(anchor=S, expand=ON)
+            self, text='Total de questões:', **self.gvar.cnf_manager.label_titulos_configs, wraplength=85
+        ).pack(anchor=S, expand=True)
 
         CTkLabel(
-            self, textvariable=self.gvar.display_quantidade_de_questoes, **self.gvar.configs.label_titulos_configs
-        ).pack(anchor=N, expand=ON)
+            self, textvariable=self.gvar.display_quantidade_de_questoes, **self.gvar.cnf_manager.label_titulos_configs
+        ).pack(anchor=N, expand=True)
 

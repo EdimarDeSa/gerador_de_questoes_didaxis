@@ -1,33 +1,32 @@
 from threading import Thread
-from tkinter import Menu, TclError
+from pathlib import Path
+from tkinter import Menu, TclError, Event
+from typing import Callable
 
-from spellchecker import *
+from spellchecker import SpellChecker
 
-from .models.caixa_de_texto import *
-from Modules.perfil import *
-from Modules.constants import *
+from .models.caixa_de_texto import CaixaDeTexto
+from .constants import *
+from Modules.configuration_manager import ConfigurationManager
 
 
 __all__ = ['CorretorOrtografico']
 
 
-class CorretorOrtografico(SpellChecker):
-    def __init__(self, perfil: Perfil, timeout=500, max_threads=2):
-        self.perfil = perfil
-        self.__corretor_ortografico = SpellChecker(
-            distance=2, case_sensitive=True, local_dictionary=str(perfil.CAMINHO_DICIONARIO_PESSOAL),
-        )
+class CorretorOrtografico:
+    def __init__(self, local_dictionary: Path, cmd_add_word: Callable, timeout=500, max_threads=2):
+        self.cmd_add_word = cmd_add_word
+        self._spell_checker = SpellChecker(distance=2, case_sensitive=True, local_dictionary=str(local_dictionary))
 
         self.__timeout = timeout
         self.__max_threads = max_threads
         self.__timer = None
-        self.__timer = None
         self.__running_threads = 0
 
-    def monitora_textbox(self, textbox: CaixaDeTexto):
-        textbox.bind('<KeyRelease>', lambda event: self.__inicia_temporizador(event), add='+')
+    def monitora_textbox(self, textbox: CaixaDeTexto) -> None:
+        textbox.bind('<KeyRelease>', self.__inicia_temporizador, add='+')
 
-    def __inicia_temporizador(self, event):
+    def __inicia_temporizador(self, event: Event) -> None:
         if len(event.keysym) != 1:
             return
         self.__text_widget: CaixaDeTexto = event.widget.master
@@ -35,18 +34,18 @@ class CorretorOrtografico(SpellChecker):
             self.__text_widget.after_cancel(self.__timer)
         self.__timer = self.__text_widget.after(self.__timeout, self.__verifica_thread_para_inicio_da_correcao)
 
-    def __verifica_thread_para_inicio_da_correcao(self):
+    def __verifica_thread_para_inicio_da_correcao(self) -> None:
         if self.__running_threads < self.__max_threads:
             self.__running_threads += 1
             Thread(target=self.__inicia_correcao).start()
 
-    def __inicia_correcao(self):
+    def __inicia_correcao(self) -> None:
         self.__limpa_correcoes_anteriores()
 
-        palavras = self.__corretor_ortografico.split_words(self.__text_widget.get_texto_completo())
-        palavras_erradas = self.__corretor_ortografico.unknown(palavras)
+        palavras = self._spell_checker.split_words(self.__text_widget.get_texto_completo())
+        palavras_erradas = self._spell_checker.unknown(palavras)
         for palavra in palavras_erradas:
-            sugeridas = self.__corretor_ortografico.candidates(palavra)
+            sugeridas = self._spell_checker.candidates(palavra)
             self.__text_widget.registra_possiveis_correcoes(palavra, sugeridas)
             try:
                 start_index = self.__text_widget.search(palavra, '1.0', 'end')
@@ -59,12 +58,12 @@ class CorretorOrtografico(SpellChecker):
 
         self.__running_threads -= 1
 
-    def __limpa_correcoes_anteriores(self):
+    def __limpa_correcoes_anteriores(self) -> None:
         for nome_da_tag in self.__text_widget.tag_names():
             if nome_da_tag.startswith("corretor_ortografico_"):
                 self.__text_widget.remove_correcao_pela_tag(nome_da_tag)
 
-    def show_correction_menu(self, event, palavra):
+    def show_correction_menu(self, event, palavra) -> None:
         text_widget: CaixaDeTexto = event.widget.master
         pop_up_menu = Menu(text_widget, tearoff=False, font='arial 12')
         for correction in text_widget.get_possiveis_correcoes(palavra):
@@ -81,7 +80,7 @@ class CorretorOrtografico(SpellChecker):
 
         pop_up_menu.tk_popup(x=event.x_root, y=event.y_root)
 
-    def __aplica_correcao(self, correction, palavra, text_widget):
+    def __aplica_correcao(self, correction, palavra, text_widget) -> None:
         start_index = text_widget.get_posicao_inicial(palavra)
         end_index = text_widget.get_posicao_final(palavra)
         tag_name = text_widget.get_nome_da_tag(palavra)
@@ -94,15 +93,16 @@ class CorretorOrtografico(SpellChecker):
         text_widget.palavras_com_sugestoes.pop(palavra)
         text_widget.focus_set()
 
-    def __aplica_adicao(self, text_widget, start_index, end_index, tag_name, palavra):
-        self.dicionario_pessoal.add_palavra(palavra)
+    def __aplica_adicao(self, text_widget, start_index, end_index, tag_name, palavra) -> None:
+        self.cmd_add_word(palavra)
         text_widget.tag_remove(tag_name, start_index, end_index)
 
-    def __aplica_substituicao(self, text_widget, start_index, end_index, tag_name, correction):
+    @staticmethod
+    def __aplica_substituicao(text_widget, start_index, end_index, tag_name, correction) -> None:
         text_widget.tag_remove(tag_name, start_index, end_index)
         text_widget.delete(start_index, end_index)
         text_widget.insert(start_index, correction)
 
-    def __nada_a_fazer(self):
+    @staticmethod
+    def __nada_a_fazer() -> None:
         pass
-
