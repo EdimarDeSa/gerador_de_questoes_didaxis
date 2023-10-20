@@ -13,8 +13,8 @@ class Arquivos:
         self.base_dir = Path(__file__).resolve().parent.parent
 
     def cria_dicionario_pessoal(self, path: Path):
-        unserialized_dictionary = FileSerializer.abre_bin(self.base_dir / './configs/lista_de_paralvras.bin')
-        FileSerializer.save_json(path, unserialized_dictionary)
+        unserialized_dictionary = FileSerializer.open_bin(self.base_dir / './configs/lista_de_paralvras.bin')
+        FileSerializer.save_json(path, unserialized_dictionary.split('\n'))
 
     @staticmethod
     def _open_save_dir() -> Path | None:
