@@ -39,30 +39,6 @@ FILETYPES = (('Pasta de Trabalho do Excel', '*.xlsx'),)
 # Extensão padrão de arquivo
 EXTENSIONS = '.xlsx'
 
-# Configurações gerais
-CONFIGURACOES = {
-    'cor_da_borda': 'darkgreen',
-    'cor_de_fundo': 'lightgreen',
-    'fonte': 'Arial',
-    'tamanho_texto': 8,
-    'tamanho_titulo': 10,
-    'fonte_estilo': 'bold',
-    'tipos': ['Multipla escolha 1 correta', 'Multipla escolha n corretas', 'Verdadeiro ou falso'],
-    'unidades': [
-        'Astec', 'Comunicação', 'Controle de acesso', 'Energia', 'Exportação', 'Gestão', 'Incêndio e iluminação',
-        'Negócios', 'Redes', 'Segurança eletrônica', 'Solar', 'Soluções', 'Varejo', 'Verticais'
-    ],
-    'dificuldades': ['Fácil', 'Médio', 'Difícil']
-}
-
-# Perfil do usuário
-PERFIL = {
-    'unidade_padrao': '',
-    'apagar_enunciado': False,
-    'aparencia_do_sistema': 'System',
-    'escala_do_sistema': '100%'
-}
-
 # Configurações para codificação de caracteres
 ENCODER = 'UTF-8'
 
