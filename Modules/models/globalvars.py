@@ -2,22 +2,21 @@ from pathlib import Path
 
 from customtkinter import *
 
-from Modules.arquivos import Arquivos
-from Modules.configuracoes import Configuracoes
-from Modules.constants import *
-from Modules.perfil import Perfil
-from Modules.imagens import Imagens
-from Modules.models.caixa_de_texto import CaixaDeTexto
-from Modules.models.questao import ModeloQuestao
-from Modules.corretor_ortografico import CorretorOrtografico
+from ..arquivos import Arquivos
+from ..configuration_manager import ConfigurationManager
+from ..constants import *
+from ..imagens import Imagens
+from ..models import CaixaDeTexto
+from ..corretor_ortografico import CorretorOrtografico
+
+
+__all__ = ['VariaveisGlobais']
 
 
 class VariaveisGlobais:
-    def __init__(self, arquivos: Arquivos, configs: Configuracoes, perfil: Perfil, imagens: Imagens):
-        # Geral
+    def __init__(self, arquivos: Arquivos, configs_manager: ConfigurationManager, imagens: Imagens):
         self.arquivos = arquivos
-        self.configs = configs
-        self.perfil = perfil
+        self.configs = configs_manager
         self.imagens = imagens
 
         # Variáveis de perfil
