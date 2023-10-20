@@ -1,7 +1,7 @@
 from tkinter.messagebox import showwarning, showinfo
 
 from Modules.models.globalvars import *
-from Modules.painel_de_configuracoes import PainelDeConfiguracoes
+from Modules.janelas.painel_de_configuracoes import PainelDeConfiguracoes
 
 
 class JanelaDeBotoes(CTkFrame):
