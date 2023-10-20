@@ -1,44 +1,33 @@
 from tkinter.messagebox import askyesno
 
+from customtkinter import CTkFrame, CTkImage, CTkLabel, W, CTkButton, StringVar
+
 from Modules.models.globalvars import *
 
 
-class LinhaDeQuestao(CTkFrame):
-    def __init__(
-            self, master: CTkScrollableFrame, questao: ModeloQuestao, variaveis_globais: VariaveisGlobais, **kwargs
-    ):
-        super().__init__(master, **kwargs)
-        self.gvar = variaveis_globais
+class LinhaDeQuestao:
+    def __init__(self, master: CTkFrame, title: str, controle: int, img_edit: CTkImage, img_delete: CTkImage, **kwargs):
+        self.controle = controle
+        self.title = StringVar(value=title)
 
-        self._master = master
+        self.cmd_edit = kwargs.get('cmd_edit')
+        self.cmd_delete = kwargs.get('cmd_delete')
 
-        self.questao: ModeloQuestao = questao
+        CTkLabel(master, textvariable=self.title, anchor=W,
+                 wraplength=540).place(relx=0.01, relwidth=0.8, relheight=1)
 
-        self._label = CTkLabel(self, text=self.questao.pergunta, width=550, anchor=W, height=30, wraplength=540)
-        self._label.grid(row=0, column=0, pady=5, padx=(5, 0))
+        CTkButton(master, text=None, command=self._botao_editar,
+                  image=img_edit).place(relx=0.815, rely=0.05, relwidth=0.06, relheight=0.9)
 
-        CTkButton(
-            self, text=None, width=30, height=30, command=self._botao_editar,
-            image=self.gvar.imagens.bt_editar_questao_img()
-        ).grid(column=1, row=0, padx=15)
-
-        CTkButton(
-            self, text=None, width=30, height=30, command=self._botao_deletar,
-            image=self.gvar.imagens.bt_deletar_questao_img()
-        ).grid(column=2, row=0, padx=15)
+        CTkButton(master, text=None, command=self._botao_deletar,
+                  image=img_delete).place(relx=0.915, rely=0.05, relwidth=0.06, relheight=0.9)
 
     def _botao_deletar(self):
         resposta = askyesno('Deseja deletar a questão?',
                             'Tem certeza que deseja deletar a questão? Esse processo não poderá ser desfeito.')
 
         if resposta:
-            self.gvar.delete_event(self)
-            self.destroy()
+            self.cmd_delete(self.controle)
 
     def _botao_editar(self):
-        self.gvar.editar_questao(self.questao)
-
-    def salva_questao_editada(self, nova_questao: ModeloQuestao):
-        self.questao = None
-        self.questao = nova_questao
-        self._label.configure(text=self.questao.pergunta)
+        self.cmd_edit(self.controle)

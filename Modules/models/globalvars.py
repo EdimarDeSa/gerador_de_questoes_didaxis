@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Callable
+from tkinter.messagebox import showinfo
 
 from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW
 
@@ -7,14 +8,16 @@ from ..configuration_manager import ConfigurationManager
 from .caixa_de_texto import CaixaDeTexto
 from ..corretor_ortografico import CorretorOrtografico
 from ..constants import PLACE_HOLDER_TEMPO, PLACE_HOLDER_PESO, D, VF, ME, MEN
+from Modules.questions_manager import QuestionsManager
 
 
 __all__ = ['VariaveisGlobais']
 
 
 class VariaveisGlobais:
-    def __init__(self, configs_manager: ConfigurationManager):
+    def __init__(self, configs_manager: ConfigurationManager, question_manager: QuestionsManager):
         self._cnf_manager = configs_manager
+        self._quest_manager = question_manager
 
         # Variáveis de perfil
         self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
@@ -30,8 +33,6 @@ class VariaveisGlobais:
 
         # Funcoes de Controle
         self.corretor_ortografico: CorretorOrtografico | None = None
-        self.editar_questao = None
-        self.delete_event = None
         self.exportar = None
         self.exit = None
         self.atualiza_titulo = None
@@ -50,6 +51,19 @@ class VariaveisGlobais:
 
         # Quadro de questões
         self.quadro_de_questoes = None
+
+        for i in range(10):
+            self._quest_manager.create_new_question(
+                tipo=ME,
+                peso=self.peso.get(),
+                tempo=self.tempo.get(),
+                pergunta=f'Pergunta {i}',
+                categoria=self.categoria.get(),
+                subcategoria=self.sub_categoria.get(),
+                alternativas=[('Op 1', True), ('Op 2', False), ('Op 3', False), ('Op 4', False), ('Op 5', False)],
+                dificuldade=self.dificuldade.get(),
+            )
+            self.quadro_de_questoes.create_new_question_line(f'Pergunta {i}', i)
 
     def reseta_informacoes(self):
         # Janela de parâmetros
@@ -134,3 +148,20 @@ class VariaveisGlobais:
             self.rm_alternativa(indice=indice)
             self.add_alternativa(indice=indice)
         # self.organiza_ordem_tabulacao()
+
+    def delete_question(self, controle: int) -> None:
+        if self._quest_manager.remove_question(controle):
+            showinfo('Questão deletada', 'A questão foi deletada com sucesso!')
+
+    def editar_questao(self, controle: int) -> None:
+        question_info: dict = self._quest_manager.get_question(controle)
+        self.categoria.set(question_info.get('categoria'))
+        self.sub_categoria.set(question_info.get('sub_categoria'))
+        self.tempo.set(question_info.get('tempo'))
+        self.tipo.set(question_info.get('tipo'))
+        self.dificuldade.set(question_info.get('dificuldade'))
+        self.peso.set(question_info.get('peso'))
+        self.pergunta.insert(1.0, question_info.get('pergunta'))
+
+        for choice in question_info.get('alternativas'):
+            print(choice)

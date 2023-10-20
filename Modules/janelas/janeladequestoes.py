@@ -1,17 +1,27 @@
+from typing import Literal
+
+from customtkinter import CTk, CTkFrame, CTkLabel, CTkScrollableFrame, CTkImage, BOTH, X, CENTER
+
+from ..constants import VERDE, TRANSPARENTE
+from ..configuration_manager import ConfigurationManager
 from ..models.globalvars import VariaveisGlobais
 from .linha_de_questao import LinhaDeQuestao
 
 
 class JanelaDeQuestoes(CTkFrame):
-    def __init__(self, master: CTk, variaveis_globais: VariaveisGlobais, **kwargs):
+    def __init__(self, master: CTk, configuration_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais,
+                 img_edit: CTkImage, img_delete: CTkImage, **kwargs):
         super().__init__(master, **kwargs)
 
+        self.cnf_manager = configuration_manager
         self.gvar = variaveis_globais
+        self.img_edit = img_edit
+        self.img_delete = img_delete
 
         self._master = CTkScrollableFrame(self)
-        self._master.pack(fill=BOTH, expand=ON)
+        self._master.pack(fill=BOTH, expand=True)
 
-        self._row_list: list[LinhaDeQuestao] = list()
+        self._row_dict: dict[int, dict[[Literal['row'], CTkFrame], [Literal['display'], LinhaDeQuestao]]] = dict()
         self._zebrar: bool = False
         self._linha_atual: int = 0
 
@@ -19,29 +29,39 @@ class JanelaDeQuestoes(CTkFrame):
 
         # ------ Adiciona variáveis globais ------ #
 
-        self.gvar.delete_event = self.delete_event
         self.gvar.quadro_de_questoes = self
 
+    def _create_line_winow(self, fg_color: str) -> CTkFrame:
+        window = CTkFrame(self._master, fg_color=fg_color, height=45)
+        window.pack(expand=True, fill=X)
+        return window
+
     def _init_header(self):
-        cabecalho = CTkFrame(self._master, fg_color=self._select_color(), width=680)
-        cabecalho.grid(row=self._linha_atual, column=0, columnspan=3, pady=2)
+        color = self._select_color()
+        line_window = self._create_line_winow(color)
 
-        cabecalho.grid_columnconfigure(0, minsize=700, weight=20)
-        cabecalho.grid_columnconfigure(1, minsize=50, weight=1)
-        cabecalho.grid_columnconfigure(2, minsize=50, weight=1)
+        CTkLabel(line_window, fg_color=color, text='Enunciado').place(relx=0.01, relwidth=0.8, relheight=1)
+        CTkLabel(line_window, bg_color=color, text='Editar').place(relx=0.8, relwidth=0.09, relheight=1)
+        CTkLabel(line_window, bg_color=color, text='Deletar').place(relx=0.9, relwidth=0.09, relheight=1)
 
-        CTkLabel(cabecalho, text='Enunciado').grid(row=self._linha_atual, column=0, pady=2, padx=(2, 0))
-        CTkLabel(cabecalho, text='Editar').grid(row=self._linha_atual, column=1, padx=15)
-        CTkLabel(cabecalho, text='Deletar').grid(row=self._linha_atual, column=2, padx=15)
-        self._add_linha()
+    def create_new_question_line(self, title: str, controle: int):
+        color = self._select_color()
+        line_window = self._create_line_winow(color)
 
-    def adiciona_questao(self, questao: ModeloQuestao):
-        nw_question_frame = LinhaDeQuestao(self._master, questao, self.gvar)
-        nw_question_frame.grid(row=self._linha_atual, column=0, columnspan=3, pady=2)
+        new_question_line = LinhaDeQuestao(line_window, title, controle, self.img_edit, self.img_delete,
+                                           cmd_delete=self.delete_event, cmd_edit=self.gvar.editar_questao)
 
-        self._row_list.append(nw_question_frame)
-        self._add_linha()
-        self.gvar.display_quantidade_de_questoes.set(self.quantidade_de_questoes_registradas())
+        self._row_dict[controle] = {'row': line_window, 'display': new_question_line}
+
+        self.gvar.display_quantidade_de_questoes.set(len(self._row_dict))
+
+    def delete_event(self, controle: int):
+        row = self._row_dict[controle]['row']
+        row.destroy()
+        del self._row_dict[controle]
+        self._reorder_colors()
+        self.gvar.display_quantidade_de_questoes.set(len(self._row_dict))
+        self.gvar.delete_question(controle)
 
     def _select_color(self) -> str:
         cor = VERDE
@@ -52,34 +72,11 @@ class JanelaDeQuestoes(CTkFrame):
 
     def _reorder_colors(self):
         self._zebrar = True
-        for row in self._row_list:
-            if row.winfo_exists():
-                row.configure(fg_color=self._select_color())
-
-    def _add_linha(self):
-        self._linha_atual += 1
-
-    def delete_event(self, row: LinhaDeQuestao):
-        self._row_list.remove(row)
-        del row
-        self._reorder_colors()
-        self.gvar.display_quantidade_de_questoes.set(self.quantidade_de_questoes_registradas())
-
-    def lista_de_questoes(self) -> list[ModeloQuestao]:
-        lista = [row.questao for row in self._row_list]
-        return lista
-
-    def salvar_edicao_de_questao(self):
-        for row in self._row_list:
-            if row.questao == self.gvar.questao_em_edicao:
-                row.salva_questao_editada(self.gvar.questao_em_edicao)
+        for row_info in self._row_dict.values():
+            row_info['row'].configure(fg_color=self._select_color())
 
     def verifica_se_pergunta_ja_existe(self) -> bool:
         perguntas = []
-        if self._row_list:
+        if self._row_dict:
             perguntas = [questao.pergunta for questao in self.lista_de_questoes()]
         return self.gvar.pergunta.get_texto_completo() in perguntas
-
-    def quantidade_de_questoes_registradas(self) -> int:
-        total = len(self._row_list)
-        return total

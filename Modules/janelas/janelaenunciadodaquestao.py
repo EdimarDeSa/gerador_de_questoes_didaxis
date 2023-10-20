@@ -9,10 +9,11 @@ from ..constants import VF, D, ME, MEN
 
 
 class JanelaEnunciadoDaQuestao(CTkFrame):
-    def __init__(self, master: CTk, cnf_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais, **kwargs):
+    def __init__(self, master: CTk, configuration_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais,
+                 **kwargs):
         super().__init__(master, **kwargs)
 
-        self.cnf_manager = cnf_manager
+        self.cnf_manager = configuration_manager
         self.gvar = variaveis_globais
         
         label_configs = self.cnf_manager.label_titulos_configs

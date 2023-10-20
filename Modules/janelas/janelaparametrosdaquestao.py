@@ -5,11 +5,12 @@ from ..models.globalvars import VariaveisGlobais
 
 
 class JanelaParametrosDaQuestao(CTkFrame):
-    def __init__(self, master: CTk, cnf_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais, **kwargs):
+    def __init__(self, master: CTk, configuration_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais,
+                 **kwargs):
         super().__init__(master, **kwargs)
         self.grid_columnconfigure((0, 1, 2), weight=1)
 
-        self.cnf_manager = cnf_manager
+        self.cnf_manager = configuration_manager
         self.gvar = variaveis_globais
 
         list_configs = self.cnf_manager.list_configs

@@ -22,7 +22,7 @@ class Main(CTk):
         self.arquivos = Arquivos()
         self.cnf_manager = ConfigurationManager(self.arquivos)
         self.imagens = Imagens(self.arquivos.base_dir)
-        self.questions_manager = QuestionsManager()
+        self.quest_manager = QuestionsManager()
 
         self.configura_ui_master()
         self.configura_variaveis()
@@ -50,7 +50,7 @@ class Main(CTk):
         altera_escala(self.cnf_manager.escala_do_sistema)
 
     def configura_variaveis(self):
-        self.gvar = VariaveisGlobais(self.cnf_manager)
+        self.gvar = VariaveisGlobais(self.cnf_manager, self.quest_manager)
 
         self.gvar.corretor_ortografico = CorretorOrtografico(self.cnf_manager.PERSONAL_DICT_FILE,
                                                              self.cnf_manager.add_palavra)
@@ -66,7 +66,9 @@ class Main(CTk):
                                                                           relheight=0.19)
         JanelaOpcoesDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.44, relwidth=0.485,
                                                                        relheight=0.46)
-        # JanelaDeQuestoes(self, self.gvar).place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
+        JanelaDeQuestoes(self, self.cnf_manager, self.gvar, self.imagens.bt_editar_questao_img(),
+                         self.imagens.bt_deletar_questao_img()
+                         ).place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
         # JanelaDeBotoes(self, self.gvar).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
     def set_titulo(self, texto: str = 'Editor de questões'):

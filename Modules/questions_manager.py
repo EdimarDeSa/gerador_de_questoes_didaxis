@@ -7,26 +7,22 @@ class QuestionsManager:
         self._control: int = 0
         self._intermediate_question: ModeloQuestao(None, None, None, None, None, None, None, None, None)
 
-    def add_question(
-            self, id: int = None, tipo: str = None, peso: str = None, tempo: str = None, controle: str = None,
-            pergunta: str = None, categoria: str = None, subcategoria: str = None, dificuldade: str = None,
-            alternativas: list[tuple[str, bool]] = None, serial_dict: dict = None
-    ) -> int:
+    def create_new_question(self, tipo: str = None, peso: str = None, tempo: str = None, pergunta: str = None,
+                            categoria: str = None, subcategoria: str = None, dificuldade: str = None,
+                            alternativas: list[tuple[str, bool]] = None, serial_dict: dict = None) -> int:
         if serial_dict is not None:
             new_question = ModeloQuestao(**serial_dict)
         else:
-            new_question = ModeloQuestao(
-                id=id, tipo=tipo, peso=peso, tempo=tempo, controle=controle, pergunta=pergunta, categoria=categoria,
-                subcategoria=subcategoria, dificuldade=dificuldade, alternativas=alternativas
-            )
+            new_question = ModeloQuestao(tipo=tipo, peso=peso, tempo=tempo, pergunta=pergunta, categoria=categoria,
+                                         subcategoria=subcategoria, alternativas=alternativas, dificuldade=dificuldade)
 
         new_question.controle = self.__next_id()
         self._dict_de_questoes[new_question.controle] = new_question
         return new_question.controle
 
-    def remove_question(self, *, question_id: int):
-        if question_id in self._dict_de_questoes:
-            del self._dict_de_questoes[question_id]
+    def remove_question(self, controle: int):
+        if controle in self._dict_de_questoes:
+            del self._dict_de_questoes[controle]
             return True
         return False
 
@@ -56,9 +52,9 @@ class QuestionsManager:
             question.alternativas = alternativas
         return True
 
-    def get_question(self, question_id: int):
-        question = self._dict_de_questoes.get(question_id, None)
-        return question.__dict__
+    def get_question(self, controle: int):
+        question = self._dict_de_questoes.get(controle, None)
+        return question.__dict__.copy()
 
     def __next_id(self) -> int:
         self._control += 1
