@@ -1,4 +1,4 @@
-from Modules.models.globalvars import *
+from ..models.globalvars import *
 
 
 class JanelaEnunciadoDaQuestao(CTkFrame):
