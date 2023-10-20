@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
-from customtkinter import CTkFont
+from customtkinter import CTkFont, CENTER
 
 from .arquivos import Arquivos
 from .data_classes import Configuracoes, Perfil, PersonalDictionary
@@ -80,40 +80,31 @@ class ConfigurationManager:
 
     @property
     def label_titulos_configs(self) -> dict:
-        return {'font': self._fonte_titulo}
+        return dict(font=self._fonte_titulo)
 
     @property
     def list_configs(self) -> dict:
-        return {'font': self._fonte_texto}
+        return dict(font=self._fonte_texto, dynamic_resizing=False, anchor=CENTER)
 
     @property
     def buttons_configs(self) -> dict:
-        return {'font': self._fonte_texto}
+        return dict(font=self._fonte_texto)
 
     @property
     def bt_opcoes_configs(self) -> dict:
-        return {'font': self._fonte_texto}
+        return dict(font=self._fonte_texto)
 
     @property
     def text_configs(self) -> dict:
-        return {
-            'undo': True,
-            'wrap': WORD,
-            'autoseparators': True,
-            'exportselection': True,
-            'maxundo': 5
-        }
+        return dict(undo=True, wrap=WORD, autoseparators=True, exportselection=True, maxundo=5)
 
     @property
     def entry_configs(self) -> dict:
-        return {
-            'font': self._fonte_texto,
-            'exportselection': True
-        }
+        return dict(font=self._fonte_texto, exportselection=True, width=180)
 
     @property
     def scrollable_label_configs(self):
-        return {'label_font': self._fonte_texto}
+        return dict(label_font=self._fonte_texto)
 
     @property
     def tipos(self) -> list:
@@ -122,7 +113,7 @@ class ConfigurationManager:
         return tipos
 
     @property
-    def unidades(self) -> list:
+    def categorias(self) -> list:
         unidades: list = self.configs.unidades
         unidades.sort()
         return unidades
@@ -130,7 +121,6 @@ class ConfigurationManager:
     @property
     def dificuldades(self) -> list:
         dificuldades: list = self.configs.dificuldades
-        dificuldades.sort()
         return dificuldades
 
     @property

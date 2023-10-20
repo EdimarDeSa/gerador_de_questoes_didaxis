@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Literal
 
 from ..funcoes import FileSerializer
+from ..constants import D, VF, ME, MEN
 
 
 __all__ = ['Configuracoes']
@@ -14,9 +15,7 @@ class Configuracoes:
     tamanho_texto: int = 12
     tamanho_titulo: int = 15
     fonte_estilo: Literal['bold', 'normal'] = 'bold'
-    tipos: list[str] = field(default_factory=lambda: [
-        'Multipla escolha 1 correta', 'Multipla escolha n corretas', 'Verdadeiro ou falso'
-    ])
+    tipos: list[str] = field(default_factory=lambda: [ME, MEN, VF, D])
     unidades: list[str] = field(default_factory=lambda: [
         'Astec', 'Comunicação', 'Controle de acesso', 'Energia', 'Exportação', 'Gestão', 'Incêndio e iluminação',
         'Negócios', 'Redes', 'Segurança eletrônica', 'Solar', 'Soluções', 'Varejo', 'Verticais'

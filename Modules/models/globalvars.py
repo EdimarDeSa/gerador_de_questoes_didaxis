@@ -1,28 +1,25 @@
 from pathlib import Path
+from typing import Callable
 
-from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, CTkEntry, CTkOptionMenu
+from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW
 
-from ..arquivos import Arquivos
 from ..configuration_manager import ConfigurationManager
-from ..imagens import Imagens
 from .caixa_de_texto import CaixaDeTexto
 from ..corretor_ortografico import CorretorOrtografico
+from ..constants import PLACE_HOLDER_TEMPO, PLACE_HOLDER_PESO, D, VF, ME, MEN
 
 
 __all__ = ['VariaveisGlobais']
 
 
 class VariaveisGlobais:
-    def __init__(self, arquivos: Arquivos, configs_manager: ConfigurationManager, imagens: Imagens):
-        self.arquivos = arquivos
-        self.cnf_manager = configs_manager
-        self.imagens = imagens
+    def __init__(self, configs_manager: ConfigurationManager):
+        self._cnf_manager = configs_manager
 
         # Variáveis de perfil
-        self.var_unidade_padrao = StringVar(value=self.cnf_manager.unidade_padrao)
-        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self.cnf_manager.apagar_enunciado)
-        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=self.cnf_manager.apagar_enunciado)
-        self.var_dark_mode: StringVar = StringVar(value=self.cnf_manager.aparencia_do_sistema)
+        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
+        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
+        self.var_dark_mode: StringVar = StringVar(value=self._cnf_manager.aparencia_do_sistema)
 
         # Variáveis de controle
         self.caminho_atual: Path | None = None
@@ -33,9 +30,6 @@ class VariaveisGlobais:
 
         # Funcoes de Controle
         self.corretor_ortografico: CorretorOrtografico | None = None
-        self.reseta_informacoes = None
-        self.add_alternativa = None
-        self.rm_alternativa = None
         self.editar_questao = None
         self.delete_event = None
         self.exportar = None
@@ -43,12 +37,12 @@ class VariaveisGlobais:
         self.atualiza_titulo = None
 
         # Campos da questao
-        self.unidade: CTkOptionMenu | None = None
-        self.codigo_do_curso: CTkEntry | None = None
-        self.tempo: CTkEntry | None = None
-        self.tipo: CTkOptionMenu | None = None
-        self.dificuldade: CTkOptionMenu | None = None
-        self.peso: CTkEntry | None = None
+        self.categoria = StringVar(value=self._cnf_manager.unidade_padrao)
+        self.sub_categoria = StringVar()
+        self.tempo = StringVar(value=PLACE_HOLDER_TEMPO)
+        self.tipo = StringVar(value=self._cnf_manager.tipos[1])
+        self.dificuldade = StringVar(value=self._cnf_manager.dificuldades[0])
+        self.peso = StringVar(value=PLACE_HOLDER_PESO)
         self.pergunta: CaixaDeTexto | None = None
         self.lista_txt_box: list[CaixaDeTexto | None] = list()
         self.lista_rd_bts: list[CTkRadioButton | None] = list()
@@ -56,3 +50,87 @@ class VariaveisGlobais:
 
         # Quadro de questões
         self.quadro_de_questoes = None
+
+    def reseta_informacoes(self):
+        # Janela de parâmetros
+        self.categoria.set(self._cnf_manager.unidade_padrao)
+        self.sub_categoria.set('')
+        self.tempo.set(PLACE_HOLDER_TEMPO)
+        self.tipo.set(self._cnf_manager.tipos[1])
+        self.dificuldade.set(self._cnf_manager.dificuldades[0])
+        self.peso.set(PLACE_HOLDER_PESO)
+
+        # Janela de enunciado
+        if self.var_apagar_enunciado:
+            self.pergunta.delete(0.0, END)
+
+        # Janela de botões
+        self.opcao_correta_radio_bt.set(0)
+        for bt in self.lista_ck_bts:
+            bt.deselect()
+        for txt_box in self.lista_txt_box:
+            txt_box.delete(0.0, END)
+            self.rm_alternativa()
+
+        self.pergunta.focus()
+
+    def add_alternativa(self, texto_alternativa=None, indice=None) -> None:
+        if self.contador_de_opcoes.get() == len(self.lista_txt_box) or self.tipo.get() == D:
+            return None
+
+        # Ativado pela alteração de tipo de questão
+        if indice is None:
+            indice = self.contador_de_opcoes.get()
+
+        # Se a linha for zero, seta como 50, do contrário, 10
+        pady = (5 if not indice else 10, 0)
+
+        self.lista_txt_box[indice].grid(column=0, row=indice, sticky=NSEW, pady=pady)
+
+        # Ativado pela edição de questão
+        if texto_alternativa is not None:
+            self.lista_txt_box[indice].insert(1.0, texto_alternativa)
+
+        bt = self._get_opcao_bt(indice, self.tipo.get())
+        bt.grid(column=1, row=indice, padx=(10, 0), pady=pady)
+
+        self.contador_de_opcoes.set(self.contador_de_opcoes.get() + 1)
+
+    def rm_alternativa(self, indice=None) -> None:
+        # Se for zero signifca que não tem opção exibida e cancela a ação
+        if not self.contador_de_opcoes.get():
+            return None
+
+        self.contador_de_opcoes.set(self.contador_de_opcoes.get() - 1)
+
+        # Ativado pela edição de questão
+        if indice is None:
+            indice = self.contador_de_opcoes.get()
+
+        self.lista_txt_box[indice].grid_forget()
+        self.lista_ck_bts[indice].grid_forget()
+        self.lista_rd_bts[indice].grid_forget()
+
+    def _get_opcao_bt(self, indice: int, tipo: str) -> CTkRadioButton | CTkCheckBox | None:
+        bts = {
+            ME: self._get_rd_bt,
+            MEN: self._get_ck_bt,
+            VF: self._get_ck_bt,
+        }
+        bt: Callable = bts.get(tipo, None)
+        if bt is None:
+            return bt
+        return bt(indice)
+
+    def _get_rd_bt(self, indice: int) -> CTkRadioButton:
+        return self.lista_rd_bts[indice]
+
+    def _get_ck_bt(self, indice: int) -> CTkCheckBox:
+        return self.lista_ck_bts[indice]
+
+    def altera_tipo_alternativa(self, _=None):
+        quantidade_de_opcoes = self.contador_de_opcoes.get()
+        for indice in range(quantidade_de_opcoes):
+            self.rm_alternativa(indice=indice)
+            self.add_alternativa(indice=indice)
+        # self.organiza_ordem_tabulacao()

@@ -6,6 +6,7 @@ from customtkinter import CTk
 from Modules.funcoes import altera_aparencia, altera_escala, altera_cor_padrao
 from Modules.janelas import *
 from Modules.arquivos import Arquivos
+from Modules.constants import ME, MEN, VF, D
 from Modules.configuration_manager import ConfigurationManager
 from Modules.imagens import Imagens
 from Modules.corretor_ortografico import CorretorOrtografico
@@ -26,7 +27,7 @@ class Main(CTk):
         self.configura_ui_master()
         self.configura_variaveis()
         self.configura_ui()
-        # self.configura_binds()
+        self.configura_binds()
 
         # self.after(500, self.verifica_atualizacao)
 
@@ -49,7 +50,7 @@ class Main(CTk):
         altera_escala(self.cnf_manager.escala_do_sistema)
 
     def configura_variaveis(self):
-        self.gvar = VariaveisGlobais(self.arquivos, self.cnf_manager, self.imagens)
+        self.gvar = VariaveisGlobais(self.cnf_manager)
 
         self.gvar.corretor_ortografico = CorretorOrtografico(self.cnf_manager.PERSONAL_DICT_FILE,
                                                              self.cnf_manager.add_palavra)
@@ -57,10 +58,14 @@ class Main(CTk):
         self.gvar.atualiza_titulo = self.set_titulo
 
     def configura_ui(self):
-        JanelaQuantidadeDeQuestoes(self, self.gvar).place(relx=0.01, rely=0.02, relwidth=0.08, relheight=0.19)
-        JanelaParametrosDaQuestao(self, self.gvar).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
-        # JanelaEnunciadoDaQuestao(self, self.gvar).place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
-        # JanelaOpcoesDaQuestao(self, self.gvar).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
+        JanelaQuantidadeDeQuestoes(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.02, relwidth=0.08,
+                                                                            relheight=0.19)
+        JanelaParametrosDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.1, relwidth=0.395, rely=0.02,
+                                                                           relheight=0.19)
+        JanelaEnunciadoDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.23, relwidth=0.485,
+                                                                          relheight=0.19)
+        JanelaOpcoesDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.44, relwidth=0.485,
+                                                                       relheight=0.46)
         # JanelaDeQuestoes(self, self.gvar).place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
         # JanelaDeBotoes(self, self.gvar).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
@@ -81,15 +86,15 @@ class Main(CTk):
         exit(0)
 
     def configura_binds(self):
-        def ctrl_events(e: Event):
-            key = str(e.keysym).lower()
+        def ctrl_events(key):
+            def seleciona_tipo(indice: str):
+                tipos = {'1': ME, '2': MEN, '3': VF}
+                self.gvar.tipo.set(tipos.get(indice))
+                self.gvar.altera_tipo_alternativa()
 
-            def seleciona_tipo(indice: int):
-                self.gvar.tipo.set(self.cnf_manager.configs.tipos[indice])
-                self.gvar.altera_alternativa()
-
-            def seleciona_dificuldade(indice: int):
-                self.gvar.dificuldade.set(self.cnf_manager.dificuldades[indice - 4])
+            def seleciona_dificuldade(indice: str) -> None:
+                dificuldades = {'4': 'Fácil', '5': 'Médio', '6': 'Difícil'}
+                self.gvar.dificuldade.set(dificuldades.get(indice))
 
             events = {
                 # 'e': self.exportar,
@@ -99,28 +104,27 @@ class Main(CTk):
                 'plus': self.gvar.add_alternativa,
                 'minus': self.gvar.rm_alternativa,
                 # 'backspace': self.limpa_tab
-                # '1': seleciona_tipo,
-                # '2': seleciona_tipo,
-                # '3': seleciona_tipo,
+                '1': seleciona_tipo,
+                '2': seleciona_tipo,
+                '3': seleciona_tipo,
                 '4': seleciona_dificuldade,
                 '5': seleciona_dificuldade,
                 '6': seleciona_dificuldade,
             }
 
-            if key in events:
+            if key in events.keys():
                 if key.isdigit():
-                    return events[key](int(key))
+                    events.get(key)(key)
                 else:
-                    return events[key]()
+                    events.get(key)()
 
-        def key_events(e):
-            key = e.keysym
+        def key_events(key):
             events = {
-                # 'F1': self.abre_atalhos,
-                # 'F12': self.gvar.arquivos.salvar_como,
+                # 'f1': self.abre_atalhos,
+                # 'f12': self.gvar.arquivos.salvar_como,
             }
             if key in events.keys():
-                return events[key]()
+                return events.get(key)()
 
-        self.bind('<Control-Key>', ctrl_events)
-        self.bind('<KeyRelease>', key_events)
+        self.bind('<Control-Key>', lambda e: ctrl_events(e.keysym.lower()))
+        self.bind('<KeyRelease>', lambda e: key_events(e.keysym.lower()))

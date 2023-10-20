@@ -1,23 +1,26 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkScrollableFrame, CTkRadioButton, CTkCheckBox, BOTH
 
-from ..models.globalvars import *
+from ..configuration_manager import ConfigurationManager
+from ..models.globalvars import VariaveisGlobais
 from ..models.caixa_de_texto import CaixaDeTexto
 
 
 class JanelaOpcoesDaQuestao(CTkFrame):
-    def __init__(self, master: CTk, variaveis_globais: VariaveisGlobais, **kwargs):
+    def __init__(self, master: CTk, cnf_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais, **kwargs):
         super().__init__(master, **kwargs)
 
+        self.cnf_manager = cnf_manager
         self.gvar = variaveis_globais
 
-        sc_frame = CTkScrollableFrame(self)
-        sc_frame.pack(expand=True, fill=BOTH)
+        CTkLabel(self, text='Opções', **self.cnf_manager.label_titulos_configs).place(rely=0.02, relwidth=1)
 
-        CTkLabel(sc_frame, text=None).grid(row=0, column=0)
-        CTkLabel(sc_frame, text='Opções', **self.gvar.configs.label_titulos_configs).place(relx=0.47, rely=0.01)
+        sc_frame = CTkScrollableFrame(self)
+        sc_frame.place(rely=0.12, relwidth=1, relheight=0.88)
 
         for index in range(10):
-            texto = CaixaDeTexto(sc_frame, width=650, height=50, **self.gvar.configs.text_configs)
+            sc_frame.grid_rowconfigure(index, weight=1)
+
+            texto = CaixaDeTexto(sc_frame, width=650, height=50, **self.cnf_manager.text_configs)
             self.gvar.corretor_ortografico.monitora_textbox(texto)
             self.gvar.lista_txt_box.append(texto)
 

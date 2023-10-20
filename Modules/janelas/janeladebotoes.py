@@ -57,7 +57,7 @@ class JanelaDeBotoes(CTkFrame):
             return showinfo('Pergunta repetida', 'Já existe uma questão com a mesma pergunta')
 
         questao = ModeloQuestao(
-            self.gvar.unidade.get(), self.gvar.codigo_do_curso.get(), self.gvar.tempo.get(),
+            self.gvar.unidade.get(), self.gvar.sub_categoria.get(), self.gvar.tempo.get(),
             self.gvar.tipo.get(), self.gvar.dificuldade.get(), self.gvar.peso.get(),
             self.gvar.pergunta.get_texto_completo(), self.get_opcoes()
         )
@@ -78,7 +78,7 @@ class JanelaDeBotoes(CTkFrame):
 
     def salvar_edicao(self):
         self.gvar.questao_em_edicao.categoria = self.gvar.unidade.get()
-        self.gvar.questao_em_edicao.subcategoria = self.gvar.codigo_do_curso.get()
+        self.gvar.questao_em_edicao.subcategoria = self.gvar.sub_categoria.get()
         self.gvar.questao_em_edicao.tempo = self.gvar.tempo.get()
         self.gvar.questao_em_edicao.tipo = self.gvar.tipo.get()
         self.gvar.questao_em_edicao.dificuldade = self.gvar.dificuldade.get()

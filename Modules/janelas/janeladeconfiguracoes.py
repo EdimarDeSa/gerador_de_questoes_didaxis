@@ -61,7 +61,7 @@ class JanelaDeConfiguracoes(CTkToplevel):
 
         frame_unidade = CTkScrollableFrame(master, label_text='Unidade padrão')
         frame_unidade.grid(row=0, column=1, rowspan=2, ipady=90, pady=(10, 0))
-        for indice, unidade in enumerate(self.gvar.configs.unidades):
+        for indice, unidade in enumerate(self.gvar.configs.categoria):
             CTkRadioButton(
                 frame_unidade, text=unidade, value=unidade, variable=self.gvar.var_unidade_padrao,
                 command=self.altera_unidade_padrao
