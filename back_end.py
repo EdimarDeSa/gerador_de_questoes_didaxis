@@ -1,12 +1,9 @@
 from typing import Callable, Optional
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
 
-from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW, CTk
+from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW, CTk, CTkImage
 
-from BackEndFunctions import ConfigurationManager
-from BackEndFunctions import FileManager
-from BackEndFunctions import QuestionsManager
-from BackEndFunctions import SpellerManager
+from BackEndFunctions import ConfigurationManager, FileManager, QuestionsManager, SpellerManager, ImageManager
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
 from BackEndFunctions.aparencia import altera_aparencia, altera_escala, altera_cor_padrao
 
@@ -23,6 +20,7 @@ class API:
                                          self._file.create_personal_dict)
         self._quest: QuestionsManager = QuestionsManager()
         self._speller = SpellerManager(self._cnf.PERSONAL_DICT_FILE, self._cnf.add_palavra)
+        self._img = ImageManager(self._file.base_dir)
 
         # Variáveis de perfil
         self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self._cnf.apagar_enunciado)
@@ -36,6 +34,11 @@ class API:
         self.entry_configs: dict = self._cnf.entry_configs
         self.list_configs: dict = self._cnf.list_configs
         self.button_configs: dict = self._cnf.buttons_configs
+        self.text_configs: dict = self._cnf.text_configs
+
+        self.img_edit: CTkImage = self._img.bt_edit
+        self.img_delete: CTkImage = self._img.bt_delete
+        self.img_config: CTkImage = self._img.bt_configs
 
         self.category_list: list = self._cnf.categorias
         self.type_list: list = self._cnf.tipos
@@ -43,15 +46,12 @@ class API:
 
         # Variáveis de controle
         self.contador_de_opcoes: IntVar = IntVar(value=0)
-        self.opcao_correta_radio_bt: IntVar = IntVar(value=0)
+        self.var_rd_button_value: IntVar = IntVar(value=0)
         self.display_question_count: IntVar = IntVar(value=0)
         self.exportado: bool = True
 
-        # Event handlers
+        # External event handlers
         self.start_monitor_handler = self._speller.monitora_textbox
-
-        # Funcoes de Controle
-        self.exit = None
 
         # Campos da questao
         self.categoria = StringVar(value=self._cnf.unidade_padrao)
@@ -98,7 +98,7 @@ class API:
             self.pergunta.delete(0.0, END)
 
         # Janela de botões
-        self.opcao_correta_radio_bt.set(0)
+        self.var_rd_button_value.set(0)
         for bt in self.lista_ck_bts:
             bt.deselect()
         for txt_box in self.lista_txt_box:

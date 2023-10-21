@@ -1,13 +1,13 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkButton
 
 
-from ..Hints import LabelConfigs, EntryConfigs, ButtonConfigs, AddChoiceHandler, RmChoiceHandler, StartMonitorHandler
+from ..Hints import ConfigsHint, AddChoiceHandler, RmChoiceHandler, StartMonitorHandler
 from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
 class JanelaEnunciadoDaQuestao(CTkFrame):
     def __init__(
-            self, master: CTk, label_configs: LabelConfigs, entry_configs: EntryConfigs, button_configs: ButtonConfigs,
+            self, master: CTk, label_configs: ConfigsHint, entry_configs: ConfigsHint, button_configs: ConfigsHint,
             add_choice_handler: AddChoiceHandler, rm_choice_handler: RmChoiceHandler,
             start_monitor_handler: StartMonitorHandler,
             **kwargs

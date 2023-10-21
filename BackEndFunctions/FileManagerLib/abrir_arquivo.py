@@ -3,8 +3,8 @@ from tkinter.filedialog import askopenfilename
 from pandas import ExcelFile, read_excel, DataFrame, Series
 from pandas.errors import InvalidColumnName
 
-from Constants import (ENGINE, OFF, CABECALHO_DIDAXIS, CABECALHO_PERGUNTA, CABECALHO_ALTERNATIVAS, CORRETA, V,
-                       EXTENSIONS, FILETYPES)
+from FrontEndFunctions.Constants import (ENGINE, OFF, CABECALHO_DIDAXIS, CABECALHO_PERGUNTA, CABECALHO_ALTERNATIVAS, CORRETA, V,
+                                         EXTENSIONS, FILETYPES)
 
 
 __all__ = ['AbrirArquivo']

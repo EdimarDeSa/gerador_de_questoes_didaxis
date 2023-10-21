@@ -1,7 +1,7 @@
 from typing import Literal
 
 from customtkinter import *
-from Constants import *
+from FrontEndFunctions.Constants import *
 
 from Modules import __version__
 from BackEndFunctions.globalvars import *

@@ -1,5 +1,5 @@
 from subprocess import call
-from Constants import LINK_FEEDBACK_FORM
+from FrontEndFunctions.Constants import LINK_FEEDBACK_FORM
 
 
 __all__ = ['abre_feedback']

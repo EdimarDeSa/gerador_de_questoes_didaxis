@@ -84,10 +84,6 @@ PLACE_HOLDER_PESO = '1'
 
 # Outras constantes
 ADD = 'Adicionar'
-RED = '#FA0000'
-VERDE = ['#2cbe79', '#2FA572']
-TRANSPARENTE = 'transparent'
-MAXIMO_DE_CARACTERES = 255
 PORCENTAGENS = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
 APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
 

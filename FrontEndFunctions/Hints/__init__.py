@@ -1,16 +1,17 @@
-# from ..Hints import
+from typing import Callable, ClassVar, Optional, Dict, List, TypeVar, Literal
 
-from customtkinter import IntVar, StringVar, BooleanVar
+from customtkinter import IntVar, StringVar, BooleanVar, CTkImage, CTkFrame
 
 from ..caixa_de_texto import CaixaDeTexto
-from typing import Callable, ClassVar, Optional, Dict, List, LiteralString, Literal, TypeVar
 
 
 T = TypeVar('T')
 
 
 # Configs hints
-LabelConfigs = ListConfigs = ButtonConfigs = EntryConfigs = SubcategoryVar = TimeVar = ClassVar[Dict]
+ConfigsHint = ClassVar[Dict[str, any]]
+ImageHint = ClassVar[CTkImage]
+RowHint = dict[int, dict[[Literal['row'], CTkFrame], [Literal['display'], object]]]
 
 
 # Callable hints
@@ -20,12 +21,12 @@ RmChoiceHandler = Callable[[Optional[int]], None]
 StartMonitorHandler = Callable[[CaixaDeTexto], None]
 
 # ClassVar hints
-DisplayQuestionCount = ClassVar[IntVar]
-CategoryVar = ClassVar[StringVar]
-CategoryList = ClassVar[List]
-TypeVar = ClassVar[StringVar]
-TypeList = ClassVar[List]
-DifficultiesList = ClassVar[List]
-DifficultVar = ClassVar[StringVar]
-WeightVar = ClassVar[StringVar]
+CategoryList = ClassVar[List[str]]
+TypeList = ClassVar[List[str]]
+DifficultiesList = ClassVar[List[str]]
+ListHint = ClassVar[List]
+
+IntVarHint = ClassVar[IntVar]
+StringVarHint = ClassVar[StringVar]
+BooleanVarHint = ClassVar[BooleanVar]
 

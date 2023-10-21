@@ -14,3 +14,9 @@ SHORTCUTS = [
     ('Pular campos:', 'Ctrl + TAB ou TAB'),
     ('Voltar campos:', 'Ctrl + Shift + TAB ou Shift + TAB')
 ]
+
+RED = '#FA0000'
+VERDE = ['#2cbe79', '#2FA572']
+TRANSPARENTE = 'transparent'
+
+MAXIMO_DE_CARACTERES = 255

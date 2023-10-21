@@ -99,7 +99,7 @@ class JanelaDeBotoes(CTkFrame):
     #
     #     def verifica_correta(botao: [CTkRadioButton, CTkCheckBox], indice: int) -> bool:
     #         if self.gvar.tipo.get() == ME:
-    #             return self.gvar.opcao_correta_radio_bt.get() == indice
+    #             return self.gvar.var_rd_button_value.get() == indice
     #         return botao.get()
     #
     #     opcoes = list()

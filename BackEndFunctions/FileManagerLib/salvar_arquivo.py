@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pandas import DataFrame, ExcelWriter
 
-from Constants import CABECALHO_DIDAXIS_LOWER, ERRADA, CORRETA, F, V, CABECALHO_DIDAXIS, ENGINE
+from FrontEndFunctions.Constants import CABECALHO_DIDAXIS_LOWER, ERRADA, CORRETA, F, V, CABECALHO_DIDAXIS, ENGINE
 
 
 __all__ = ['SalvarArquivo']

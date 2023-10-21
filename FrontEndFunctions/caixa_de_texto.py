@@ -1,14 +1,13 @@
+from tkinter.messagebox import showwarning
+
 from customtkinter import CTkTextbox
 
-from Constants import *
-
-
-__all__ = ['CaixaDeTexto']
+from .Constants import RED, MAXIMO_DE_CARACTERES
 
 
 class CaixaDeTexto(CTkTextbox):
     def __init__(self, master=None, **kwargs):
-        super().__init__(master=master, border_color='red', **kwargs)
+        super().__init__(master=master, border_color=RED, **kwargs)
 
         self.bind('<KeyRelease>', self.verifica_quantidade_digitos, add='+')
         self.palavras_com_sugestoes: dict = {}
@@ -38,7 +37,7 @@ class CaixaDeTexto(CTkTextbox):
     def get_posicao_final(self, palavra):
         return self.palavras_com_sugestoes.get(palavra, {}).get('posicao_final')
 
-    def cria_tag(self, palavra, comando):
+    def cria_tag(self, palavra, comando) -> None:
         tag_name = f'corretor_ortografico_{self.get_posicao_inicial(palavra)}'
         self.palavras_com_sugestoes.setdefault(palavra, {})['nome_da_tag'] = tag_name
 
@@ -46,23 +45,25 @@ class CaixaDeTexto(CTkTextbox):
         self.tag_config(tag_name, underline=True, underlinefg=RED)
         self.tag_bind(tag_name, '<3>', lambda event, p=palavra: comando(event, p))
 
-    def get_nome_da_tag(self, palavra) -> str:
+    def get_nome_da_tag(self, palavra: str) -> str:
         return self.palavras_com_sugestoes.get(palavra, {}).get('nome_da_tag')
 
-    def remove_correcao_pela_tag(self, nome_da_tag):
+    def remove_correcao_pela_tag(self, nome_da_tag) -> None:
         self.tag_delete(nome_da_tag)
         for palavra, dados in list(self.palavras_com_sugestoes.items()):
             if dados.get('nome_da_tag') == nome_da_tag:
                 self.palavras_com_sugestoes.pop(palavra)
 
-    def verifica_quantidade_digitos(self, _):
+    def verifica_quantidade_digitos(self, _) -> None:
         total_digitos = len(self.get(1.0, 'end-1c'))
         if total_digitos > MAXIMO_DE_CARACTERES:
             self.tag_add('tamanho', F'1.{MAXIMO_DE_CARACTERES}', 'end-1c')
             self.tag_config('tamanho', background=RED)
             self.configure(border_width=2)
 
-            if self.alerta_exibido: return None
+            if self.alerta_exibido:
+                return None
+
             showwarning(
                 'Quantidade de dígitos ultrapassada',
                 'Esse texto ficou muito grande, máximo de caracteres é 255.\n'

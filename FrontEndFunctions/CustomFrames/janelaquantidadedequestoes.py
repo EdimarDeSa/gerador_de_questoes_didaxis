@@ -1,11 +1,11 @@
 from customtkinter import CTk, CTkFrame, CTkLabel, S, N
 
-from ..Hints import LabelConfigs, DisplayQuestionCount
+from ..Hints import ConfigsHint, IntVarHint
 
 
 class JanelaQuantidadeDeQuestoes(CTkFrame):
     def __init__(
-            self, master: CTk, label_configs: LabelConfigs, display_question_count: DisplayQuestionCount, **kwargs
+            self, master: CTk, label_configs: ConfigsHint, display_question_count: IntVarHint, **kwargs
     ):
         super().__init__(master, **kwargs)
 

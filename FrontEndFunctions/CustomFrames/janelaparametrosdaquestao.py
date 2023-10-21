@@ -1,18 +1,15 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkOptionMenu, CTkEntry
 
-from ..Hints import (
-    LabelConfigs, ListConfigs, CategoryVar, CategoryList, EntryConfigs, SubcategoryVar, TimeVar,
-    TypeList, TypeVar, TypeChangeHandler, DifficultiesList, DifficultVar, WeightVar
-)
+from ..Hints import CategoryList, ConfigsHint, TypeList, TypeChangeHandler, DifficultiesList, StringVarHint
 
 
 class JanelaParametrosDaQuestao(CTkFrame):
     def __init__(
-            self, master: CTk, entry_configs: EntryConfigs, label_configs: LabelConfigs, list_configs: ListConfigs,
-            category_var: CategoryVar, category_list: CategoryList, subcategory_var: SubcategoryVar, time_var: TimeVar,
-            type_list: TypeList, type_var: TypeVar, type_change_handler: TypeChangeHandler,
-            difficulties_list: DifficultiesList, difficult_var: DifficultVar, weight_var: WeightVar,
-            **kwargs
+            self, master: CTk, entry_configs: ConfigsHint, label_configs: ConfigsHint, list_configs: ConfigsHint,
+            category_var: StringVarHint, category_list: CategoryList, subcategory_var: StringVarHint,
+            time_var: StringVarHint, type_list: TypeList, type_var: StringVarHint,
+            type_change_handler: TypeChangeHandler, difficulties_list: DifficultiesList, difficult_var: StringVarHint,
+            weight_var: StringVarHint, **kwargs
     ):
         super().__init__(master, **kwargs)
         for i in range(3): self.grid_columnconfigure(i, weight=1)
