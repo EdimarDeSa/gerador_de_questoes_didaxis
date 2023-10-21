@@ -1,39 +1,41 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkOptionMenu, CTkEntry
 
-from BackEndFunctions.configuration_manager import ConfigurationManager
-from BackEndFunctions.globalvars import VariaveisGlobais
+from ..Hints import (
+    LabelConfigs, ListConfigs, CategoryVar, CategoryList, EntryConfigs, SubcategoryVar, TimeVar,
+    TypeList, TypeVar, TypeChangeHandler, DifficultiesList, DifficultVar, WeightVar
+)
 
 
 class JanelaParametrosDaQuestao(CTkFrame):
-    def __init__(self, master: CTk, configuration_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais,
-                 **kwargs):
+    def __init__(
+            self, master: CTk, entry_configs: EntryConfigs, label_configs: LabelConfigs, list_configs: ListConfigs,
+            category_var: CategoryVar, category_list: CategoryList, subcategory_var: SubcategoryVar, time_var: TimeVar,
+            type_list: TypeList, type_var: TypeVar, type_change_handler: TypeChangeHandler,
+            difficulties_list: DifficultiesList, difficult_var: DifficultVar, weight_var: WeightVar,
+            **kwargs
+    ):
         super().__init__(master, **kwargs)
-        self.grid_columnconfigure((0, 1, 2), weight=1)
+        for i in range(3): self.grid_columnconfigure(i, weight=1)
 
-        self.cnf_manager = configuration_manager
-        self.gvar = variaveis_globais
-
-        list_configs = self.cnf_manager.list_configs
-        label_configs = self.cnf_manager.label_titulos_configs
-        entry_configs = self.cnf_manager.entry_configs
+        list_configs = list_configs.copy()
+        list_configs.update({'width': 180})
 
         CTkLabel(self, **label_configs, text='Unidade').grid(column=0, row=0)
-        CTkOptionMenu(self, values=self.cnf_manager.categorias, width=180, variable=self.gvar.categoria,
-                      **list_configs).grid(column=0, row=1)
+        CTkOptionMenu(self, values=category_list, variable=category_var, **list_configs).grid(column=0, row=1)
 
         CTkLabel(self, text='Código do curso', **label_configs).grid(column=1, row=0)
-        CTkEntry(self, textvariable=self.gvar.sub_categoria, **entry_configs).grid(column=1, row=1)
+        CTkEntry(self, textvariable=subcategory_var, **entry_configs).grid(column=1, row=1)
 
         CTkLabel(self, text='Tempo de resposta', **label_configs).grid(column=2, row=0)
-        CTkEntry(self, textvariable=self.gvar.tempo, **entry_configs).grid(column=2, row=1)
+        CTkEntry(self, textvariable=time_var, **entry_configs).grid(column=2, row=1)
 
         CTkLabel(self, text='Tipo da questão', **label_configs).grid(column=0, row=2, pady=(10, 0))
-        CTkOptionMenu(self, values=self.cnf_manager.tipos, width=180, variable=self.gvar.tipo,
-                      command=self.gvar.altera_tipo_alternativa, **list_configs).grid(column=0, row=3)
+        CTkOptionMenu(
+            self, values=type_list, variable=type_var, command=type_change_handler, **list_configs
+        ).grid(column=0, row=3)
 
         CTkLabel(self, text='Dificuldade', **label_configs).grid(column=1, row=2, pady=(10, 0))
-        CTkOptionMenu(self, values=self.cnf_manager.dificuldades, width=180, variable=self.gvar.dificuldade,
-                      **list_configs).grid(column=1, row=3)
+        CTkOptionMenu(self, values=difficulties_list, variable=difficult_var, **list_configs).grid(column=1, row=3)
 
         CTkLabel(self, text='Peso da questão', **label_configs).grid(column=2, row=2, pady=(10, 0))
-        CTkEntry(self, textvariable=self.gvar.peso, **entry_configs).grid(column=2, row=3)
+        CTkEntry(self, textvariable=weight_var, **entry_configs).grid(column=2, row=3)

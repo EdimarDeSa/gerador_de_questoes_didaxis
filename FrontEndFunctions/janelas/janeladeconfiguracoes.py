@@ -99,7 +99,7 @@ class JanelaDeConfiguracoes(CTkToplevel):
         CTkLabel(
             frame_configs, text='Escala do sistema', **self.cnf_manager.label_titulos_configs
         ).pack(**position_top)
-        CTkOptionMenu(frame_configs, values=PORCENTAGENS, variable=self.gvar.escala_do_sistema,
+        CTkOptionMenu(frame_configs, values=PORCENTAGENS, variable=self.gvar.var_escala_do_sistema,
                       command=self.salva_e_altera_escala_do_sistema).pack(**position_bottom)
 
     def create_tab_ajuda_widgets(self, tabela):
@@ -171,7 +171,7 @@ class JanelaDeConfiguracoes(CTkToplevel):
         self.focus()
 
     def salva_e_altera_escala_do_sistema(self, nova_escala):
-        self.gvar.perfil.salva_informacao_perfil('escala_do_sistema', nova_escala)
+        self.gvar.perfil.salva_informacao_perfil('var_escala_do_sistema', nova_escala)
         altera_escala(nova_escala)
         self.focus()
 

@@ -168,7 +168,7 @@ class ConfigurationManager:
 
     @escala_do_sistema.setter
     def escala_do_sistema(self, value) -> None:
-        self.save_new_config('escala_do_sistema', value)
+        self.save_new_config('var_escala_do_sistema', value)
 
     @property
     def cor_padrao(self) -> str:
@@ -176,7 +176,7 @@ class ConfigurationManager:
 
     @cor_padrao.setter
     def cor_padrao(self, value) -> None:
-        self.save_new_config('cor_padrao', value)
+        self.save_new_config('var_cor_padrao', value)
 
     def add_palavra(self, palavra: str) -> None:
         self.save_new_config('dictionary', palavra)

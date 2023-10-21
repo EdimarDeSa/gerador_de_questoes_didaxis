@@ -53,14 +53,14 @@ class JanelaDeQuestoes(CTkFrame):
 
         self._row_dict[controle] = {'row': line_window, 'display': new_question_line}
 
-        self.gvar.display_quantidade_de_questoes.set(len(self._row_dict))
+        self.gvar.display_question_count.set(len(self._row_dict))
 
     def delete_event(self, controle: int):
         row = self._row_dict[controle]['row']
         row.destroy()
         del self._row_dict[controle]
         self._reorder_colors()
-        self.gvar.display_quantidade_de_questoes.set(len(self._row_dict))
+        self.gvar.display_question_count.set(len(self._row_dict))
         self.gvar.delete_question(controle)
 
     def _select_color(self) -> str:
