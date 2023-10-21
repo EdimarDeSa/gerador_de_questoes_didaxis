@@ -2,9 +2,6 @@ from customtkinter import set_appearance_mode, set_widget_scaling, set_window_sc
 from typing import Literal
 
 
-__all__ = ['altera_aparencia', 'altera_escala', 'altera_cor_padrao']
-
-
 def altera_aparencia(config: Literal['system', 'dark', 'light']):
     set_appearance_mode(config)
 

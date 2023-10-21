@@ -2,7 +2,6 @@ from tkinter.messagebox import askyesnocancel
 
 from customtkinter import CTk
 
-from FrontEndFunctions import altera_aparencia, altera_escala, altera_cor_padrao
 from back_end import API
 
 
@@ -11,65 +10,12 @@ class Application:
         self._master = main_window
         self._api = api
 
-        self._configura_ui_master(main_window)
-        self.configura_variaveis()
-        self.configura_ui()
-        self.configura_binds()
+        # self.configura_ui()
+        # self.configura_binds()
 
         # self.after(500, self.verifica_atualizacao)
 
-        self.protocol('WM_DELETE_WINDOW', self.evento_de_fechamento_da_tela)
-
-        # for i in range(10):
-        #     controle = self.quest_manager.create_new_question(
-        #         tipo=ME,
-        #         peso=self.gvar.peso.get(),
-        #         tempo=self.gvar.tempo.get(),
-        #         pergunta=f'Pergunta {i}',
-        #         categoria=self.gvar.categoria.get(),
-        #         subcategoria=self.gvar.sub_categoria.get(),
-        #         alternativas=[('Op 1', True), ('Op 2', False), ('Op 3', False), ('Op 4', False), ('Op 5', False)],
-        #         dificuldade=self.gvar.dificuldade.get(),
-        #     )
-        #     self.gvar.quadro_de_questoes.create_new_question_line(f'Pergunta {i}', controle)
-        #
-        # from Modules.Errors import QuestionMatchError
-        # try:
-        #     controle = self.quest_manager.create_new_question(
-        #         tipo=ME,
-        #         peso=self.gvar.peso.get(),
-        #         tempo=self.gvar.tempo.get(),
-        #         pergunta='Pergunta 1',
-        #         categoria=self.gvar.categoria.get(),
-        #         subcategoria=self.gvar.sub_categoria.get(),
-        #         alternativas=[('Op 1', True), ('Op 2', False), ('Op 3', False), ('Op 4', False), ('Op 5', False)],
-        #         dificuldade=self.gvar.dificuldade.get(),
-        #     )
-        #     self.gvar.quadro_de_questoes.create_new_question_line('Pergunta 1', controle)
-        # except QuestionMatchError as e:
-        #     print(e)
-
-    def _configura_ui_master(self, main_window: CTk) -> None:
-        largura, altura = 1500, 750
-        pos_x = (main_window.winfo_screenwidth() - largura) // 2
-        pos_y = (main_window.winfo_screenheight() - altura) // 2 - 35
-        main_window.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
-        main_window.resizable(False, False)
-        self.set_titulo('Editor de questões')
-        self.configura_aparencia()
-
-    def configura_aparencia(self):
-        altera_aparencia(self._api.var_aparencia_do_sistema.get())
-        altera_cor_padrao(self._api.cor_padrao.get())
-        altera_escala(self._api.escala_do_sistema.get())
-
-    def configura_variaveis(self):
-        self.gvar = VariaveisGlobais(self.cnf_manager, self.quest_manager)
-
-        self.gvar.corretor_ortografico = SpellerMenager(self.cnf_manager.PERSONAL_DICT_FILE,
-                                                        self.cnf_manager.add_palavra)
-        self.gvar.exit = self.evento_de_fechamento_da_tela
-        self.gvar.atualiza_titulo = self.set_titulo
+        main_window.protocol('WM_DELETE_WINDOW', self._api.evento_de_fechamento_da_tela)
 
     def configura_ui(self):
         JanelaQuantidadeDeQuestoes(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.02, relwidth=0.08,
@@ -92,22 +38,6 @@ class Application:
                        self.imagens.bt_configs_img()).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
         JanelaDeConfiguracoes(self, self.cnf_manager, self.gvar)
-
-    def set_titulo(self, texto: str = 'Editor de questões'):
-        self.title(texto)
-
-    def evento_de_fechamento_da_tela(self):
-        if not self.gvar.exportado:
-            resposta = askyesnocancel(
-                'Salvamento pendente',
-                'Uma ou mais questões estão em edição e não foram exportadas.\n'
-                'Deseja exportar as alterações antes de sair?'
-            )
-            if resposta is None:
-                return
-            elif resposta:
-                self.gvar.exportar()
-        exit(0)
 
     def configura_binds(self):
         def ctrl_events(key):

@@ -6,7 +6,7 @@ from Constants import *
 from Modules import __version__
 from BackEndFunctions.globalvars import *
 from Modules.funcoes import abre_feedback, AbrirArquivo
-from FrontEndFunctions.aparencia import altera_aparencia, altera_escala
+from BackEndFunctions.aparencia import altera_aparencia, altera_escala
 from BackEndFunctions.configuration_manager import ConfigurationManager
 
 

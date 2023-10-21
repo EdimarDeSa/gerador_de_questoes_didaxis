@@ -8,12 +8,15 @@ from BackEndFunctions import FileManager
 from BackEndFunctions import QuestionsManager
 from BackEndFunctions import SpellerManager
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
+from BackEndFunctions.aparencia import altera_aparencia, altera_escala, altera_cor_padrao
 
 from FrontEndFunctions import CaixaDeTexto
 
 
 class API:
-    def __init__(self):
+    def __init__(self, main_window: CTk):
+        self._master = main_window
+
         # Initiate managers
         self._file = FileManager()
         self._cnf = ConfigurationManager(self._file.base_dir, self._file.read_json, self._file.save_json,
@@ -35,7 +38,6 @@ class API:
         self.exportado: bool = True
 
         # Funcoes de Controle
-        self.exportar = None
         self.exit = None
         self.atualiza_titulo = None
 
@@ -52,7 +54,19 @@ class API:
         self.lista_ck_bts: list[CTkCheckBox | None] = list()
 
         # Quadro de questões
-    #     self.quadro_de_questoes = None
+        # self.quadro_de_questoes = None
+
+        self.configura_aparencia()
+        self.set_titulo('Editor de questões')
+
+    def set_titulo(self, texto: str = 'Editor de questões'):
+        self._master.title(texto)
+
+    def configura_aparencia(self):
+        # noinspection PyTypeChecker
+        altera_aparencia(self.var_aparencia_do_sistema.get())
+        altera_cor_padrao(self.cor_padrao.get())
+        altera_escala(self.escala_do_sistema.get())
 
     def reseta_informacoes(self):
         # Janela de parâmetros
@@ -152,6 +166,22 @@ class API:
         self.dificuldade.set(question_info.get('dificuldade'))
         self.peso.set(question_info.get('peso'))
         self.pergunta.insert(1.0, question_info.get('pergunta'))
+
+    def exportar(self):
+        pass
+
+    def evento_de_fechamento_da_tela(self):
+        if not self.exportado:
+            resposta = askyesnocancel(
+                'Salvamento pendente',
+                'Uma ou mais questões estão em edição e não foram exportadas.\n'
+                'Deseja exportar as alterações antes de sair?'
+            )
+            if resposta is None:
+                return
+            elif resposta:
+                self.exportar()
+        exit(0)
 
 
 if __name__ == '__main__':
