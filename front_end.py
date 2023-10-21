@@ -2,30 +2,16 @@ from tkinter.messagebox import askyesnocancel
 
 from customtkinter import CTk
 
+from FrontEndFunctions import altera_aparencia, altera_escala, altera_cor_padrao
 from back_end import API
 
-from Modules.funcoes import altera_aparencia, altera_escala, altera_cor_padrao
-from Modules.janelas import *
-from Modules.arquivos import Arquivos
-from Modules.constants import ME, MEN, VF, D
-from Modules.configuration_manager import ConfigurationManager
-from Modules.imagens import Imagens
-from Modules.corretor_ortografico import CorretorOrtografico
-from Modules.models.globalvars import VariaveisGlobais
-from Modules.questions_manager import QuestionsManager
 
+class Application:
+    def __init__(self, main_window: CTk, api: API):
+        self._master = main_window
+        self._api = api
 
-class Application(CTk):
-    def __init__(self, api: API = None):
-        super().__init__()
-
-        self.arquivos = Arquivos()
-        self.cnf_manager = ConfigurationManager(self.arquivos)
-        self.imagens = Imagens(self.arquivos.base_dir)
-        self.quest_manager = QuestionsManager()
-        # self.api = api
-
-        self.configura_ui_master()
+        self._configura_ui_master(main_window)
         self.configura_variaveis()
         self.configura_ui()
         self.configura_binds()
@@ -63,27 +49,25 @@ class Application(CTk):
         # except QuestionMatchError as e:
         #     print(e)
 
-        self.mainloop()
-
-    def configura_ui_master(self):
+    def _configura_ui_master(self, main_window: CTk) -> None:
         largura, altura = 1500, 750
-        pos_x = (self.winfo_screenwidth() - largura) // 2
-        pos_y = (self.winfo_screenheight() - altura) // 2 - 35
-        self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
-        self.resizable(False, False)
+        pos_x = (main_window.winfo_screenwidth() - largura) // 2
+        pos_y = (main_window.winfo_screenheight() - altura) // 2 - 35
+        main_window.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
+        main_window.resizable(False, False)
         self.set_titulo('Editor de questões')
         self.configura_aparencia()
 
     def configura_aparencia(self):
-        altera_aparencia(self.cnf_manager.aparencia_do_sistema)
-        altera_cor_padrao(self.cnf_manager.cor_padrao)
-        altera_escala(self.cnf_manager.escala_do_sistema)
+        altera_aparencia(self._api.var_aparencia_do_sistema.get())
+        altera_cor_padrao(self._api.cor_padrao.get())
+        altera_escala(self._api.escala_do_sistema.get())
 
     def configura_variaveis(self):
         self.gvar = VariaveisGlobais(self.cnf_manager, self.quest_manager)
 
-        self.gvar.corretor_ortografico = CorretorOrtografico(self.cnf_manager.PERSONAL_DICT_FILE,
-                                                             self.cnf_manager.add_palavra)
+        self.gvar.corretor_ortografico = SpellerMenager(self.cnf_manager.PERSONAL_DICT_FILE,
+                                                        self.cnf_manager.add_palavra)
         self.gvar.exit = self.evento_de_fechamento_da_tela
         self.gvar.atualiza_titulo = self.set_titulo
 

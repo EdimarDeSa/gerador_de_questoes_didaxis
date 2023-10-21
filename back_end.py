@@ -1,45 +1,50 @@
-from pathlib import Path
 from typing import Callable
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
 
-from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW
+from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW, CTk
 
-from Modules.configuration_manager import ConfigurationManager
-from Modules.models.caixa_de_texto import CaixaDeTexto
-from Modules.corretor_ortografico import CorretorOrtografico
-from Modules.constants import PLACE_HOLDER_TEMPO, PLACE_HOLDER_PESO, D, VF, ME, MEN
-from Modules.questions_manager import QuestionsManager
+from BackEndFunctions import ConfigurationManager
+from BackEndFunctions import FileManager
+from BackEndFunctions import QuestionsManager
+from BackEndFunctions import SpellerManager
+from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
+
+from FrontEndFunctions import CaixaDeTexto
 
 
 class API:
     def __init__(self):
-        self._cnf_manager = ConfigurationManager()
-        self._quest_manager = QuestionsManager()
+        # Initiate managers
+        self._file = FileManager()
+        self._cnf = ConfigurationManager(self._file.base_dir, self._file.read_json, self._file.save_json,
+                                         self._file.create_personal_dict)
+        self._quest = QuestionsManager()
+        self._speller = SpellerManager(self._cnf.PERSONAL_DICT_FILE, self._cnf.add_palavra)
 
         # Variáveis de perfil
-        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
-        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
-        self.var_dark_mode: StringVar = StringVar(value=self._cnf_manager.aparencia_do_sistema)
+        self.var_apagar_enunciado = BooleanVar(value=self._cnf.apagar_enunciado)
+        self.var_aparencia_do_sistema = StringVar(value=self._cnf.aparencia_do_sistema)
+        self.escala_do_sistema = StringVar(value=self._cnf.escala_do_sistema)
+        self.cor_padrao = StringVar(value=self._cnf.cor_padrao)
+        self.var_exportar_automaticamente = BooleanVar(value=self._cnf.exportar_automaticamente)
 
         # Variáveis de controle
-        self.caminho_atual: Path | None = None
         self.contador_de_opcoes: IntVar = IntVar(value=0)
         self.opcao_correta_radio_bt: IntVar = IntVar(value=0)
         self.display_quantidade_de_questoes: IntVar = IntVar(value=0)
         self.exportado: bool = True
 
         # Funcoes de Controle
-        self.corretor_ortografico: CorretorOrtografico | None = None
         self.exportar = None
         self.exit = None
         self.atualiza_titulo = None
 
         # Campos da questao
-        self.categoria = StringVar(value=self._cnf_manager.unidade_padrao)
+        self.categoria = StringVar(value=self._cnf.unidade_padrao)
         self.sub_categoria = StringVar()
         self.tempo = StringVar(value=PLACE_HOLDER_TEMPO)
-        self.tipo = StringVar(value=self._cnf_manager.tipos[1])
-        self.dificuldade = StringVar(value=self._cnf_manager.dificuldades[0])
+        self.tipo = StringVar(value=self._cnf.tipos[1])
+        self.dificuldade = StringVar(value=self._cnf.dificuldades[0])
         self.peso = StringVar(value=PLACE_HOLDER_PESO)
         self.pergunta: CaixaDeTexto | None = None
         self.lista_txt_box: list[CaixaDeTexto | None] = list()
@@ -47,15 +52,15 @@ class API:
         self.lista_ck_bts: list[CTkCheckBox | None] = list()
 
         # Quadro de questões
-        self.quadro_de_questoes = None
+    #     self.quadro_de_questoes = None
 
     def reseta_informacoes(self):
         # Janela de parâmetros
-        self.categoria.set(self._cnf_manager.unidade_padrao)
+        self.categoria.set(self._cnf.unidade_padrao)
         self.sub_categoria.set('')
         self.tempo.set(PLACE_HOLDER_TEMPO)
-        self.tipo.set(self._cnf_manager.tipos[1])
-        self.dificuldade.set(self._cnf_manager.dificuldades[0])
+        self.tipo.set(self._cnf.tipos[1])
+        self.dificuldade.set(self._cnf.dificuldades[0])
         self.peso.set(PLACE_HOLDER_PESO)
 
         # Janela de enunciado
@@ -134,12 +139,12 @@ class API:
         # self.organiza_ordem_tabulacao()
 
     def delete_question(self, controle: int) -> None:
-        if self._quest_manager.remove_question(controle):
+        if self._quest.remove_question(controle):
             showinfo('Questão deletada', 'A questão foi deletada com sucesso!')
 
     def editar_questao(self, controle: int) -> None:
         self.reseta_informacoes()
-        question_info: dict = self._quest_manager.get_question(controle)
+        question_info: dict = self._quest.get_question(controle)
         self.categoria.set(question_info.get('categoria'))
         self.sub_categoria.set(question_info.get('sub_categoria'))
         self.tempo.set(question_info.get('tempo'))
@@ -147,3 +152,9 @@ class API:
         self.dificuldade.set(question_info.get('dificuldade'))
         self.peso.set(question_info.get('peso'))
         self.pergunta.insert(1.0, question_info.get('pergunta'))
+
+
+if __name__ == '__main__':
+    root = CTk()
+    f = API()
+    root.mainloop()
