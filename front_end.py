@@ -1,7 +1,8 @@
-from tkinter import Event
 from tkinter.messagebox import askyesnocancel
 
 from customtkinter import CTk
+
+from back_end import API
 
 from Modules.funcoes import altera_aparencia, altera_escala, altera_cor_padrao
 from Modules.janelas import *
@@ -14,15 +15,15 @@ from Modules.models.globalvars import VariaveisGlobais
 from Modules.questions_manager import QuestionsManager
 
 
-# noinspection PyAttributeOutsideInit
-class Main(CTk):
-    def __init__(self):
+class Application(CTk):
+    def __init__(self, api: API = None):
         super().__init__()
 
         self.arquivos = Arquivos()
         self.cnf_manager = ConfigurationManager(self.arquivos)
         self.imagens = Imagens(self.arquivos.base_dir)
         self.quest_manager = QuestionsManager()
+        # self.api = api
 
         self.configura_ui_master()
         self.configura_variaveis()
@@ -32,6 +33,35 @@ class Main(CTk):
         # self.after(500, self.verifica_atualizacao)
 
         self.protocol('WM_DELETE_WINDOW', self.evento_de_fechamento_da_tela)
+
+        # for i in range(10):
+        #     controle = self.quest_manager.create_new_question(
+        #         tipo=ME,
+        #         peso=self.gvar.peso.get(),
+        #         tempo=self.gvar.tempo.get(),
+        #         pergunta=f'Pergunta {i}',
+        #         categoria=self.gvar.categoria.get(),
+        #         subcategoria=self.gvar.sub_categoria.get(),
+        #         alternativas=[('Op 1', True), ('Op 2', False), ('Op 3', False), ('Op 4', False), ('Op 5', False)],
+        #         dificuldade=self.gvar.dificuldade.get(),
+        #     )
+        #     self.gvar.quadro_de_questoes.create_new_question_line(f'Pergunta {i}', controle)
+        #
+        # from Modules.Errors import QuestionMatchError
+        # try:
+        #     controle = self.quest_manager.create_new_question(
+        #         tipo=ME,
+        #         peso=self.gvar.peso.get(),
+        #         tempo=self.gvar.tempo.get(),
+        #         pergunta='Pergunta 1',
+        #         categoria=self.gvar.categoria.get(),
+        #         subcategoria=self.gvar.sub_categoria.get(),
+        #         alternativas=[('Op 1', True), ('Op 2', False), ('Op 3', False), ('Op 4', False), ('Op 5', False)],
+        #         dificuldade=self.gvar.dificuldade.get(),
+        #     )
+        #     self.gvar.quadro_de_questoes.create_new_question_line('Pergunta 1', controle)
+        # except QuestionMatchError as e:
+        #     print(e)
 
         self.mainloop()
 
@@ -60,16 +90,24 @@ class Main(CTk):
     def configura_ui(self):
         JanelaQuantidadeDeQuestoes(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.02, relwidth=0.08,
                                                                             relheight=0.19)
+
         JanelaParametrosDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.1, relwidth=0.395, rely=0.02,
                                                                            relheight=0.19)
+
         JanelaEnunciadoDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.23, relwidth=0.485,
                                                                           relheight=0.19)
+
         JanelaOpcoesDaQuestao(self, self.cnf_manager, self.gvar).place(relx=0.01, rely=0.44, relwidth=0.485,
                                                                        relheight=0.46)
+
         JanelaDeQuestoes(self, self.cnf_manager, self.gvar, self.imagens.bt_editar_questao_img(),
-                         self.imagens.bt_deletar_questao_img()
-                         ).place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
-        # JanelaDeBotoes(self, self.gvar).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
+                         self.imagens.bt_deletar_questao_img()).place(relx=0.505, rely=0.02, relwidth=0.485,
+                                                                      relheight=0.96)
+
+        JanelaDeBotoes(self, self.cnf_manager, self.gvar,
+                       self.imagens.bt_configs_img()).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
+
+        JanelaDeConfiguracoes(self, self.cnf_manager, self.gvar)
 
     def set_titulo(self, texto: str = 'Editor de questões'):
         self.title(texto)

@@ -154,7 +154,7 @@ class AbrirArquivo:
         """
         Função principal para abrir e serializar questões de um arquivo Excel.
 
-        Main function to open and serialize questions from an Excel file.
+        Application function to open and serialize questions from an Excel file.
 
         :return: Uma lista_serial de questões serializadas ou uma exceção.
         """

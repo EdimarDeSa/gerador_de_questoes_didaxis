@@ -23,6 +23,7 @@ class VariaveisGlobais:
         self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
         self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=self._cnf_manager.apagar_enunciado)
         self.var_dark_mode: StringVar = StringVar(value=self._cnf_manager.aparencia_do_sistema)
+        self.escala_do_sistema = StringVar(value=self._cnf_manager.escala_do_sistema)
 
         # Variáveis de controle
         self.caminho_atual: Path | None = None
@@ -49,21 +50,9 @@ class VariaveisGlobais:
         self.lista_rd_bts: list[CTkRadioButton | None] = list()
         self.lista_ck_bts: list[CTkCheckBox | None] = list()
 
+
         # Quadro de questões
         self.quadro_de_questoes = None
-
-        for i in range(10):
-            self._quest_manager.create_new_question(
-                tipo=ME,
-                peso=self.peso.get(),
-                tempo=self.tempo.get(),
-                pergunta=f'Pergunta {i}',
-                categoria=self.categoria.get(),
-                subcategoria=self.sub_categoria.get(),
-                alternativas=[('Op 1', True), ('Op 2', False), ('Op 3', False), ('Op 4', False), ('Op 5', False)],
-                dificuldade=self.dificuldade.get(),
-            )
-            self.quadro_de_questoes.create_new_question_line(f'Pergunta {i}', i)
 
     def reseta_informacoes(self):
         # Janela de parâmetros
@@ -154,6 +143,7 @@ class VariaveisGlobais:
             showinfo('Questão deletada', 'A questão foi deletada com sucesso!')
 
     def editar_questao(self, controle: int) -> None:
+        self.reseta_informacoes()
         question_info: dict = self._quest_manager.get_question(controle)
         self.categoria.set(question_info.get('categoria'))
         self.sub_categoria.set(question_info.get('sub_categoria'))
@@ -162,6 +152,3 @@ class VariaveisGlobais:
         self.dificuldade.set(question_info.get('dificuldade'))
         self.peso.set(question_info.get('peso'))
         self.pergunta.insert(1.0, question_info.get('pergunta'))
-
-        for choice in question_info.get('alternativas'):
-            print(choice)
