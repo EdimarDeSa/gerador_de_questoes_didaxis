@@ -1,5 +1,1 @@
-from .OptionsTab import (
-    FilesFrame,
-    CategorieSelectionFrame,
-
-)
+from .OptionsTab import *

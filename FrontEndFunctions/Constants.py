@@ -20,7 +20,7 @@ APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
 
 RED = '#FA0000'
 VERDE = ['#2cbe79', '#2FA572']
-GRAY = ['gray65', 'gray28']
+GRAY = ['gray81', 'gray20']
 TRANSPARENTE = 'transparent'
 
 MAXIMO_DE_CARACTERES = 255

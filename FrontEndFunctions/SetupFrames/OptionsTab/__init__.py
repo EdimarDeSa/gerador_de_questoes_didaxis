@@ -1,2 +1,2 @@
 from .filesframe import FilesFrame
-from .categorieselectionframe import CategorieSelectionFrame
+from .categoryselectionframe import CategorySelectionFrame

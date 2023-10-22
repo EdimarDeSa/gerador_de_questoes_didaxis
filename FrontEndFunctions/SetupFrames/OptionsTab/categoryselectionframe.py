@@ -3,7 +3,7 @@ from customtkinter import CTkScrollableFrame, CTkToplevel, CTkRadioButton, BOTH,
 from FrontEndFunctions.Constants import GRAY
 
 
-class CategorieSelectionFrame(CTkScrollableFrame):
+class CategorySelectionFrame(CTkScrollableFrame):
     def __init__(self, master: CTkToplevel, category_list, categoria, categori_change_handler, **kwargs):
         super().__init__(master, fg_color=GRAY, label_text='Unidade padrão', **kwargs)
 
