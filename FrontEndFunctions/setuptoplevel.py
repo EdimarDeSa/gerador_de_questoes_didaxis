@@ -3,9 +3,10 @@ from typing import Literal
 from customtkinter import *
 from back_end import API
 from FrontEndFunctions.Constants import SHORTCUTS, APARENCIAS_DO_SISTEMA, PORCENTAGENS
+from .SetupFrames import *
 
 
-class SetupFrame(CTkToplevel):
+class SetupTopLevel(CTkToplevel):
     def __init__(self, master: CTk, api: API, **kwargs):
         super().__init__(master=master, **kwargs)
 
@@ -16,7 +17,7 @@ class SetupFrame(CTkToplevel):
 
         self._configura_tela()
 
-        # self._set_ui()
+        self._set_ui()
 
         self.protocol('WM_DELETE_WINDOW', self.close_window_event)
 
@@ -27,73 +28,61 @@ class SetupFrame(CTkToplevel):
 
         self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
         self.resizable(False, False)
-        self.withdraw()
+        # self.withdraw()
 
     def _set_ui(self):
         self.tabview = CTkTabview(self)
         self.tabview.pack(expand=True, fill=BOTH, padx=10, pady=10)
-        self.tabview.add('Opções')
-        self.tabview.add('Ajuda')
 
+        self.tabview.add('Opções')
         tab_opcoes = self.tabview.tab('Opções')
         for i in range(3): tab_opcoes.grid_columnconfigure(i, weight=1)
         self.create_tab_opcoes_widgets(tab_opcoes)
 
-        tab_ajuda = self.tabview.tab('Ajuda')
-        self.create_tab_ajuda_widgets(tab_ajuda)
+        # self.tabview.add('Ajuda')
+        # tab_ajuda = self.tabview.tab('Ajuda')
+        # self.create_tab_ajuda_widgets(tab_ajuda)
 
     def create_tab_opcoes_widgets(self, master):
-        pad = dict(padx=10, pady=10)
-        frame_arquivos = CTkFrame(master)
-        frame_arquivos.grid(row=0, column=0, **pad)
+        FilesFrame(master, self._api.open_db_handler, self._api.export_handler).grid(row=0, column=0, padx=10, pady=10)
 
-        CTkLabel(frame_arquivos, text='Arquivo').grid(row=0, column=0, columnspan=2)
+        CategorieSelectionFrame(
+            master, self._api.category_list, self._api.categoria, self._api.category_change_handler,
+        ).grid(row=0, column=1, rowspan=2, ipady=90, pady=(10, 0))
 
-        CTkButton(frame_arquivos, text='Abrir', command=self._api.open_db_handler).grid(row=1, column=0, **pad)
-
-        CTkButton(frame_arquivos, text='Criar novo', command=self._api.export_handler).grid(row=1, column=1, **pad)
-
-        frame_unidade = CTkScrollableFrame(master, label_text='Unidade padrão')
-        frame_unidade.grid(row=0, column=1, rowspan=2, ipady=90, pady=(10, 0))
-        for indice, unidade in enumerate(self._api.category_list):
-            CTkRadioButton(
-                frame_unidade, text=unidade, value=unidade, variable=self._api.categoria,
-                command=self._api.type_change_handler
-            ).pack(ipadx=10, padx=5, pady=(0, 5), fill=BOTH)
-
-        frame_configs = CTkFrame(master)
-        frame_configs.grid(row=1, column=0, pady=(30, 0))
-
-        position_top = dict(padx=10, anchor=CENTER, expand=True)
-        position_bottom = dict(padx=10, pady=(0, 20), anchor=CENTER, expand=True)
-
-        CTkLabel(frame_configs, text='Configurações gerais', **self._api.label_configs).pack(**position_bottom)
-
-        CTkLabel(frame_configs, text='Apagar enunciado ao salvar?', **self._api.label_configs).pack(**position_top)
-
-        # noinspection PyTypeChecker
-        CTkSwitch(
-            frame_configs, variable=self._api.var_apagar_enunciado, text=None, width=0, switch_width=75,
-            command=self.altera_opcao_apagar_enunciado, textvariable=self._var_auto_clean_on_off
-        ).pack(**position_bottom)
-        self.altera_opcao_apagar_enunciado()
-
-        CTkLabel(frame_configs, text='Exportar automaticamente?', **self._api.label_configs).pack(**position_top)
-        CTkSwitch(
-            frame_configs, variable=self._api.var_auto_export, text=None, width=0, switch_width=75,
-            command=self.altera_opcao_auto_exportar, textvariable=self._var_auto_export_on_off
-        ).pack(**position_bottom)
-        self.altera_opcao_auto_exportar()
-
-        CTkLabel(frame_configs, text='Dark mode', **self._api.label_configs).pack(**position_top)
-        CTkOptionMenu(frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self._api.var_aparencia_do_sistema,
-                      command=self.salva_e_altera_aparencia).pack(**position_bottom)
-
-        CTkLabel(
-            frame_configs, text='Escala do sistema', **self.cnf_manager.label_titulos_configs
-        ).pack(**position_top)
-        CTkOptionMenu(frame_configs, values=PORCENTAGENS, variable=self.gvar.var_escala_do_sistema,
-                      command=self.salva_e_altera_escala_do_sistema).pack(**position_bottom)
+        # frame_configs = CTkFrame(master)
+        # frame_configs.grid(row=1, column=0, pady=(30, 0))
+        #
+        # position_top = dict(padx=10, anchor=CENTER, expand=True)
+        # position_bottom = dict(padx=10, pady=(0, 20), anchor=CENTER, expand=True)
+        #
+        # CTkLabel(frame_configs, text='Configurações gerais', **self._api.label_configs).pack(**position_bottom)
+        #
+        # CTkLabel(frame_configs, text='Apagar enunciado ao salvar?', **self._api.label_configs).pack(**position_top)
+        #
+        # # noinspection PyTypeChecker
+        # CTkSwitch(
+        #     frame_configs, variable=self._api.var_apagar_enunciado, text=None, width=0, switch_width=75,
+        #     command=self.altera_opcao_apagar_enunciado, textvariable=self._var_auto_clean_on_off
+        # ).pack(**position_bottom)
+        # self.altera_opcao_apagar_enunciado()
+        #
+        # CTkLabel(frame_configs, text='Exportar automaticamente?', **self._api.label_configs).pack(**position_top)
+        # CTkSwitch(
+        #     frame_configs, variable=self._api.var_auto_export, text=None, width=0, switch_width=75,
+        #     command=self.altera_opcao_auto_exportar, textvariable=self._var_auto_export_on_off
+        # ).pack(**position_bottom)
+        # self.altera_opcao_auto_exportar()
+        #
+        # CTkLabel(frame_configs, text='Dark mode', **self._api.label_configs).pack(**position_top)
+        # CTkOptionMenu(frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self._api.var_aparencia_do_sistema,
+        #               command=self.salva_e_altera_aparencia).pack(**position_bottom)
+        #
+        # CTkLabel(
+        #     frame_configs, text='Escala do sistema', **self.cnf_manager.label_titulos_configs
+        # ).pack(**position_top)
+        # CTkOptionMenu(frame_configs, values=PORCENTAGENS, variable=self.gvar.var_escala_do_sistema,
+        #               command=self.salva_e_altera_escala_do_sistema).pack(**position_bottom)
 
     def create_tab_ajuda_widgets(self, tabela):
         frame_atalhos = CTkScrollableFrame(tabela, height=260)

@@ -1,8 +1,7 @@
 from typing import Callable, Optional
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
 
-from customtkinter import (StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW, CTk, CTkImage,
-                           CTkScrollableFrame)
+from customtkinter import *
 
 from BackEndFunctions import ConfigurationManager, FileManager, QuestionsManager, SpellerManager, ImageManager
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
@@ -185,10 +184,7 @@ class API:
         self.pergunta.insert(1.0, question_info.get('pergunta'))
 
     def configs_window_handler(self):
-        painel = self._master.children.get('!janeladeconfiguracoes')
-        if painel: return painel.wm_deiconify()
-
-        # PainelDeConfiguracoes(self, self.gvar)
+        self._master.children.get('!setuptoplevel').wm_deiconify()
 
     def save_question_handler(self):
         if not self.gvar.pergunta.get_texto_completo() or self.verifica_texto_opcoes():
@@ -276,47 +272,49 @@ class API:
         self.gvar.exportado = True
         showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
 
-        def _create_line_frame(self, fg_color: str) -> CTkFrame:
-            window = CTkFrame(self._master, fg_color=fg_color, height=45)
-            window.pack(expand=True, fill=X)
-            return window
+    def _create_line_frame(self, fg_color: str) -> CTkFrame:
+        window = CTkFrame(self._master, fg_color=fg_color, height=45)
+        window.pack(expand=True, fill=X)
+        return window
 
-        def create_new_question_line(self, title: str, controle: int):
-            color = self._select_color()
-            line_window = self._create_line_frame(color)
+    def create_new_question_line(self, title: str, controle: int):
+        color = self._select_color()
+        line_window = self._create_line_frame(color)
 
-            new_question_line = LinhaDeQuestao(
-                line_window, title, controle, self.img_edit, self.img_delete,
-                cmd_delete=self.delete_question_line, cmd_edit=self.gvar.editar_questao
-            )
+        new_question_line = LinhaDeQuestao(
+            line_window, title, controle, self.img_edit, self.img_delete,
+            cmd_delete=self.delete_question_line, cmd_edit=self.gvar.editar_questao
+        )
 
-            self._row_dict[controle] = {'row': line_window, 'display': new_question_line}
+        self._row_dict[controle] = {'row': line_window, 'display': new_question_line}
 
-            self.gvar.display_question_count.set(len(self._row_dict))
+        self.gvar.display_question_count.set(len(self._row_dict))
 
-        def delete_question_line(self, controle: int):
-            row = self._row_dict[controle]['row']
-            row.destroy()
-            del self._row_dict[controle]
-            self._reorder_colors()
-            self.gvar.display_question_count.set(len(self._row_dict))
-            self.gvar.delete_question(controle)
+    def delete_question_line(self, controle: int):
+        row = self._row_dict[controle]['row']
+        row.destroy()
+        del self._row_dict[controle]
+        self._reorder_colors()
+        self.gvar.display_question_count.set(len(self._row_dict))
+        self.gvar.delete_question(controle)
 
-        def _select_color(self) -> str:
-            cor = VERDE
-            if self._zebrar:
-                cor = TRANSPARENTE
-            self._zebrar = not self._zebrar
-            return cor
+    def _select_color(self) -> str:
+        cor = VERDE
+        if self._zebrar:
+            cor = TRANSPARENTE
+        self._zebrar = not self._zebrar
+        return cor
 
-        def _reorder_colors(self):
-            self._zebrar = True
-            for row_info in self._row_dict.values():
-                row_info['row'].configure(fg_color=self._select_color())
+    def _reorder_colors(self):
+        self._zebrar = True
+        for row_info in self._row_dict.values():
+            row_info['row'].configure(fg_color=self._select_color())
 
     def open_db_handler(self):
-        pass
+        ...
 
+    def category_change_handler(self):
+        ...
 
     def evento_de_fechamento_da_tela(self):
         if not self.exportado:

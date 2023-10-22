@@ -6,5 +6,5 @@ from .CustomFrames import (
     QuestionChoicesFrame,
     QuestionsFrame,
     CommandButtonsFrame,
-    SetupFrame,
 )
+from .setuptoplevel import SetupTopLevel

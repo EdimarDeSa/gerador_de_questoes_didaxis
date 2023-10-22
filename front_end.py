@@ -1,4 +1,4 @@
-from customtkinter import CTk, CTkFrame, X
+from customtkinter import CTk
 
 from FrontEndFunctions import (
     QuestionCountFrame,
@@ -7,11 +7,9 @@ from FrontEndFunctions import (
     QuestionChoicesFrame,
     QuestionsFrame,
     CommandButtonsFrame,
-    SetupFrame,
+    SetupTopLevel
 )
 from back_end import API, ME, MEN, VF
-from FrontEndFunctions.linha_de_questao import LinhaDeQuestao
-from FrontEndFunctions.Constants import VERDE, TRANSPARENTE
 
 
 class Application:
@@ -57,7 +55,7 @@ class Application:
             self._api.export_handler, self._api.save_question_handler,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
-        SetupFrame(
+        SetupTopLevel(
             self._master, self._api
         )
 

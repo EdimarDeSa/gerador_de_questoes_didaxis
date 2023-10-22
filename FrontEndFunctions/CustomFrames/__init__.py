@@ -4,4 +4,3 @@ from .questionstatementframe import QuestionStatementFrame
 from .questionchoicesframe import QuestionChoicesFrame
 from .questionsframe import QuestionsFrame
 from .commandbuttonsframe import CommandButtonsFrame
-from .setupframe import SetupFrame
