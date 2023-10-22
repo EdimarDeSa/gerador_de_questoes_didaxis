@@ -3,7 +3,7 @@ from customtkinter import CTk, CTkFrame, CTkLabel, S, N
 from ..Hints import ConfigsHint, IntVarHint
 
 
-class JanelaQuantidadeDeQuestoes(CTkFrame):
+class FrameQuestionCount(CTkFrame):
     def __init__(
             self, master: CTk, label_configs: ConfigsHint, display_question_count: IntVarHint, **kwargs
     ):

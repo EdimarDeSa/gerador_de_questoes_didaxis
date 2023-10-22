@@ -173,7 +173,7 @@ class API:
 
     def editar_questao(self, controle: int) -> None:
         self.reseta_informacoes()
-        question_info: dict = self._quest.get_question(controle)
+        question_info: dict = self._quest.get_question_data(controle)
         self.categoria.set(question_info.get('categoria'))
         self.sub_categoria.set(question_info.get('sub_categoria'))
         self.tempo.set(question_info.get('tempo'))
