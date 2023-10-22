@@ -1,7 +1,7 @@
-from .framequestioncount import FrameQuestionCount
-from .framequestionparameters import FrameQuestionParameters
-from .framequestionask import FrameQuestionAsk
-from .janelaopcoesdaquestao import JanelaOpcoesDaQuestao
-from .janeladequestoes import JanelaDeQuestoes
-# from .janeladebotoes import JanelaDeBotoes
-# from .janeladeconfiguracoes import JanelaDeConfiguracoes
+from .questioncountframe import QuestionCountFrame
+from .questionparametersframe import QuestionParametersFrame
+from .questionstatementframe import QuestionStatementFrame
+from .questionchoicesframe import QuestionChoicesFrame
+from .questionsframe import QuestionsFrame
+from .commandbuttonsframe import CommandButtonsFrame
+from .setupframe import SetupFrame

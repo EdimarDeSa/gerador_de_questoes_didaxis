@@ -1,54 +1,45 @@
 from typing import Literal
 
 from customtkinter import *
-from FrontEndFunctions.Constants import *
-
-from Modules import __version__
-from BackEndFunctions.globalvars import *
-from Modules.funcoes import abre_feedback, AbrirArquivo
-from BackEndFunctions.aparencia import altera_aparencia, altera_escala
-from BackEndFunctions.configuration_manager import ConfigurationManager
+from back_end import API
+from FrontEndFunctions.Constants import SHORTCUTS, APARENCIAS_DO_SISTEMA, PORCENTAGENS
 
 
-class JanelaDeConfiguracoes(CTkToplevel):
-    def __init__(self, master: CTk, configuration_manager: ConfigurationManager, variaveis_globais: VariaveisGlobais,
-                 **kwargs):
+class SetupFrame(CTkToplevel):
+    def __init__(self, master: CTk, api: API, **kwargs):
         super().__init__(master=master, **kwargs)
 
-        self.cnf_manager = configuration_manager
-        self.gvar = variaveis_globais
-        self.var_auto_clean_on_off = StringVar(value='True')
-        self.var_auto_export_on_off = StringVar(value='True')
+        self._api = api
 
-        # self.atualizador = Atualizacao(__version__, self.gvar.arquivos.base_dir)
-        self.configura_tela()
+        self._var_auto_clean_on_off = StringVar()
+        self._var_auto_export_on_off = StringVar()
 
-        self._init_tabela()
-        self.focus()
+        self._configura_tela()
 
-    def configura_tela(self):
-        largura, altura = 700, 500
+        # self._set_ui()
+
+        self.protocol('WM_DELETE_WINDOW', self.close_window_event)
+
+    def _configura_tela(self):
+        largura, altura = 750, 500
         pos_x = (self.winfo_screenwidth() - largura) // 2
         pos_y = (self.winfo_screenheight() - altura) // 2
 
         self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
         self.resizable(False, False)
+        self.withdraw()
 
-    def _init_tabela(self):
+    def _set_ui(self):
         self.tabview = CTkTabview(self)
         self.tabview.pack(expand=True, fill=BOTH, padx=10, pady=10)
-
         self.tabview.add('Opções')
-        tab_opcoes = self.tabview.tab('Opções')
-        tab_opcoes.columnconfigure(0, weight=1)
-        tab_opcoes.columnconfigure(1, weight=1)
-        tab_opcoes.columnconfigure(2, weight=1)
+        self.tabview.add('Ajuda')
 
+        tab_opcoes = self.tabview.tab('Opções')
+        for i in range(3): tab_opcoes.grid_columnconfigure(i, weight=1)
         self.create_tab_opcoes_widgets(tab_opcoes)
 
-        self.tabview.add('Ajuda')
         tab_ajuda = self.tabview.tab('Ajuda')
-
         self.create_tab_ajuda_widgets(tab_ajuda)
 
     def create_tab_opcoes_widgets(self, master):
@@ -58,15 +49,17 @@ class JanelaDeConfiguracoes(CTkToplevel):
 
         CTkLabel(frame_arquivos, text='Arquivo').grid(row=0, column=0, columnspan=2)
 
-        CTkButton(frame_arquivos, text='Abrir', command=self.abrir).grid(row=1, column=0, **pad)
+        CTkButton(frame_arquivos, text='Abrir', command=self._api.open_db_handler).grid(row=1, column=0, **pad)
 
-        CTkButton(frame_arquivos, text='Criar novo', command=self.salvar_como).grid(row=1, column=1, **pad)
+        CTkButton(frame_arquivos, text='Criar novo', command=self._api.export_handler).grid(row=1, column=1, **pad)
 
         frame_unidade = CTkScrollableFrame(master, label_text='Unidade padrão')
         frame_unidade.grid(row=0, column=1, rowspan=2, ipady=90, pady=(10, 0))
-        for indice, unidade in enumerate(self.cnf_manager.categorias):
-            CTkRadioButton(frame_unidade, text=unidade, value=unidade, variable=self.gvar.categoria,
-                           command=self.altera_unidade_padrao).pack(ipadx=10, padx=5, pady=(0, 5), fill=BOTH)
+        for indice, unidade in enumerate(self._api.category_list):
+            CTkRadioButton(
+                frame_unidade, text=unidade, value=unidade, variable=self._api.categoria,
+                command=self._api.type_change_handler
+            ).pack(ipadx=10, padx=5, pady=(0, 5), fill=BOTH)
 
         frame_configs = CTkFrame(master)
         frame_configs.grid(row=1, column=0, pady=(30, 0))
@@ -74,26 +67,26 @@ class JanelaDeConfiguracoes(CTkToplevel):
         position_top = dict(padx=10, anchor=CENTER, expand=True)
         position_bottom = dict(padx=10, pady=(0, 20), anchor=CENTER, expand=True)
 
-        CTkLabel(
-            frame_configs, text='Configurações gerais', **self.cnf_manager.label_titulos_configs
-        ).pack(**position_bottom)
+        CTkLabel(frame_configs, text='Configurações gerais', **self._api.label_configs).pack(**position_bottom)
 
-        CTkLabel(
-            frame_configs, text='Apagar enunciado ao salvar?', **self.cnf_manager.label_titulos_configs
-        ).pack(**position_top)
+        CTkLabel(frame_configs, text='Apagar enunciado ao salvar?', **self._api.label_configs).pack(**position_top)
+
         # noinspection PyTypeChecker
         CTkSwitch(
-            frame_configs, variable=self.gvar.var_apagar_enunciado, text=None, width=0, switch_width=75,
-            command=self.altera_opcao_apagar_enunciado, textvariable=self.var_auto_clean_on_off
+            frame_configs, variable=self._api.var_apagar_enunciado, text=None, width=0, switch_width=75,
+            command=self.altera_opcao_apagar_enunciado, textvariable=self._var_auto_clean_on_off
         ).pack(**position_bottom)
+        self.altera_opcao_apagar_enunciado()
 
-        CTkLabel(frame_configs, text='Exportar automaticamente?',
-                 **self.cnf_manager.label_titulos_configs).pack(**position_top)
-        CTkSwitch(frame_configs, variable=self.gvar.var_exportar_automaticamente, text=None, width=0, switch_width=75,
-                  command=self.altera_opcao_auto_exportar, textvariable=self.var_auto_export_on_off).pack(**position_bottom)
+        CTkLabel(frame_configs, text='Exportar automaticamente?', **self._api.label_configs).pack(**position_top)
+        CTkSwitch(
+            frame_configs, variable=self._api.var_auto_export, text=None, width=0, switch_width=75,
+            command=self.altera_opcao_auto_exportar, textvariable=self._var_auto_export_on_off
+        ).pack(**position_bottom)
+        self.altera_opcao_auto_exportar()
 
-        CTkLabel(frame_configs, text='Dark mode', **self.cnf_manager.label_titulos_configs).pack(**position_top)
-        CTkOptionMenu(frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self.gvar.var_aparencia_do_sistema,
+        CTkLabel(frame_configs, text='Dark mode', **self._api.label_configs).pack(**position_top)
+        CTkOptionMenu(frame_configs, values=APARENCIAS_DO_SISTEMA, variable=self._api.var_aparencia_do_sistema,
                       command=self.salva_e_altera_aparencia).pack(**position_bottom)
 
         CTkLabel(
@@ -143,24 +136,19 @@ class JanelaDeConfiguracoes(CTkToplevel):
         self.gvar.arquivos.salvar_como()
         self.destroy()
 
-    def altera_unidade_padrao(self):
-        self.gvar.perfil.salva_informacao_perfil('unidade_padrao', self.gvar.var_unidade_padrao.get())
-        self.focus()
-
     def altera_opcao_apagar_enunciado(self):
         apagar = 'DESLIGADO'
-        if self.gvar.var_apagar_enunciado.get():
-            apagar = 'LIGADO'
-        self.var_auto_clean_on_off.set(apagar)
+        if self._api.var_apagar_enunciado.get(): apagar = 'LIGADO'
+        self._var_auto_clean_on_off.set(apagar)
 
-        self.gvar.perfil.salva_informacao_perfil('apagar_enunciado', self.gvar.var_apagar_enunciado.get())
+        self._api.salva_informacao_perfil('apagar_enunciado', self.gvar.var_apagar_enunciado.get())
         self.focus()
 
     def altera_opcao_auto_exportar(self):
         apagar = 'DESLIGADO'
-        if self.gvar.var_exportar_automaticamente.get():
+        if self.gvar.var_auto_export.get():
             apagar = 'LIGADO'
-        self.var_auto_export_on_off.set(apagar)
+        self._var_auto_export_on_off.set(apagar)
 
         self.gvar.perfil.salva_informacao_perfil('exportar_automaticamente', self.gvar.var_apagar_enunciado.get())
         self.focus()
@@ -181,16 +169,5 @@ class JanelaDeConfiguracoes(CTkToplevel):
     def abre_ajuda(self):
         self.tabview.set('Ajuda')
 
-    # def verifica_atualizacao(self):
-    #     resposta = None
-    #     if self.atualizador.atualizacao_disponivel:
-    #         resposta = askyesno(
-    #             'Nova atualização disponível',
-    #             f'O programa está atualmente na versão {__version__}.\n'
-    #             f'A versão disponível é a {self.atualizador.versao_nova}.\n'
-    #             f'Deseja atualizar agora?'
-    #         )
-    #
-    #     if resposta:
-    #         self.atualizador.atualiza()
-    #         self.gvar.exit()
+    def close_window_event(self):
+        self.withdraw()

@@ -3,7 +3,7 @@ from customtkinter import CTkFrame, CTk, CTkLabel, CTkOptionMenu, CTkEntry
 from ..Hints import CategoryList, ConfigsHint, TypeList, TypeChangeHandler, DifficultiesList, StringVarHint
 
 
-class FrameQuestionParameters(CTkFrame):
+class QuestionParametersFrame(CTkFrame):
     def __init__(
             self, master: CTk, entry_configs: ConfigsHint, label_configs: ConfigsHint, list_configs: ConfigsHint,
             category_var: StringVarHint, category_list: CategoryList, subcategory_var: StringVarHint,

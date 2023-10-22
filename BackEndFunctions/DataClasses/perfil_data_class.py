@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
 
-from ..Constants import APARENCIAS_DO_SISTEMA
-
 
 @dataclass
 class PerfilDataClass:

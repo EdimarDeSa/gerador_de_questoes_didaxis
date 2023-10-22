@@ -1,10 +1,10 @@
 from .caixa_de_texto import CaixaDeTexto
 from .CustomFrames import (
-    FrameQuestionCount,
-    FrameQuestionParameters,
-    FrameQuestionAsk,
-    JanelaOpcoesDaQuestao,
-    JanelaDeQuestoes,
-    # JanelaDeBotoes,
-    # JanelaDeConfiguracoes,
+    QuestionCountFrame,
+    QuestionParametersFrame,
+    QuestionStatementFrame,
+    QuestionChoicesFrame,
+    QuestionsFrame,
+    CommandButtonsFrame,
+    SetupFrame,
 )

@@ -1,7 +1,8 @@
 from typing import Callable, Optional
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
 
-from customtkinter import StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW, CTk, CTkImage
+from customtkinter import (StringVar, BooleanVar, IntVar, CTkCheckBox, CTkRadioButton, END, NSEW, CTk, CTkImage,
+                           CTkScrollableFrame)
 
 from BackEndFunctions import ConfigurationManager, FileManager, QuestionsManager, SpellerManager, ImageManager
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
@@ -16,8 +17,9 @@ class API:
 
         # Initiate managers
         self._file = FileManager()
-        self._cnf = ConfigurationManager(self._file.base_dir, self._file.read_json, self._file.save_json,
-                                         self._file.create_personal_dict)
+        self._cnf = ConfigurationManager(
+            self._file.base_dir, self._file.read_json, self._file.save_json, self._file.create_personal_dict
+        )
         self._quest: QuestionsManager = QuestionsManager()
         self._speller = SpellerManager(self._cnf.PERSONAL_DICT_FILE, self._cnf.add_palavra)
         self._img = ImageManager(self._file.base_dir)
@@ -27,7 +29,7 @@ class API:
         self.var_aparencia_do_sistema: StringVar = StringVar(value=self._cnf.aparencia_do_sistema)
         self.var_escala_do_sistema: StringVar = StringVar(value=self._cnf.escala_do_sistema)
         self.var_cor_padrao: StringVar = StringVar(value=self._cnf.cor_padrao)
-        self.var_exportar_automaticamente: BooleanVar = BooleanVar(value=self._cnf.exportar_automaticamente)
+        self.var_auto_export: BooleanVar = BooleanVar(value=self._cnf.exportar_automaticamente)
 
         # Variaveis de configurações
         self.label_configs: dict = self._cnf.label_titulos_configs
@@ -60,13 +62,13 @@ class API:
         self.tipo = StringVar(value=self._cnf.tipos[1])
         self.dificuldade = StringVar(value=self._cnf.dificuldades[0])
         self.peso = StringVar(value=PLACE_HOLDER_PESO)
-        self.pergunta: CaixaDeTexto | None = None
-        self.lista_txt_box: list[CaixaDeTexto | None] = list()
-        self.lista_rd_bts: list[CTkRadioButton | None] = list()
-        self.lista_ck_bts: list[CTkCheckBox | None] = list()
+        self.pergunta: Optional[CaixaDeTexto] = None
+        self.lista_txt_box: list[Optional[CaixaDeTexto]] = list()
+        self.lista_rd_bts: list[Optional[CTkRadioButton]] = list()
+        self.lista_ck_bts: list[Optional[CTkCheckBox]] = list()
 
         # Quadro de questões
-        # self.quadro_de_questoes = None
+        self.frame_questoes: Optional[CTkScrollableFrame] = None
 
         self.configura_aparencia()
         self.change_title_handler()
@@ -182,8 +184,139 @@ class API:
         self.peso.set(question_info.get('peso'))
         self.pergunta.insert(1.0, question_info.get('pergunta'))
 
-    def exportar(self):
+    def configs_window_handler(self):
+        painel = self._master.children.get('!janeladeconfiguracoes')
+        if painel: return painel.wm_deiconify()
+
+        # PainelDeConfiguracoes(self, self.gvar)
+
+    def save_question_handler(self):
+        if not self.gvar.pergunta.get_texto_completo() or self.verifica_texto_opcoes():
+            return showwarning(
+                'Pergunta em branco',
+                'Para salvar uma questão é necessário que a pergunta e as np_alternativas ativas não esteja em '
+                'branco.'
+            )
+
+        if self.gvar.questao_em_edicao:
+            self.salvar_edicao()
+            return
+
+        if self.gvar.quadro_de_questoes.verifica_se_pergunta_ja_existe():
+            return showinfo('Pergunta repetida', 'Já existe uma questão com a mesma pergunta')
+
+        questao = QuestionDataClass(
+            self.gvar.unidade.get(), self.gvar.sub_categoria.get(), self.gvar.tempo.get(),
+            self.gvar.tipo.get(), self.gvar.dificuldade.get(), self.gvar.peso.get(),
+            self.gvar.pergunta.get_texto_completo(), self.get_opcoes()
+        )
+        self.gvar.quadro_de_questoes.adiciona_questao(questao)
+
+        self.gvar.reseta_informacoes()
+        self.gvar.exportado = False
+
+    def verifica_texto_opcoes(self):
+        if self.gvar.tipo.get() != D:
+            if not self.gvar.contador_de_opcoes.get():
+                return True
+            for indice in range(self.gvar.contador_de_opcoes.get()):
+                opcao: CaixaDeTexto = self.gvar.lista_txt_box[indice]
+                if not opcao.get_texto_completo():
+                    return True
+        return False
+
+    def salvar_edicao(self):
+        self._quest.create_new_question(
+
+        )
+        self.categoria = self.gvar.unidade.get()
+        self.gvar.questao_em_edicao.subcategoria = self.gvar.sub_categoria.get()
+        self.gvar.questao_em_edicao.tempo = self.gvar.tempo.get()
+        self.gvar.questao_em_edicao.tipo = self.gvar.tipo.get()
+        self.gvar.questao_em_edicao.dificuldade = self.gvar.dificuldade.get()
+        self.gvar.questao_em_edicao.peso = self.gvar.peso.get()
+        self.gvar.questao_em_edicao.pergunta = self.gvar.pergunta.get_texto_completo()
+        self.gvar.questao_em_edicao.alternativas = self.get_opcoes()
+
+        self.gvar.quadro_de_questoes.salvar_edicao_de_questao()
+
+        self.gvar.questao_em_edicao = None
+        self.gvar.reseta_informacoes()
+
+    def get_opcoes(self) -> list[tuple[str, bool]]:
+        def seleciona_bt(indice: int) -> [CTkRadioButton, CTkCheckBox]:
+            tipo = self.gvar.tipo.get()
+            if tipo == ME:
+                return self.gvar.lista_rd_bts[indice]
+            elif tipo == MEN or tipo == VF:
+                return self.gvar.lista_ck_bts[indice]
+
+        def verifica_correta(botao: [CTkRadioButton, CTkCheckBox], indice: int) -> bool:
+            if self.gvar.tipo.get() == ME:
+                return self.gvar.var_rd_button_value.get() == indice
+            return botao.get()
+
+        opcoes = list()
+        for indice in range(self.gvar.contador_de_opcoes.get()):
+            txt_box: CaixaDeTexto = self.gvar.lista_txt_box[indice]
+            texto = txt_box.get_texto_completo()
+
+            correta = verifica_correta(seleciona_bt(indice), indice)
+
+            opcoes.append((texto, correta))
+
+        return opcoes
+
+    def export_handler(self):
+        if self.gvar.caminho_atual is None:
+            self.gvar.caminho_atual = self.gvar.arquivos.caminho_para_salvar('Exportar')
+
+        self.gvar.arquivos.exportar(self.gvar.caminho_atual, self.gvar.quadro_de_questoes.lista_de_questoes())
+
+        self.gvar.exportado = True
+        showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
+
+        def _create_line_frame(self, fg_color: str) -> CTkFrame:
+            window = CTkFrame(self._master, fg_color=fg_color, height=45)
+            window.pack(expand=True, fill=X)
+            return window
+
+        def create_new_question_line(self, title: str, controle: int):
+            color = self._select_color()
+            line_window = self._create_line_frame(color)
+
+            new_question_line = LinhaDeQuestao(
+                line_window, title, controle, self.img_edit, self.img_delete,
+                cmd_delete=self.delete_question_line, cmd_edit=self.gvar.editar_questao
+            )
+
+            self._row_dict[controle] = {'row': line_window, 'display': new_question_line}
+
+            self.gvar.display_question_count.set(len(self._row_dict))
+
+        def delete_question_line(self, controle: int):
+            row = self._row_dict[controle]['row']
+            row.destroy()
+            del self._row_dict[controle]
+            self._reorder_colors()
+            self.gvar.display_question_count.set(len(self._row_dict))
+            self.gvar.delete_question(controle)
+
+        def _select_color(self) -> str:
+            cor = VERDE
+            if self._zebrar:
+                cor = TRANSPARENTE
+            self._zebrar = not self._zebrar
+            return cor
+
+        def _reorder_colors(self):
+            self._zebrar = True
+            for row_info in self._row_dict.values():
+                row_info['row'].configure(fg_color=self._select_color())
+
+    def open_db_handler(self):
         pass
+
 
     def evento_de_fechamento_da_tela(self):
         if not self.exportado:

@@ -19,6 +19,8 @@ TypeChangeHandler = Callable[[T], None]
 AddChoiceHandler = Callable[[Optional[str], Optional[int]], None]
 RmChoiceHandler = Callable[[Optional[int]], None]
 StartMonitorHandler = Callable[[CaixaDeTexto], None]
+ShowWindowHandler = ExportHandler = SaveQuestionHandler = Callable[[T], None]
+
 
 # ClassVar hints
 CategoryList = ClassVar[List[str]]

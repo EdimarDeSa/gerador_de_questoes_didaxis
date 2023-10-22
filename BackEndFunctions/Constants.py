@@ -84,8 +84,6 @@ PLACE_HOLDER_PESO = '1'
 
 # Outras constantes
 ADD = 'Adicionar'
-PORCENTAGENS = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
-APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
 
 
 # Motor (engine) para manipulação de arquivos Excel

@@ -4,7 +4,7 @@ from ..Hints import ConfigsHint, StartMonitorHandler, IntVarHint, ListHint
 from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
-class JanelaOpcoesDaQuestao(CTkFrame):
+class QuestionChoicesFrame(CTkFrame):
     def __init__(
             self, master: CTk, label_configs: ConfigsHint, text_configs: ConfigsHint, var_rd_button_value: IntVarHint,
             start_monitor_handler: StartMonitorHandler, lista_txt_box: ListHint, lista_rd_bts: ListHint,

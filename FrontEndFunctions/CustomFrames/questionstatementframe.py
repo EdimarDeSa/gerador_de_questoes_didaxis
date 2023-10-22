@@ -5,7 +5,7 @@ from ..Hints import ConfigsHint, AddChoiceHandler, RmChoiceHandler, StartMonitor
 from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
-class FrameQuestionAsk(CTkFrame):
+class QuestionStatementFrame(CTkFrame):
     def __init__(
             self, master: CTk, label_configs: ConfigsHint, entry_configs: ConfigsHint, button_configs: ConfigsHint,
             add_choice_handler: AddChoiceHandler, rm_choice_handler: RmChoiceHandler,
