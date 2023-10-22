@@ -2,8 +2,6 @@ from customtkinter import CTkImage
 from pathlib import Path
 from PIL import Image
 
-__all__ = ['ImageManager']
-
 
 class ImageManager:
     def __init__(self, base_dir: Path):

@@ -3,16 +3,11 @@ from tkinter.filedialog import askopenfilename
 from pandas import ExcelFile, read_excel, DataFrame, Series
 from pandas.errors import InvalidColumnName
 
-from FrontEndFunctions.Constants import (ENGINE, OFF, CABECALHO_DIDAXIS, CABECALHO_PERGUNTA, CABECALHO_ALTERNATIVAS, CORRETA, V,
-                                         EXTENSIONS, FILETYPES)
-
-
-__all__ = ['AbrirArquivo']
+from BackEndFunctions.Constants import (ENGINE, CABECALHO_DIDAXIS, CABECALHO_PERGUNTA, CABECALHO_ALTERNATIVAS, CORRETA,
+                                        V, EXTENSION, FILETYPES)
 
 
 class AbrirArquivo:
-    serialized_questions: list[dict] | FileNotFoundError | None = None
-
     def __init__(self):
         self._abrir()
 
@@ -37,7 +32,7 @@ class AbrirArquivo:
         """
         try:
             with ExcelFile(path, engine=ENGINE) as xls:
-                df = read_excel(xls, dtype='string', keep_default_na=OFF)
+                df = read_excel(xls, dtype='string', keep_default_na=False)
         except Exception as err:
             return Exception(err)
 
@@ -158,7 +153,7 @@ class AbrirArquivo:
 
         :return: Uma lista_serial de questões serializadas ou uma exceção.
         """
-        path = askopenfilename(defaultextension=EXTENSIONS, filetypes=FILETYPES, initialdir=cls.get_desktop_path())
+        path = askopenfilename(defaultextension=EXTENSION, filetypes=FILETYPES, initialdir=cls.get_desktop_path())
 
         if not path:
             raise FileNotFoundError('Não foi possível encontrar o arquivo.')

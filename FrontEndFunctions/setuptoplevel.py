@@ -24,7 +24,7 @@ class SetupTopLevel(CTkToplevel):
 
         self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
         self.resizable(False, False)
-        # self.withdraw()
+        self.withdraw()
 
     def _set_ui(self):
         self.tabview = CTkTabview(self)

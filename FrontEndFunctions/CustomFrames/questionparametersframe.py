@@ -5,11 +5,12 @@ from ..Hints import CategoryList, ConfigsHint, TypeList, TypeChangeHandler, Diff
 
 class QuestionParametersFrame(CTkFrame):
     def __init__(
-            self, master: CTk, entry_configs: ConfigsHint, label_configs: ConfigsHint, list_configs: ConfigsHint,
-            category_var: StringVarHint, category_list: CategoryList, subcategory_var: StringVarHint,
+            self, master: CTk, entry_configs: ConfigsHint, label_configs: ConfigsHint,
+            list_configs: ConfigsHint, category_var: StringVarHint,
+            category_list: CategoryList, subcategory_var: StringVarHint,
             time_var: StringVarHint, type_list: TypeList, type_var: StringVarHint,
-            type_change_handler: TypeChangeHandler, difficulties_list: DifficultiesList, difficult_var: StringVarHint,
-            weight_var: StringVarHint, **kwargs
+            type_change_handler: TypeChangeHandler, difficulties_list: DifficultiesList,
+            difficult_var: StringVarHint, weight_var: StringVarHint, **kwargs
     ):
         super().__init__(master, **kwargs)
         for i in range(3): self.grid_columnconfigure(i, weight=1)

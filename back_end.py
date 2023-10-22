@@ -2,6 +2,7 @@ from typing import Callable, Optional
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
 
 from customtkinter import *
+from icecream import ic
 
 from BackEndFunctions import *
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
@@ -184,8 +185,9 @@ class API:
         self.peso.set(question_info.get('peso'))
         self.pergunta.insert(1.0, question_info.get('pergunta'))
 
-    def configs_window_handler(self):
-        self._master.children.get('!setuptoplevel').wm_deiconify()
+    def setup_window_handler(self):
+        toplevel: CTkToplevel = self._master.children.get('!setuptoplevel')
+        toplevel.wm_deiconify()
 
     def save_question_handler(self):
         if not self.gvar.pergunta.get_texto_completo() or self.verifica_texto_opcoes():
@@ -265,6 +267,8 @@ class API:
         return opcoes
 
     def export_handler(self):
+        serial_quests = self._quest.serialize()
+
         if self.gvar.caminho_atual is None:
             self.gvar.caminho_atual = self.gvar.arquivos.caminho_para_salvar('Exportar')
 
@@ -312,12 +316,20 @@ class API:
             row_info['row'].configure(fg_color=self._select_color())
 
     def open_db_handler(self):
-        ...
+        from tkinter.filedialog import askopenfilename
+        from BackEndFunctions.Constants import EXTENSION, FILETYPES
+        path = askopenfilename(
+            defaultextension=EXTENSION, filetypes=FILETYPES,
+            initialdir=self._file.loaded_file
+        )
+        questios = self._file.open_db(path)
+        ic(path)
+
 
     def category_change_handler(self):
         self.save_new_config_handler('unidade_padrao', self.categoria.get())
 
-    def evento_de_fechamento_da_tela(self):
+    def master_wnidow_close_event(self):
         if not self.exportado:
             resposta = askyesnocancel(
                 'Salvamento pendente',

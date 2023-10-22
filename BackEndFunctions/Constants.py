@@ -64,7 +64,7 @@ FILETYPES = (('Pasta de Trabalho do Excel', '*.xlsx'),)
 
 
 # Extensão padrão de arquivo
-EXTENSIONS = '.xlsx'
+EXTENSION = '.xlsx'
 
 
 # Cabeçalhos das colunas
