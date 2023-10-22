@@ -69,11 +69,6 @@ class SetupTopLevel(CTkToplevel):
             fg_color=TRANSPARENTE, anchor=CENTER, command=self._api, **self._api.button_configs
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
-        CTkButton(
-            tabela, text='Enviar feedback', width=700, height=32, border_color=VERDE, border_width=2,
-            fg_color=TRANSPARENTE, anchor=CENTER, command='abre_feedback', **self._api.button_configs
-        ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
-
     def abre_ajuda(self) -> None:
         self.tabview.set(TABAJUDA)
 

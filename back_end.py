@@ -3,11 +3,9 @@ from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel,
 
 from customtkinter import *
 
-from BackEndFunctions import ConfigurationManager, FileManager, QuestionsManager, SpellerManager, ImageManager
+from BackEndFunctions import *
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
 from BackEndFunctions.aparencia import altera_aparencia, altera_escala, altera_cor_padrao
-
-from FrontEndFunctions import CaixaDeTexto
 
 
 class API:
