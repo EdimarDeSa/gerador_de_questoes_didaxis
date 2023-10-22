@@ -19,15 +19,15 @@ class API:
         self._cnf = ConfigurationManager(
             self._file.base_dir, self._file.read_json, self._file.save_json, self._file.create_personal_dict
         )
-        self._quest: QuestionsManager = QuestionsManager()
+        self._quest = QuestionsManager()
         self._speller = SpellerManager(self._cnf.PERSONAL_DICT_FILE, self._cnf.add_palavra)
         self._img = ImageManager(self._file.base_dir)
 
         # Variáveis de perfil
-        self.var_apagar_enunciado: BooleanVar = BooleanVar(value=self._cnf.apagar_enunciado)
         self.var_aparencia_do_sistema: StringVar = StringVar(value=self._cnf.aparencia_do_sistema)
         self.var_escala_do_sistema: StringVar = StringVar(value=self._cnf.escala_do_sistema)
         self.var_cor_padrao: StringVar = StringVar(value=self._cnf.cor_padrao)
+        self.var_erase_statement: BooleanVar = BooleanVar(value=self._cnf.apagar_enunciado)
         self.var_auto_export: BooleanVar = BooleanVar(value=self._cnf.exportar_automaticamente)
 
         # Variaveis de configurações
@@ -37,9 +37,9 @@ class API:
         self.button_configs: dict = self._cnf.buttons_configs
         self.text_configs: dict = self._cnf.text_configs
 
+        self.img_config: CTkImage = self._img.bt_configs
         self.img_edit: CTkImage = self._img.bt_edit
         self.img_delete: CTkImage = self._img.bt_delete
-        self.img_config: CTkImage = self._img.bt_configs
 
         self.category_list: list = self._cnf.categorias
         self.type_list: list = self._cnf.tipos
@@ -53,6 +53,9 @@ class API:
 
         # External event handlers
         self.start_monitor_handler = self._speller.monitora_textbox
+        self.save_new_config_handler = self._cnf.save_new_config
+        self.change_appearance_handler = altera_aparencia
+        self.change_scale_handler = altera_escala
 
         # Campos da questao
         self.categoria = StringVar(value=self._cnf.unidade_padrao)
@@ -95,7 +98,7 @@ class API:
         self.peso.set(PLACE_HOLDER_PESO)
 
         # Janela de enunciado
-        if self.var_apagar_enunciado:
+        if self.var_erase_statement:
             self.pergunta.delete(0.0, END)
 
         # Janela de botões
@@ -314,7 +317,7 @@ class API:
         ...
 
     def category_change_handler(self):
-        ...
+        self.save_new_config_handler('unidade_padrao', self.categoria.get())
 
     def evento_de_fechamento_da_tela(self):
         if not self.exportado:

@@ -47,19 +47,18 @@ class ConfigurationManager:
             self._personal_dict.dictionary = set(words_list)
         return None
 
-    def save_new_config(self, key: str, value: any) -> bool:
-        if key in self.configs.__dict__.keys():
+    def save_new_config(self, key: str, value: any) -> None:
+        if hasattr(self.configs, key):
             self.configs.atualiza_atributo(key, value)
-            self.save_json(self._CONFIGS_FILE, self.configs.__dict__)
-        elif key in self.perfil.__dict__.keys():
+            self.save_json(self._CONFIGS_FILE, dict(self.configs))
+        elif hasattr(self.perfil, key):
             self.perfil.atualiza_atributo(key, value)
-            self.save_json(self._PERFIL_FILE, self.perfil.__dict__)
-        elif key in self._personal_dict.__dict__.keys():
+            self.save_json(self._PERFIL_FILE, dict(self.perfil))
+        elif hasattr(self._personal_dict, key):
             self._personal_dict.atualiza_atributo(value)
-            self.save_json(self.PERSONAL_DICT_FILE, self._personal_dict.__list__)
+            self.save_json(self.PERSONAL_DICT_FILE, self._personal_dict.to_list)
         else:
-            return False
-        return True
+            raise KeyError(f"Invalid configuration key: {key}")
 
     @property
     def _fonte_titulo(self) -> CTkFont:
@@ -148,7 +147,7 @@ class ConfigurationManager:
 
     @property
     def exportar_automaticamente(self) -> bool:
-        return self.perfil.apagar_enunciado
+        return self.perfil.exportar_automaticamente
 
     @exportar_automaticamente.setter
     def exportar_automaticamente(self, value) -> None:

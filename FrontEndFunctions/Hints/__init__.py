@@ -20,6 +20,7 @@ AddChoiceHandler = Callable[[Optional[str], Optional[int]], None]
 RmChoiceHandler = Callable[[Optional[int]], None]
 StartMonitorHandler = Callable[[CaixaDeTexto], None]
 OpenDbHandler = ShowWindowHandler = ExportHandler = SaveQuestionHandler = Callable[[T], None]
+SaveNewConfigHint = Callable[[str, any], None]
 
 
 # ClassVar hints

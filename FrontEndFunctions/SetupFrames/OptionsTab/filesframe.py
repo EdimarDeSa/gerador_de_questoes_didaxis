@@ -1,12 +1,11 @@
 from customtkinter import CTkFrame, CTkLabel, CTkToplevel, CTkButton
 
 from FrontEndFunctions.Hints import ExportHandler, OpenDbHandler
-from FrontEndFunctions.Constants import GRAY
 
 
 class FilesFrame(CTkFrame):
     def __init__(self, master: CTkToplevel, open_db_handler: OpenDbHandler, export_handler: ExportHandler, **kwargs):
-        super().__init__(master, fg_color=GRAY, **kwargs)
+        super().__init__(master, **kwargs)
 
         pad = dict(padx=10, pady=10)
 

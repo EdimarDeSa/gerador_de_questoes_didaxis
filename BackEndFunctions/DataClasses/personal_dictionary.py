@@ -11,5 +11,8 @@ class PersonalDictionary:
         cls.dictionary.add(value)
 
     @property
-    def __list__(self):
+    def to_list(self):
         return list(self.dictionary)
+
+    def __iter__(self):
+        return iter(self.__dict__.items())

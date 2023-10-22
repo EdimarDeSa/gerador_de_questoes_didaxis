@@ -14,6 +14,8 @@ SHORTCUTS = [
     ('Pular campos:', 'Ctrl + TAB ou TAB'),
     ('Voltar campos:', 'Ctrl + Shift + TAB ou Shift + TAB')
 ]
+TABOPCAO = 'Opção'
+TABAJUDA = 'Ajuda'
 
 PORCENTAGENS = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
 APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]

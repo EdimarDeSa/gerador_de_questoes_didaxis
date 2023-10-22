@@ -1,14 +1,6 @@
 from customtkinter import CTk
 
-from FrontEndFunctions import (
-    QuestionCountFrame,
-    QuestionParametersFrame,
-    QuestionStatementFrame,
-    QuestionChoicesFrame,
-    QuestionsFrame,
-    CommandButtonsFrame,
-    SetupTopLevel
-)
+from FrontEndFunctions import *
 from back_end import API, ME, MEN, VF
 
 
@@ -55,13 +47,10 @@ class Application:
             self._api.export_handler, self._api.save_question_handler,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
-        SetupTopLevel(
-            self._master, self._api
-        )
+        SetupTopLevel(self._master, self._api)
 
     def configura_binds(self):
         def ctrl_events(key):
-            print(key.__dict__)
             def seleciona_tipo(indice: str):
                 tipos = {'1': ME, '2': MEN, '3': VF}
                 self.gvar.tipo.set(tipos.get(indice))
@@ -102,7 +91,6 @@ class Application:
                     events.get(key)()
 
         def key_events(key):
-            print(key.__dict__)
 
             events = {
                 # 'f1': self.abre_atalhos,

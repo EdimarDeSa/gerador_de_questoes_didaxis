@@ -12,3 +12,6 @@ class PerfilDataClass:
 
     def atualiza_atributo(self, key: str, value: any):
         setattr(self, key, value)
+
+    def __iter__(self):
+        return iter(self.__dict__.items())

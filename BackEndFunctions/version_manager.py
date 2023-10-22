@@ -1,23 +1,18 @@
-import urllib.request
-import urllib.parse
-import urllib.error
-import json
 import subprocess
+
+from requests import get
+
 from BackEndFunctions.FileManagerLib.json_serializer import *
 
 
-__all__ = ['Atualizacao']
-
-
 class Atualizacao:
-    def __init__(self, versao_atual: str, arquivos: Arquivos):
-        self.url_base = 'https://www.efscode.com.br/atualizacoes/'
+    url_base = 'https://www.efscode.com.br/atualizacoes/'
+
+    def __init__(self):
         self.url_versao = 'verifica_versao/'
         self.software_name = 'gerador_de_questoes_didaxis'
         self.json_data = None
         self.atualizacao_disponivel = False
-        self.versao_atual = versao_atual
-        self.arquivos = arquivos
 
         if self.verifica_conexao_com_internet():
             self.atualizacao_disponivel = self.verifica_versao()
