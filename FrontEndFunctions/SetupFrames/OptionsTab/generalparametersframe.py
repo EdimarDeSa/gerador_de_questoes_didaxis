@@ -13,6 +13,8 @@ class GeneralPramsFrame(CTkFrame):
     ):
         super().__init__(master, **kwargs)
 
+        # TODO: Botoao escala não está aparecendo
+
         self.save_new_config_handler = save_new_config_handler
         self.change_appearance_handler = change_appearance_handler
         self.change_scale_handler = change_scale_handler
@@ -71,10 +73,15 @@ class GeneralPramsFrame(CTkFrame):
     def salva_e_altera_aparencia(self, value: str) -> None:
         self.save_new_config_handler('aparencia_do_sistema', value)
         self.change_appearance_handler(value)
+        self.foca()
 
     def salva_e_altera_escala_do_sistema(self, nova_escala):
         self.save_new_config_handler('escala_do_sistema', nova_escala)
         self.change_scale_handler(nova_escala)
+        self.foca()
+
+    def foca(self):
+        self.after(200, self.focus)
 
     @staticmethod
     def check_state(state: bool) -> str:
