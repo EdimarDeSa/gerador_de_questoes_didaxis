@@ -13,23 +13,29 @@ class QuestionsManager:
 
         self._temp_question = QuestionDataClass()
 
-    def create_new_question(self, tipo: str = None, peso: str = None, tempo: str = None, pergunta: str = None,
-                            categoria: str = None, subcategoria: str = None, dificuldade: str = None,
-                            alternativas: list[tuple[str, bool]] = None, serial_dict: dict = None) -> int:
+    def create_new_question(self, id: str = None, tipo: str = None, peso: str = None, tempo: str = None,
+                            pergunta: str = None, categoria: str = None, subcategoria: str = None,
+                            dificuldade: str = None, alternativas: list[tuple[str, bool]] = None,
+                            serial_dict: dict = None) -> int:
         self._temp_question.pergunta = pergunta
         self._exists_pergunta()
 
-        controle = self.__next_control()
+        internal_cntrl = self.__next_control()
 
         if serial_dict is not None:
-            new_question = QuestionDataClass(controle=controle, **serial_dict)
+            cntrl_atual = serial_dict.get('controle')
+            print(cntrl_atual)
+            # if cntrl_atual:
+            #     self.__control = cntrl_atual if cntrl_atual > self.__control
+            serial_dict['controle'] = internal_cntrl if not cntrl_atual else cntrl_atual
+            new_question = QuestionDataClass(**serial_dict)
         else:
             new_question = QuestionDataClass(
-                tipo=tipo, peso=peso, tempo=tempo, pergunta=pergunta, categoria=categoria, controle=controle,
+                tipo=tipo, peso=peso, tempo=tempo, pergunta=pergunta, categoria=categoria, controle=internal_cntrl,
                 subcategoria=subcategoria, alternativas=alternativas, dificuldade=dificuldade
             )
-        self.__question_db[controle] = new_question
-        return controle
+        self.__question_db[internal_cntrl] = new_question
+        return internal_cntrl
 
     def remove_question(self, controle: int) -> bool:
         self._exists_controle(controle)
