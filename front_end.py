@@ -1,6 +1,6 @@
 from tkinter import Event
 
-from customtkinter import CTk
+from customtkinter import CTk, CTkFrame
 
 from FrontEndFunctions import *
 from back_end import API, ME, MEN, VF
@@ -26,7 +26,7 @@ class Application:
         QuestionParametersFrame(
             self._master, self._api.entry_configs, self._api.label_configs,
             self._api.list_configs, self._api.categoria, self._api.category_list,
-            self._api.sub_categoria, self._api.tempo, self._api.type_list,
+            self._api.subcategoria, self._api.tempo, self._api.type_list,
             self._api.tipo, self._api.type_change_handler, self._api.difficulties_list,
             self._api.dificuldade, self._api.peso
         ).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
