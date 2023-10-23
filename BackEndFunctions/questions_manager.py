@@ -24,24 +24,20 @@ class QuestionsManager:
 
         if serial_dict is not None:
             cntrl_atual = serial_dict.get('controle')
-            print(cntrl_atual)
-            # if cntrl_atual:
-            #     self.__control = cntrl_atual if cntrl_atual > self.__control
             serial_dict['controle'] = internal_cntrl if not cntrl_atual else cntrl_atual
             new_question = QuestionDataClass(**serial_dict)
         else:
             new_question = QuestionDataClass(
-                tipo=tipo, peso=peso, tempo=tempo, pergunta=pergunta, categoria=categoria, controle=internal_cntrl,
+                id=id, tipo=tipo, peso=peso, tempo=tempo, pergunta=pergunta, categoria=categoria, controle=internal_cntrl,
                 subcategoria=subcategoria, alternativas=alternativas, dificuldade=dificuldade
             )
         self.__question_db[internal_cntrl] = new_question
         return internal_cntrl
 
-    def remove_question(self, controle: int) -> bool:
+    def remove_question(self, controle: int) -> None:
         self._exists_controle(controle)
         if controle in self.__question_db:
             del self.__question_db[controle]
-            return True
 
     def edit_question(
             self, controle: int, unidade: str = None, codigo: str = None, tempo: str = None,
@@ -71,10 +67,11 @@ class QuestionsManager:
 
     def get_question_data(self, controle: int) -> Optional[dict]:
         self._exists_controle(controle)
+
         question = self.__question_db.get(controle)
-        if question is None: return None
-        dict(self._temp_question).update(dict(question))
-        return dict(self._temp_question).copy()
+
+        self._temp_question.update(dict(question))
+        return dict(self._temp_question)
 
     def __next_control(self) -> int:
         self.__control += 1
