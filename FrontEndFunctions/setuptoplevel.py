@@ -18,7 +18,7 @@ class SetupTopLevel(CTkToplevel):
         self.protocol('WM_DELETE_WINDOW', self.close_window_event)
 
     def _configura_tela(self):
-        largura, altura = 750, 500
+        largura, altura = 750, 600
         pos_x = (self.winfo_screenwidth() - largura) // 2
         pos_y = (self.winfo_screenheight() - altura) // 2
 
@@ -70,6 +70,7 @@ class SetupTopLevel(CTkToplevel):
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
     def abre_ajuda(self) -> None:
+        self.wm_deiconify()
         self.tabview.set(TABAJUDA)
 
     def close_window_event(self) -> None:

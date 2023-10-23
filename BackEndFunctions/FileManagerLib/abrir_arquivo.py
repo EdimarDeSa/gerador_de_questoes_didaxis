@@ -8,7 +8,8 @@ from BackEndFunctions.Constants import (
 
 
 class AbrirArquivo:
-    def _open_excel(self, path: Path) -> DataFrame | Exception | InvalidColumnName:
+    @staticmethod
+    def _open_excel(path: Path) -> DataFrame:
         """
         Abre um arquivo Excel e retorna um DataFrame ou uma exceção em caso de erro.
 
@@ -17,11 +18,12 @@ class AbrirArquivo:
         :param path: O caminho para o arquivo Excel.
         :return: Um DataFrame ou uma excessão.
         """
+        # TODO: Concertar exceptions
         try:
             with ExcelFile(path, engine=ENGINE) as xls:
                 df = read_excel(xls, dtype='string', keep_default_na=False)
         except Exception as err:
-            return Exception(err)
+            raise Exception(err)
 
         return df
 
@@ -50,6 +52,7 @@ class AbrirArquivo:
         """
         question_dict = question[CABECALHO_PERGUNTA].iloc[0].to_dict()
         question_dict['TIPO'] = self._normalize_question_type(question_dict.get('TIPO'))
+
         return question_dict
 
     @staticmethod
@@ -62,8 +65,20 @@ class AbrirArquivo:
         :param to_normalize: Um dicionário a ser normalizado.
         :return: Um dicionário com chaves em letras minúsculas.
         """
-        return {key.lower(): value for key, value in to_normalize.items()}
-    
+        new_keys = {
+            'CATEGORIA': 'categoria',
+            'CONTROLE': 'controle',
+            'DIFICULDADE': 'dificuldade',
+            'ID': 'id_',
+            'PERGUNTA': 'pergunta',
+            'PESO': 'peso',
+            'SUBCATEGORIA': 'subcategoria',
+            'TEMPO': 'tempo',
+            'TIPO': 'tipo'
+        }
+
+        return {new_keys.get(chave, chave): valor for chave, valor in to_normalize.items()}
+
     def _normalize_choices(self, choices: list) -> list[tuple[str, bool]]:
         """
         Normaliza as escolhas das questões.

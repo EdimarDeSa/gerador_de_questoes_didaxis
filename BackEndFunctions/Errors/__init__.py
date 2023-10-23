@@ -4,8 +4,8 @@ class ExceptionBaseClass(Exception):
 
 
 class QuestionMatchError(Exception):
-    def __init__(self, pergunta: str, controle: int):
-        self.message = f'Question "<{pergunta}>" already exists in control "<{controle}>"'
+    def __init__(self, controle: int):
+        self.message = f'A questão "<{controle}>" tem a mesma pergunta!'
 
 
 class BrokenFileError(ExceptionBaseClass):

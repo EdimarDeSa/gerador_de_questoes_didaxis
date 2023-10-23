@@ -1,3 +1,5 @@
+#TODO: Remove não necessárias
+
 # Configurações para codificação de caracteres
 ENCODER: str = 'UTF-8'
 BINARY_PROTOCOL = 5
@@ -70,7 +72,8 @@ EXTENSION = '.xlsx'
 # Cabeçalhos das colunas
 CABECALHO_DIDAXIS = ['ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA', 'CORRETA',
                      'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE']
-CABECALHO_DIDAXIS_LOWER = ['id', 'tipo', 'peso', 'tempo', 'controle', 'pergunta', 'alternativas',
+# TODO: Verificar necessidade ao finalizar tudo
+CABECALHO_DIDAXIS_LOWER = ['id_', 'tipo', 'peso', 'tempo', 'controle', 'pergunta', 'alternativas',
                            'categoria', 'subcategoria', 'dificuldade']
 CABECALHO_PERGUNTA = ['ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE']
 CABECALHO_ALTERNATIVAS = ['ALTERNATIVA', 'CORRETA']

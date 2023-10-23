@@ -13,8 +13,6 @@ class GeneralPramsFrame(CTkFrame):
     ):
         super().__init__(master, **kwargs)
 
-        # TODO: Botoao escala não está aparecendo
-
         self.save_new_config_handler = save_new_config_handler
         self.change_appearance_handler = change_appearance_handler
         self.change_scale_handler = change_scale_handler

@@ -1,6 +1,6 @@
 from tkinter import Event
 
-from customtkinter import CTk, CTkScrollableFrame
+from customtkinter import CTk
 
 from FrontEndFunctions import *
 from back_end import API, ME, MEN, VF
@@ -31,13 +31,13 @@ class Application:
             self._api.dificuldade, self._api.peso
         ).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
 
-        qst = QuestionStatementFrame(
+        question_statement_frame = QuestionStatementFrame(
             self._master, self._api.label_configs, self._api.entry_configs,
             self._api.button_configs, self._api.add_choice_handler,
             self._api.rm_choice_handler, self._api.start_monitor_handler
         )
-        qst.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
-        self._api.pergunta = qst.pergunta
+        question_statement_frame.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
+        self._api.pergunta = question_statement_frame.pergunta
 
         QuestionChoicesFrame(
             self._master, self._api.label_configs, self._api.text_configs,
@@ -58,7 +58,7 @@ class Application:
             self._api.save_question_handler,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
-        SetupTopLevel(self._master, self._api)
+        self._api.setuptoplevel = SetupTopLevel(self._master, self._api)
 
     def configura_binds(self):
         def ctrl_events(event: Event):
@@ -98,7 +98,7 @@ class Application:
         def key_events(key):
 
             events = {
-                # 'f1': self.abre_atalhos,
+                'f1': self._api.open_help_tab,
                 # 'f12': self.gvar.arquivos.salvar_como,
             }
             if key in events.keys():
