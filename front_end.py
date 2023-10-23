@@ -1,6 +1,6 @@
-from tkinter import Event, EventType
+from tkinter import Event
 
-from customtkinter import CTk
+from customtkinter import CTk, CTkScrollableFrame
 
 from FrontEndFunctions import *
 from back_end import API, ME, MEN, VF
@@ -44,10 +44,11 @@ class Application:
             self._api.lista_ck_bts
         ).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
-        QuestionsFrame(
+        self._api.questions_frame = QuestionsFrame(
             self._master, self._api.label_configs, self._api.img_edit,
-            self._api.img_delete, self._api.frame_questoes
-        ).place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
+            self._api.img_delete
+        )
+        self._api.questions_frame.place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
 
         CommandButtonsFrame(
             self._master, self._api.img_config, self._api.button_configs,
