@@ -1,12 +1,17 @@
-from typing import Callable, Optional
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
 
+import pandas.errors
 from customtkinter import *
 from icecream import ic
 
 from BackEndFunctions import *
+from BackEndFunctions.Hints import RowHint, Type, Optional, Callable
 from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
 from BackEndFunctions.aparencia import altera_aparencia, altera_escala, altera_cor_padrao
+
+from FrontEndFunctions.Constants import VERDE, TRANSPARENTE
+from FrontEndFunctions.linha_de_questao import LinhaDeQuestao
+from FrontEndFunctions import CaixaDeTexto
 
 
 class API:
@@ -50,6 +55,11 @@ class API:
         self.display_question_count: IntVar = IntVar(value=0)
         self.exportado: bool = True
 
+        # Variáveis da tela de questões
+        self._row_dict: RowHint = dict()
+        self._zebrar: bool = True
+        self._linha_atual: int = 0
+
         # External event handlers
         self.start_monitor_handler = self._speller.monitora_textbox
         self.save_new_config_handler = self._cnf.save_new_config
@@ -69,7 +79,7 @@ class API:
         self.lista_ck_bts: list[Optional[CTkCheckBox]] = list()
 
         # Quadro de questões
-        self.frame_questoes: Optional[CTkScrollableFrame] = None
+        self.questions_frame: Optional[CTkScrollableFrame] = None
 
         self.configura_aparencia()
         self.change_title_handler()
@@ -176,7 +186,14 @@ class API:
 
     def editar_questao(self, controle: int) -> None:
         self.reseta_informacoes()
-        question_info: dict = self._quest.get_question_data(controle)
+
+        try:
+            question_info: dict = self._quest.get_question_data(controle)
+        except KeyError as e:
+            showinfo('Questão inexistente', str(e))
+            self.delete_question_line(controle)
+            return None
+
         self.categoria.set(question_info.get('categoria'))
         self.sub_categoria.set(question_info.get('sub_categoria'))
         self.tempo.set(question_info.get('tempo'))
@@ -184,6 +201,8 @@ class API:
         self.dificuldade.set(question_info.get('dificuldade'))
         self.peso.set(question_info.get('peso'))
         self.pergunta.insert(1.0, question_info.get('pergunta'))
+
+        ic(question_info.get('alternativas'))
 
     def setup_window_handler(self):
         toplevel: CTkToplevel = self._master.children.get('!setuptoplevel')
@@ -288,20 +307,20 @@ class API:
 
         new_question_line = LinhaDeQuestao(
             line_window, title, controle, self.img_edit, self.img_delete,
-            cmd_delete=self.delete_question_line, cmd_edit=self.gvar.editar_questao
+            cmd_delete=self.delete_question_line, cmd_edit=self.editar_questao
         )
 
-        self._row_dict[controle] = {'row': line_window, 'display': new_question_line}
+        self._row_dict[controle] = {'row': new_question_line, 'display': new_question_line}
 
-        self.gvar.display_question_count.set(len(self._row_dict))
+        self.display_question_count.set(len(self._row_dict))
 
     def delete_question_line(self, controle: int):
         row = self._row_dict[controle]['row']
         row.destroy()
         del self._row_dict[controle]
         self._reorder_colors()
-        self.gvar.display_question_count.set(len(self._row_dict))
-        self.gvar.delete_question(controle)
+        self.display_question_count.set(len(self._row_dict))
+        self.delete_question(controle)
 
     def _select_color(self) -> str:
         cor = VERDE
@@ -315,16 +334,21 @@ class API:
         for row_info in self._row_dict.values():
             row_info['row'].configure(fg_color=self._select_color())
 
-    def open_db_handler(self):
+    def open_db_handler(self) -> None:
         from tkinter.filedialog import askopenfilename
         from BackEndFunctions.Constants import EXTENSION, FILETYPES
-        path = askopenfilename(
-            defaultextension=EXTENSION, filetypes=FILETYPES,
-            initialdir=self._file.loaded_file
-        )
-        questios = self._file.open_db(path)
-        ic(path)
+        path = askopenfilename(defaultextension=EXTENSION, filetypes=FILETYPES, # initialdir=self._file.loaded_path
+                               )
 
+        try:
+            questions = self._file.open_db(path)
+        except pandas.errors.InvalidColumnName as e:
+            showerror('Arquivo inválido', str(e))
+            return None
+
+        for question in questions:
+            controle = self._quest.create_new_question(serial_dict=question)
+            self.create_new_question_line(question['pergunta'], controle)
 
     def category_change_handler(self):
         self.save_new_config_handler('unidade_padrao', self.categoria.get())
