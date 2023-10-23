@@ -1,5 +1,6 @@
 from pathlib import Path
 import tempfile
+from typing import Optional
 
 from .FileManagerLib import AbrirArquivo, JsonSerializer, BinarySerializer
 
@@ -8,9 +9,15 @@ class FileManager:
     def __init__(self):
         self.base_dir = Path().resolve()
 
-        self.loaded_file: Path = AbrirArquivo.get_desktop_path()
+        self.loaded_path: Path = Path().home() / 'Desktop'
+        self.loaded_file: Optional[Path] = None
 
         self._temp_dir = tempfile.gettempdir()
+
+    def _atualiza_path(self, path: str):
+        path = Path(path).resolve()
+        self.loaded_path = path.parent
+        self.loaded_file = path.name
 
     @staticmethod
     def read_json(path: Path) -> dict | list:
@@ -47,5 +54,10 @@ class FileManager:
     #     if not salvo:
     #         return False
     #     return True
-    def open_db(self, path: Path):
-        pass
+
+    def open_db(self, path: str) -> list[dict]:
+        data = AbrirArquivo().open(path)
+
+        self._atualiza_path(path)
+
+        return data
