@@ -8,7 +8,7 @@ class QuestionDataClass:
     tipo: Optional[str] = field(default=None, compare=False)
     peso: Optional[str] = field(default=None, compare=False)
     tempo: Optional[str] = field(default=None, compare=False)
-    controle: Optional[int] = field(default=None, compare=False, init=False)
+    controle: Optional[int] = field(default=None, compare=False)
     pergunta: Optional[str] = field(default=None)
     categoria: Optional[str] = field(default=None, compare=False)
     subcategoria: Optional[str] = field(default=None, compare=False)
