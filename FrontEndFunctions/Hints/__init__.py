@@ -11,7 +11,6 @@ T = TypeVar('T')
 # Configs hints
 ConfigsHint = ClassVar[Dict[str, any]]
 ImageHint = ClassVar[CTkImage]
-RowHint = dict[int, dict[[Literal['row'], CTkFrame], [Literal['display'], object]]]
 
 
 # Callable hints
