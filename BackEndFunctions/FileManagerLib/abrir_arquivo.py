@@ -1,8 +1,10 @@
 from pathlib import Path
-from pandas import ExcelFile, read_excel, DataFrame, Series
+from pandas import ExcelFile, read_excel, DataFrame
 from pandas.errors import InvalidColumnName
 
-from BackEndFunctions.Constants import ENGINE, CABECALHO_DIDAXIS, CABECALHO_PERGUNTA, CABECALHO_ALTERNATIVAS, CORRETA, V
+from BackEndFunctions.Constants import (
+    ENGINE, CABECALHO_DIDAXIS, CABECALHO_PERGUNTA, CABECALHO_ALTERNATIVAS, CORRETA, V, D, VF, ME, MEN
+)
 
 
 class AbrirArquivo:
@@ -37,8 +39,7 @@ class AbrirArquivo:
         grup = df.groupby('PERGUNTA')
         return [grupo for _, grupo in grup]
 
-    @staticmethod
-    def _split_question_parameters(question: DataFrame) -> dict:
+    def _split_question_parameters(self, question: DataFrame) -> dict:
         """
         Extrai os parâmetros da questão.
 
@@ -47,7 +48,9 @@ class AbrirArquivo:
         :param question: O DataFrame de uma questão.
         :return: Um dicionário com os parâmetros da questão.
         """
-        return question[CABECALHO_PERGUNTA].iloc[0].to_dict()
+        question_dict = question[CABECALHO_PERGUNTA].iloc[0].to_dict()
+        question_dict['TIPO'] = self._normalize_question_type(question_dict.get('TIPO'))
+        return question_dict
 
     @staticmethod
     def _normalize_keys(to_normalize: dict) -> dict:
@@ -151,3 +154,13 @@ class AbrirArquivo:
         question_list = self._split_questions(data_frame)
 
         return self._serialize_questions(question_list)
+
+    @staticmethod
+    def _normalize_question_type(param: str) -> str:
+        tipos = {
+            'd': D,
+            'me': ME,
+            'men': MEN,
+            'vf': VF
+        }
+        return tipos.get(param)
