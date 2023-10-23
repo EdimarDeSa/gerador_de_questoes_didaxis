@@ -15,5 +15,8 @@ class QuestionDataClass:
     alternativas: Optional[list[tuple[str, bool]]] = field(default_factory=list, compare=False)
     dificuldade: Optional[str] = field(default=None, compare=False)
 
+    def update(self, data: dict) -> None:
+        self.__dict__.update(data)
+
     def __iter__(self) -> iter:
         return iter(self.__dict__.items())
