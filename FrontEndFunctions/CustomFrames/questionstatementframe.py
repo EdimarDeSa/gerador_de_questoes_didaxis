@@ -18,9 +18,9 @@ class QuestionStatementFrame(CTkFrame):
         button_configs.update({'width': 30, 'height': 30})
 
         CTkLabel(self, text='Enunciado da questão', **label_configs).place(relx=0.02, rely=0.025, relwidth=0.85)
-        pergunta = CaixaDeTexto(self, **entry_configs, height=90)
-        pergunta.place(relx=0.02, rely=0.25, relwidth=0.85, relheight=0.7)
-        start_monitor_handler(pergunta)
+        self.pergunta = CaixaDeTexto(self, **entry_configs, height=90)
+        self.pergunta.place(relx=0.02, rely=0.25, relwidth=0.85, relheight=0.7)
+        start_monitor_handler(self.pergunta)
 
         CTkLabel(self, text='Opção', **label_configs).place(relx=0.85, rely=0.025, relwidth=0.15)
         CTkButton(self, text='+', command=add_choice_handler, **button_configs).place(relx=0.905, rely=0.35)
