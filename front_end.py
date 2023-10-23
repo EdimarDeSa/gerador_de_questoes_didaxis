@@ -31,11 +31,13 @@ class Application:
             self._api.dificuldade, self._api.peso
         ).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
 
-        QuestionStatementFrame(
+        qst = QuestionStatementFrame(
             self._master, self._api.label_configs, self._api.entry_configs,
             self._api.button_configs, self._api.add_choice_handler,
             self._api.rm_choice_handler, self._api.start_monitor_handler
-        ).place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
+        )
+        qst.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
+        self._api.pergunta = qst.pergunta
 
         QuestionChoicesFrame(
             self._master, self._api.label_configs, self._api.text_configs,
@@ -61,6 +63,7 @@ class Application:
     def configura_binds(self):
         def ctrl_events(event: Event):
             key = event.keysym
+
             def seleciona_tipo(indice: str):
                 tipos = {'1': ME, '2': MEN, '3': VF}
                 self._api.tipo.set(tipos.get(indice))
@@ -69,14 +72,6 @@ class Application:
             def seleciona_dificuldade(indice: str) -> None:
                 dificuldades = {'4': 'Fácil', '5': 'Médio', '6': 'Difícil'}
                 self._api.dificuldade.set(dificuldades.get(indice))
-
-            # match key:
-            #     case 'e':
-            #         self._api.export_handler()
-            #     case 's':
-            #         self._api.save_question_handler()
-            #     case 'equal':
-            #         self._api.add_choice_handler()
 
             events = {
                 'e': self._api.export_handler,
