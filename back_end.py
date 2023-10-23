@@ -1,12 +1,12 @@
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
+from tkinter.filedialog import askopenfilename
 
 import pandas.errors
 from customtkinter import *
-from icecream import ic
 
 from BackEndFunctions import *
-from BackEndFunctions.Hints import RowHint, Type, Optional, Callable
-from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D
+from BackEndFunctions.Hints import RowHint, Optional, Callable
+from BackEndFunctions.Constants import PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, ME, MEN, VF, D, EXTENSION, FILETYPES
 from BackEndFunctions.aparencia import altera_aparencia, altera_escala, altera_cor_padrao
 
 from FrontEndFunctions.Constants import VERDE, TRANSPARENTE
@@ -120,15 +120,17 @@ class API:
 
         self.pergunta.focus()
 
-    def add_choice_handler(self, texto_alternativa=None, indice=None) -> None:
-        if self.contador_de_opcoes.get() == len(self.lista_txt_box) or self.tipo.get() == D:
+    def add_choice_handler(self, texto_alternativa: str = None, indice: int = None, correta: bool = None) -> None:
+        if self.tipo.get() == D: return None
+
+        if self.contador_de_opcoes.get() == len(self.lista_txt_box):
             showinfo('Limite de opções', 'Quantidade limite de opções atingida')
             return None
 
         # Ativado pela alteração de tipo de questão
         if indice is None: indice = self.contador_de_opcoes.get()
 
-        # Se a linha for zero, seta como 50, do contrário, 10
+        # Se a linha for zero, seta como 5, do contrário, 10
         pady = (5 if not indice else 10, 0)
 
         self.lista_txt_box[indice].grid(column=0, row=indice, sticky=NSEW, pady=pady)
@@ -139,18 +141,19 @@ class API:
         bt = self._get_opcao_bt(indice, self.tipo.get())
         bt.grid(column=1, row=indice, padx=(10, 0), pady=pady)
 
+        if correta:
+            bt.select()
+
         self.contador_de_opcoes.set(self.contador_de_opcoes.get() + 1)
 
     def rm_choice_handler(self, indice=None) -> None:
         # Se for zero signifca que não tem opção exibida e cancela a ação
-        if not self.contador_de_opcoes.get():
-            return None
+        if not self.contador_de_opcoes.get(): return None
 
         self.contador_de_opcoes.set(self.contador_de_opcoes.get() - 1)
 
         # Ativado pela edição de questão
-        if indice is None:
-            indice = self.contador_de_opcoes.get()
+        if indice is None: indice = self.contador_de_opcoes.get()
 
         self.lista_txt_box[indice].grid_forget()
         self.lista_ck_bts[indice].grid_forget()
@@ -180,11 +183,13 @@ class API:
             self.add_choice_handler(indice=indice)
         # self.organiza_ordem_tabulacao()
 
-    def delete_question(self, controle: int) -> None:
-        if self._quest.remove_question(controle):
+    def delete_question(self, controle: int, show_info: bool = True) -> None:
+        self._quest.remove_question(controle)
+        if show_info:
             showinfo('Questão deletada', 'A questão foi deletada com sucesso!')
 
     def editar_questao(self, controle: int) -> None:
+        # TODO: A edição está deixando escrever None na subcategoria e limpa os campos peso e tempo
         self.reseta_informacoes()
 
         try:
@@ -200,9 +205,11 @@ class API:
         self.tipo.set(question_info.get('tipo'))
         self.dificuldade.set(question_info.get('dificuldade'))
         self.peso.set(question_info.get('peso'))
-        self.pergunta.insert(1.0, question_info.get('pergunta'))
+        pergunta = question_info.get('pergunta')
+        self.pergunta.insert(0.0, pergunta)
 
-        ic(question_info.get('alternativas'))
+        for (alternativa, correta) in question_info.get('alternativas'):
+            self.add_choice_handler(alternativa, correta=correta)
 
     def setup_window_handler(self):
         toplevel: CTkToplevel = self._master.children.get('!setuptoplevel')
@@ -297,37 +304,34 @@ class API:
         showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
 
     def _create_line_frame(self, fg_color: str) -> CTkFrame:
-        window = CTkFrame(self._master, fg_color=fg_color, height=45)
+        window = CTkFrame(self.questions_frame, fg_color=fg_color, height=45)
         window.pack(expand=True, fill=X)
         return window
 
     def create_new_question_line(self, title: str, controle: int):
         color = self._select_color()
-        line_window = self._create_line_frame(color)
+        line_frame = self._create_line_frame(color)
 
         new_question_line = LinhaDeQuestao(
-            line_window, title, controle, self.img_edit, self.img_delete,
+            line_frame, title, controle, self.img_edit, self.img_delete,
             cmd_delete=self.delete_question_line, cmd_edit=self.editar_questao
         )
 
-        self._row_dict[controle] = {'row': new_question_line, 'display': new_question_line}
+        self._row_dict[controle] = {'row': line_frame, 'display': new_question_line}
 
         self.display_question_count.set(len(self._row_dict))
 
-    def delete_question_line(self, controle: int):
+    def delete_question_line(self, controle: int, show_info: bool = True) -> None:
         row = self._row_dict[controle]['row']
         row.destroy()
         del self._row_dict[controle]
         self._reorder_colors()
         self.display_question_count.set(len(self._row_dict))
-        self.delete_question(controle)
+        self.delete_question(controle, show_info)
 
     def _select_color(self) -> str:
-        cor = VERDE
-        if self._zebrar:
-            cor = TRANSPARENTE
         self._zebrar = not self._zebrar
-        return cor
+        return VERDE if self._zebrar else TRANSPARENTE
 
     def _reorder_colors(self):
         self._zebrar = True
@@ -335,16 +339,16 @@ class API:
             row_info['row'].configure(fg_color=self._select_color())
 
     def open_db_handler(self) -> None:
-        from tkinter.filedialog import askopenfilename
-        from BackEndFunctions.Constants import EXTENSION, FILETYPES
-        path = askopenfilename(defaultextension=EXTENSION, filetypes=FILETYPES, # initialdir=self._file.loaded_path
-                               )
+        path = askopenfilename(defaultextension=EXTENSION, filetypes=FILETYPES, initialdir=self._file.loaded_path)
 
         try:
             questions = self._file.open_db(path)
         except pandas.errors.InvalidColumnName as e:
             showerror('Arquivo inválido', str(e))
             return None
+
+        self.reset_questions_frame()
+        self.reseta_informacoes()
 
         for question in questions:
             controle = self._quest.create_new_question(serial_dict=question)
@@ -363,11 +367,10 @@ class API:
             if resposta is None:
                 return
             elif resposta:
-                self.exportar()
+                self.export_handler()
         exit(0)
 
-
-if __name__ == '__main__':
-    root = CTk()
-    f = API()
-    root.mainloop()
+    def reset_questions_frame(self) -> None:
+        qtd_questoes_atual = len(self._row_dict) + 1
+        for controle in range(1, qtd_questoes_atual):
+            self.delete_question_line(controle, False)
