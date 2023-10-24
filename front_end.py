@@ -3,11 +3,11 @@ from tkinter import Event
 from customtkinter import CTk, CTkFrame
 
 from FrontEndFunctions import *
-from back_end import API, ME, MEN, VF
+from back_end import Controller, ME, MEN, VF
 
 
 class Application:
-    def __init__(self, main_window: CTk, api: API):
+    def __init__(self, main_window: CTk, api: Controller):
         self._master = main_window
         self._api = api
 
@@ -95,10 +95,11 @@ class Application:
                 else:
                     events.get(key)()
 
-        def key_events(key):
+        def key_events(event: Event):
+            key = event.keysym
 
             events = {
-                'f1': self._api.open_help_tab,
+                'F1': self._api.open_help_tab,
                 # 'f12': self.gvar.arquivos.salvar_como,
             }
             if key in events.keys():
