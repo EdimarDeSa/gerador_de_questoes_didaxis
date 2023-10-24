@@ -10,7 +10,7 @@ from Views.questionparametersframe import QuestionParametersFrame
 from Views.questionstatementframe import QuestionStatementFrame
 from Views.questionchoicesframe import QuestionChoicesFrame
 from Views.questionsframe import QuestionsFrame
-# from Views.commandbuttonsframe import CommandButtonsFrame
+from Views.commandbuttonsframe import CommandButtonsFrame
 
 
 D = 'Dissertativa'
@@ -149,12 +149,12 @@ class CTkView(View):
 
     def _setup_images(self):
         large = (32, 32)
-        midium = (24, 24)
+        medium = (24, 24)
         small = (16, 16)
 
         setup_bt_img_light = self.controller.setup_bt_img_light
         setup_bt_img_dark = self.controller.setup_bt_img_dark
-        self._img_setup = CTkImage(setup_bt_img_light, setup_bt_img_dark, large)
+        self._img_setup = CTkImage(setup_bt_img_light, setup_bt_img_dark, medium)
 
         delete_light = self.controller.eraser_light
         delete_dark = self.controller.eraser_dark
@@ -194,12 +194,12 @@ class CTkView(View):
         )
         self.questions_frame.place(relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96)
 
-        # CommandButtonsFrame(
-        #     self.root, self._api.img_config, self._api.button_configs,
-        #     self._api.setup_window_handler, self._api.export_handler,
-        #     self._api.save_question_handler,
-        # ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
-        #
+        CommandButtonsFrame(
+            self.root, self._img_setup, self._button_settings,
+            self.setup_window_handler, self.export_handler,
+            self.save_question_handler,
+        ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
+
         # self._api.setuptoplevel = SetupTopLevel(self.root, self._api)
 
     def _type_change_handler(self, _) -> None:
@@ -274,3 +274,12 @@ class CTkView(View):
                 showerror(title, message)
             case _:
                 return
+
+    def setup_window_handler(self):
+        pass
+
+    def export_handler(self):
+        pass
+
+    def save_question_handler(self):
+        pass

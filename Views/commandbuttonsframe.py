@@ -1,34 +1,30 @@
-from customtkinter import CTkFrame, CTk, CTkButton, LEFT, X
+from customtkinter import CTkFrame, CTk, CTkButton, CTkImage, NSEW, NS
 
-from ..Hints import ConfigsHint, ImageHint, ShowWindowHandler, ExportHandler, SaveQuestionHandler
+from .Hints import MenuSettingsHint, Callable
 
 
 class CommandButtonsFrame(CTkFrame):
     def __init__(
-            self, master: CTk, img_config: ImageHint, buttons_configs: ConfigsHint,
-            configs_window_handler: ShowWindowHandler, export_handler: ExportHandler,
-            save_question_handler: SaveQuestionHandler, **kwargs
+            self, master: CTk, img_config: CTkImage, buttons_configs: MenuSettingsHint,
+            configs_window_handler: Callable, export_handler: Callable, save_question_handler: Callable
     ):
-        super().__init__(master, **kwargs)
+        super().__init__(master)
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=3)
-        self.grid_columnconfigure(2, weight=3)
-        
-        positioning = dict(expand=True, side=LEFT)
+        self.grid_columnconfigure(1, weight=10)
+        self.grid_columnconfigure(2, weight=10)
+        self.grid_rowconfigure(0, weight=1)
 
-        # noinspection PyTypeChecker
         CTkButton(
-            self, text=None, width=60, height=32, image=img_config, command=configs_window_handler, **buttons_configs
-        ).pack(**positioning)
-        
-        positioning.update(dict(fill=X, padx=(0, 10)))
-        
-        CTkButton(
-            self, text='Exportar', width=300, height=32, command=export_handler, **buttons_configs
-        ).pack(**positioning)
+            self, text=None, fg_color=('gray66', 'gray37'), image=img_config, command=configs_window_handler, **buttons_configs
+        ).grid(column=0, row=0, sticky=NS, padx=(10, 0), pady=5)
 
-        self.bt_salvar = CTkButton(
-            self, text='Salvar', width=300, height=32, command=save_question_handler, **buttons_configs
+        CTkButton(
+            self, text='Exportar', fg_color=('#3B8ED0', '#1F6AA5'), hover_color=('#36719F', '#144870'),
+            border_color=('#3E454A', '#949A9F'), command=export_handler, **buttons_configs
+        ).grid(column=1, row=0, sticky=NSEW, padx=10, pady=5)
+
+        self.b = CTkButton(
+            self, text='Salvar', command=save_question_handler, **buttons_configs
         )
-        self.bt_salvar.pack(**positioning)
+        self.b.grid(column=2, row=0, sticky=NSEW, padx=(0, 10), pady=5)
