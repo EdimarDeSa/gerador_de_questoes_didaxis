@@ -1,7 +1,7 @@
 from customtkinter import CTk
 
 from front_end import Application
-from back_end import API
+from back_end import Controller
 
 
 if __name__ == '__main__':
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     main_window.resizable(False, False)
     main_window.wm_iconbitmap(default='./icons/prova.ico')
 
-    api = API(main_window)
+    api = Controller(main_window)
     Application(main_window, api)
 
     main_window.mainloop()
