@@ -1,12 +1,12 @@
 from customtkinter import *
 
-from back_end import API
+from back_end import Controller
 from .SetupFrames import *
 from .Constants import GRAY, TABOPCAO, TABAJUDA, TRANSPARENTE, VERDE
 
 
 class SetupTopLevel(CTkToplevel):
-    def __init__(self, master: CTk, api: API, **kwargs):
+    def __init__(self, master: CTk, api: Controller, **kwargs):
         super().__init__(master=master, **kwargs)
 
         self._api = api
