@@ -5,6 +5,7 @@ from back_end import Controller
 
 
 if __name__ == '__main__':
+
     main_window = CTk()
 
     largura, altura = 1500, 750
@@ -18,3 +19,17 @@ if __name__ == '__main__':
     Application(main_window, api)
 
     main_window.mainloop()
+
+
+
+# from controller import Controller
+# from view import View
+# from model import Model
+#
+# def main():
+#     views = View()
+#     models = Model()
+#     Controller(views, models)
+#
+# if __name__ == '__main__':
+#     main()
