@@ -6,14 +6,14 @@ from FrontEndFunctions.Hints import ConfigsHint, BooleanVarHint, StringVarHint, 
 
 class GeneralPramsFrame(CTkFrame):
     def __init__(
-            self, master: CTkToplevel, label_configs: ConfigsHint, save_new_config_handler: SaveNewConfigHint,
+            self, master: CTkToplevel, label_configs: ConfigsHint, save_user_settings_handler: SaveNewConfigHint,
             var_erase_statement: BooleanVarHint, var_auto_export: BooleanVarHint,
             var_aparencia_do_sistema: StringVarHint, change_appearance_handler: Callable,
             var_escala_do_sistema: StringVarHint, change_scale_handler: Callable, **kwargs
     ):
         super().__init__(master, **kwargs)
 
-        self.save_new_config_handler = save_new_config_handler
+        self.save_user_settings_handler = save_user_settings_handler
         self.change_appearance_handler = change_appearance_handler
         self.change_scale_handler = change_scale_handler
 
@@ -60,21 +60,21 @@ class GeneralPramsFrame(CTkFrame):
 
     def change_erase_statement(self) -> None:
         value = self.var_erase_statement.get()
-        self.save_new_config_handler('apagar_enunciado', value)
+        self.save_user_settings_handler('apagar_enunciado', value)
         self._var_erase_statement_on_off.set(self.check_state(value))
 
     def change_auto_exportar(self) -> None:
         value = self.var_auto_export.get()
-        self.save_new_config_handler('exportar_automaticamente', value)
+        self.save_user_settings_handler('exportar_automaticamente', value)
         self._var_auto_export_on_off.set(self.check_state(value))
 
     def salva_e_altera_aparencia(self, value: str) -> None:
-        self.save_new_config_handler('aparencia_do_sistema', value)
+        self.save_user_settings_handler('aparencia_do_sistema', value)
         self.change_appearance_handler(value)
         self.foca()
 
     def salva_e_altera_escala_do_sistema(self, nova_escala):
-        self.save_new_config_handler('escala_do_sistema', nova_escala)
+        self.save_user_settings_handler('escala_do_sistema', nova_escala)
         self.change_scale_handler(nova_escala)
         self.foca()
 
