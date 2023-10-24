@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Callable, Tuple
+from typing import Dict, List, Literal, Callable, Tuple, Optional
 
 
 MenuSettingsHint = Dict[str, ...]

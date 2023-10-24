@@ -17,6 +17,13 @@ class Controller:
         self.question_type_list = self.models.question_type_list
         self.difficulty_list = self.models.difficulty_list
 
+        self.setup_bt_img_light = self.models.setup_bt_img_light
+        self.setup_bt_img_dark = self.models.setup_bt_img_dark
+        self.eraser_light = self.models.eraser_light
+        self.eraser_dark = self.models.eraser_dark
+        self.edit_light = self.models.edit_light
+        self.edit_dark = self.models.edit_dark
+        
     def start(self):
         self.views.set_appearance(self.models.user_appearance_mode)
         self.views.set_scaling(self.models.user_scaling)
