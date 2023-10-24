@@ -1,16 +1,16 @@
-from customtkinter import CTkFrame, CTk, CTkLabel, CTkScrollableFrame, CTkRadioButton, CTkCheckBox
+from customtkinter import CTkFrame, CTk, CTkLabel, CTkScrollableFrame, CTkRadioButton, CTkCheckBox, Variable, CTkTextbox
 
-from ..Hints import ConfigsHint, StartMonitorHandler, IntVarHint, ListHint
-from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
+from .Hints import MenuSettingsHint, WidgetListHint
+# from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
 class QuestionChoicesFrame(CTkFrame):
     def __init__(
-            self, master: CTk, label_configs: ConfigsHint, text_configs: ConfigsHint, var_rd_button_value: IntVarHint,
-            start_monitor_handler: StartMonitorHandler, lista_txt_box: ListHint, lista_rd_bts: ListHint,
-            lista_ck_bts: ListHint, **kwargs
+            self, master: CTk,
+            label_configs: MenuSettingsHint, text_configs: MenuSettingsHint, var_rd_button_value: Variable,
+            lista_txt_box: WidgetListHint, lista_rd_bts: WidgetListHint, lista_ck_bts: WidgetListHint
     ):
-        super().__init__(master, **kwargs)
+        super().__init__(master)
 
         CTkLabel(self, text='Opções', **label_configs).place(rely=0.02, relwidth=1)
 
@@ -20,8 +20,7 @@ class QuestionChoicesFrame(CTkFrame):
         for index in range(10):
             sc_frame.grid_rowconfigure(index, weight=1)
 
-            texto = CaixaDeTexto(sc_frame, width=650, height=50, **text_configs)
-            start_monitor_handler(texto)
+            texto = CTkTextbox(sc_frame, width=650, height=50, **text_configs)
             lista_txt_box.append(texto)
 
             rd_button = CTkRadioButton(sc_frame, text=None, value=index, variable=var_rd_button_value)

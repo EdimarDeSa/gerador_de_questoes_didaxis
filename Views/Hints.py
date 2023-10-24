@@ -11,3 +11,7 @@ QuestionDataHint = dict[[Literal['categoria'], str],
                         [Literal['peso'], str],
                         [Literal['pergunta'], str],
                         [Literal['alternativas'], List[Tuple[str, bool]]]]
+
+ChoicesHints = List[Tuple[str, bool]]
+
+WidgetListHint = List

@@ -6,19 +6,12 @@ from .Hints import MenuSettingsHint
 class QuestionParametersFrame(CTkFrame):
     def __init__(
             self, master: CTk,
-            label_settings: MenuSettingsHint, entry_settings: MenuSettingsHint, list_settings: MenuSettingsHint,
+            label_settings: MenuSettingsHint, entry_settings: MenuSettingsHint,
             category_settings: MenuSettingsHint, subcategory: Variable, deadline: Variable,
             question_type_settings: MenuSettingsHint, difficulty_settings: MenuSettingsHint, question_weight: Variable
     ):
         super().__init__(master)
         for i in range(3): self.grid_columnconfigure(i, weight=1)
-
-        internal_list_settings = list_settings.copy()
-        internal_list_settings.update(dict(width=180))
-
-        category_settings.update(**internal_list_settings)
-        question_type_settings.update(**internal_list_settings)
-        difficulty_settings.update(**internal_list_settings)
 
         CTkLabel(self, **label_settings, text='Unidade').grid(column=0, row=0)
         CTkOptionMenu(self, **category_settings).grid(column=0, row=1)

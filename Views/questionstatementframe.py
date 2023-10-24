@@ -1,14 +1,15 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkButton
 
 
-from .Hints import ConfigsHint, AddChoiceHandler, RmChoiceHandler, StartMonitorHandler
+from .Hints import MenuSettingsHint, Callable
 from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
 class QuestionStatementFrame(CTkFrame):
     def __init__(
-            self, master: CTk, label_configs: ConfigsHint, entry_configs: ConfigsHint, button_configs: ConfigsHint,
-            add_choice_handler: AddChoiceHandler, rm_choice_handler: RmChoiceHandler
+            self, master: CTk,
+            label_configs: MenuSettingsHint, entry_configs: MenuSettingsHint, button_configs: MenuSettingsHint,
+            add_choice_handler: Callable, rm_choice_handler: Callable
     ):
         super().__init__(master)
 

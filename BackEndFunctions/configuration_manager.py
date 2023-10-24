@@ -103,7 +103,7 @@ class ConfigurationManager:
 
     @property
     def text_configs(self) -> dict:
-        return dict(undo=True, wrap=WORD, autoseparators=True, exportselection=True, maxundo=5)
+        return {'undo': True, 'wrap': WORD, 'autoseparators': True, 'exportselection': True, 'maxundo': 5}
 
     @property
     def entry_configs(self) -> dict:
