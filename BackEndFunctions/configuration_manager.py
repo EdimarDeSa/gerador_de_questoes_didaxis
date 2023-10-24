@@ -4,6 +4,7 @@ from tkinter import WORD
 from os import remove
 
 from customtkinter import CTkFont, CENTER
+from .Constants import CORRETA
 
 from .DataClasses import ConfigurationDataClass, PerfilDataClass, PersonalDictionary
 

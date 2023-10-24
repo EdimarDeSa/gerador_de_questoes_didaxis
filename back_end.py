@@ -15,7 +15,7 @@ from FrontEndFunctions.linha_de_questao import LinhaDeQuestao
 from FrontEndFunctions import CaixaDeTexto
 
 
-class Controller:
+class   Controller:
     def __init__(self, main_window: CTk):
         self._master = main_window
 
