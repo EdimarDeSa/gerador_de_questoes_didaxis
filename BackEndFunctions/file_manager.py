@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 from typing import Optional
 
-from .FileManagerLib import AbrirArquivo, JsonSerializer, BinarySerializer
+from .FileManagerLib import AbrirArquivo, JsonSerializer, BinarySerializer, SalvarArquivo
 
 
 class FileManager:
@@ -42,18 +42,13 @@ class FileManager:
         self.save_json(dest_path, unserialized_dictionary.split('\n'))
         return True
 
-    # def exportar(self, lista_serial: list[dict]) -> bool | None:
-    #     if self.dir_atual is None:
-    #         caminho = self._open_save_dir()
-    #         if caminho is None:
-    #             return None
-    #         self.dir_atual = self._open_save_dir()
-    #
-    #     salvo = SalvarArquivo(lista_serial=lista_serial, path=self.dir_atual)
-    #
-    #     if not salvo:
-    #         return False
-    #     return True
+    def exportar(self, path: str, lista_serial: list[dict]) -> Optional[bool]:
+        if not self.loaded_file: pass
+
+        if self.loaded_file: path = self.loaded_path / self.loaded_file
+
+        path = Path(path).resolve()
+        return bool(SalvarArquivo(lista_serial, path))
 
     def open_db(self, path: str) -> list[dict]:
         data = AbrirArquivo().open(path)

@@ -2,17 +2,14 @@ from pathlib import Path
 
 from pandas import DataFrame, ExcelWriter
 
-from FrontEndFunctions.Constants import CABECALHO_DIDAXIS_LOWER, ERRADA, CORRETA, F, V, CABECALHO_DIDAXIS, ENGINE
-
-
-__all__ = ['SalvarArquivo']
+from BackEndFunctions.Constants import CABECALHO_DIDAXIS_LOWER, ERRADA, CORRETA, F, V, CABECALHO_DIDAXIS, ENGINE
 
 
 class SalvarArquivo:
     _success = False
 
-    def __init__(self, *, lista_serial: list[dict], path: Path):
-        self.save_file(lista_serial, path)
+    def __init__(self, lista_serial: list[dict], path: Path):
+        self._save_file(lista_serial, path)
 
     @staticmethod
     def _verify_keys(serial_keys: dict.keys) -> bool:
@@ -45,8 +42,7 @@ class SalvarArquivo:
         }
         return tipo_para_correto.get(_type)[int(correct)]
 
-    @classmethod
-    def _normalize_serials(cls, lista_serial: list[dict]) -> list[dict]:
+    def _normalize_serials(self, lista_serial: list[dict]) -> list[dict]:
         """
         Normaliza as entradas da lista de questões serializadas.
 
@@ -58,24 +54,22 @@ class SalvarArquivo:
             _type = serial.get('tipo')
             del serial['alternativas']
             for choice, correct in choices:
-                resultado = dict(alternativa=choice, correta=cls._converte_correta(correct, _type))
+                resultado = dict(alternativa=choice, correta=self._converte_correta(correct, _type))
                 new_serial = serial.copy()  # Create a new copy of the 'serial' dictionary
                 new_serial.update(resultado)
-                new_serial = cls._normalize_keys(new_serial)
+                new_serial = self._normalize_keys(new_serial)
                 new_serialized_list.append(new_serial)
 
         return new_serialized_list
 
-    @classmethod
-    def save_file(cls, lista_serial: list[dict], path: Path):
+    def _save_file(self, lista_serial: list[dict], path: Path):
         for serial in lista_serial:
-
-            if not cls._verify_keys(serial.keys()):
+            if not self._verify_keys(serial.keys()):
                 raise KeyError(f'Os dicionários devem conter as chaves: {CABECALHO_DIDAXIS_LOWER}')
 
         normalized_path = Path(path).resolve()
 
-        normalized_lista_serial = cls._normalize_serials(lista_serial)
+        normalized_lista_serial = self._normalize_serials(lista_serial)
 
         data_frame = DataFrame(normalized_lista_serial, columns=CABECALHO_DIDAXIS)
         try:
@@ -83,7 +77,7 @@ class SalvarArquivo:
                 data_frame.to_excel(writer, index=False)
         except PermissionError as err:
             raise PermissionError(err)
-        cls._success = True
+        self._success = True
 
     def __bool__(self):
         return self._success

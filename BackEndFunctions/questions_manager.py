@@ -43,7 +43,6 @@ class QuestionsManager:
         self._temp_question.update(**kwargs)
 
         new_question = QuestionDataClass(**dict(self._temp_question))
-        ic(new_question)
 
         self.__questions_db[new_question.controle] = new_question
         if new_question.id_ is not None: self.__lista_de_ids.append(new_question.id_)

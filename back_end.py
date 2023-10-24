@@ -1,5 +1,5 @@
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel, askretrycancel
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 import pandas.errors
 from customtkinter import *
@@ -272,14 +272,18 @@ class Controller:
         return opcoes
 
     def export_handler(self):
+        # TODO: Setar valor padrão de peso e tempo
+        # if self.exportado: return
+
         serial_quests = self._quest.serialize()
 
-        ic(serial_quests)
+        for serial in serial_quests:
+            serial['tipo'] = self._check_tipo(serial['tipo'])
 
-        if self.caminho_atual is None:
-            self.caminho_atual = self.arquivos.caminho_para_salvar('Exportar')
+        path = asksaveasfilename(defaultextension=EXTENSION, filetypes=FILETYPES, initialdir=self._file.loaded_path,
+                                 confirmoverwrite=True)
 
-        self.arquivos.exportar(self.caminho_atual, self.quadro_de_questoes.lista_de_questoes())
+        self._file.exportar(path, serial_quests)
 
         self.exportado = True
         showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
@@ -383,3 +387,12 @@ class Controller:
             self._questao_em_edicao.update(infos)
             return self._questao_em_edicao
         return infos
+
+    def _check_tipo(self, tipo: str) -> str:
+        tipos = {
+            D: 'd',
+            ME: 'me',
+            MEN: 'men',
+            VF: 'vf'
+        }
+        return tipos.get(tipo)
