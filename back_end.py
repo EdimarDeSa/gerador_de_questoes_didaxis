@@ -3,6 +3,7 @@ from tkinter.filedialog import askopenfilename
 
 import pandas.errors
 from customtkinter import *
+from icecream import ic
 
 from BackEndFunctions import *
 from BackEndFunctions.Hints import RowHint, Optional, Callable
@@ -14,11 +15,11 @@ from FrontEndFunctions.linha_de_questao import LinhaDeQuestao
 from FrontEndFunctions import CaixaDeTexto
 
 
-class API:
+class Controller:
     def __init__(self, main_window: CTk):
         self._master = main_window
 
-        # Initiate managers
+        # Managers
         self._file = FileManager()
         self._cnf = ConfigurationManager(
             self._file.base_dir, self._file.read_json, self._file.save_json, self._file.create_personal_dict
@@ -41,6 +42,7 @@ class API:
         self.button_configs: dict = self._cnf.buttons_configs
         self.text_configs: dict = self._cnf.text_configs
 
+        # Images
         self.img_config: CTkImage = self._img.bt_configs
         self.img_edit: CTkImage = self._img.bt_edit
         self.img_delete: CTkImage = self._img.bt_delete
@@ -54,6 +56,7 @@ class API:
         self.var_rd_button_value: IntVar = IntVar(value=0)
         self.display_question_count: IntVar = IntVar(value=0)
         self.exportado: bool = True
+        self._questao_em_edicao: Optional[dict] = None
 
         # Variáveis da tela de questões
         self._row_dict: RowHint = dict()
@@ -68,7 +71,7 @@ class API:
 
         # Campos da questao
         self.categoria = StringVar(value=self._cnf.unidade_padrao)
-        self.sub_categoria = StringVar()
+        self.subcategoria = StringVar()
         self.tempo = StringVar(value=PLACE_HOLDER_TEMPO)
         self.tipo = StringVar(value=self._cnf.tipos[1])
         self.dificuldade = StringVar(value=self._cnf.dificuldades[0])
@@ -78,8 +81,9 @@ class API:
         self.lista_rd_bts: list[Optional[CTkRadioButton]] = list()
         self.lista_ck_bts: list[Optional[CTkCheckBox]] = list()
 
-        # Quadro de questões
+        # Frames que são necessários acessar
         self.questions_frame: Optional[CTkScrollableFrame] = None
+        self.setuptoplevel: Optional[CTkToplevel] = None
 
         self.configura_aparencia()
         self.change_title_handler()
@@ -97,10 +101,10 @@ class API:
         altera_cor_padrao(self.var_cor_padrao.get())
         altera_escala(self.var_escala_do_sistema.get())
 
-    def reseta_informacoes(self):
+    def reset_question_form(self):
         # Janela de parâmetros
         self.categoria.set(self._cnf.unidade_padrao)
-        self.sub_categoria.set('')
+        self.subcategoria.set('')
         self.tempo.set(PLACE_HOLDER_TEMPO)
         self.tipo.set(self._cnf.tipos[1])
         self.dificuldade.set(self._cnf.dificuldades[0])
@@ -188,102 +192,77 @@ class API:
         if show_info:
             showinfo('Questão deletada', 'A questão foi deletada com sucesso!')
 
-    def editar_questao(self, controle: int) -> None:
+    def open_question_to_edit(self, control: int) -> None:
         # TODO: A edição está deixando escrever None na subcategoria e limpa os campos peso e tempo
-        self.reseta_informacoes()
+        self.reset_question_form()
 
         try:
-            question_info: dict = self._quest.get_question_data(controle)
+            question_info: dict = self._quest.get_question_data(control)
         except KeyError as e:
             showinfo('Questão inexistente', str(e))
-            self.delete_question_line(controle)
+            self.delete_question_line(control)
             return None
 
         self.categoria.set(question_info.get('categoria'))
-        self.sub_categoria.set(question_info.get('sub_categoria'))
+        self.subcategoria.set(question_info.get('sub_categoria'))
         self.tempo.set(question_info.get('tempo'))
         self.tipo.set(question_info.get('tipo'))
         self.dificuldade.set(question_info.get('dificuldade'))
         self.peso.set(question_info.get('peso'))
-        pergunta = question_info.get('pergunta')
-        self.pergunta.insert(0.0, pergunta)
+        self.pergunta.insert(0.0, question_info.get('pergunta'))
 
         for (alternativa, correta) in question_info.get('alternativas'):
             self.add_choice_handler(alternativa, correta=correta)
 
-    def setup_window_handler(self):
-        toplevel: CTkToplevel = self._master.children.get('!setuptoplevel')
-        toplevel.wm_deiconify()
+        self._questao_em_edicao = question_info
 
-    def save_question_handler(self):
-        if not self.gvar.pergunta.get_texto_completo() or self.verifica_texto_opcoes():
-            return showwarning(
-                'Pergunta em branco',
-                'Para salvar uma questão é necessário que a pergunta e as np_alternativas ativas não esteja em '
-                'branco.'
-            )
+    def save_question_handler(self) -> None:
+        try:
+            dict_infos = self._get_question_infos()
 
-        if self.gvar.questao_em_edicao:
-            self.salvar_edicao()
-            return
+            if self._questao_em_edicao:
+                self.salvar_edicao(dict_infos)
+                return None
 
-        if self.gvar.quadro_de_questoes.verifica_se_pergunta_ja_existe():
-            return showinfo('Pergunta repetida', 'Já existe uma questão com a mesma pergunta')
+            control = self._quest.create_new_question(**dict_infos)
 
-        questao = QuestionDataClass(
-            self.gvar.unidade.get(), self.gvar.sub_categoria.get(), self.gvar.tempo.get(),
-            self.gvar.tipo.get(), self.gvar.dificuldade.get(), self.gvar.peso.get(),
-            self.gvar.pergunta.get_texto_completo(), self.get_opcoes()
-        )
-        self.gvar.quadro_de_questoes.adiciona_questao(questao)
+            question = self._quest.get_question_data(control)
 
-        self.gvar.reseta_informacoes()
-        self.gvar.exportado = False
+            self.create_new_question_line(question.get('pergunta'), question.get('controle'))
 
-    def verifica_texto_opcoes(self):
-        if self.gvar.tipo.get() != D:
-            if not self.gvar.contador_de_opcoes.get():
-                return True
-            for indice in range(self.gvar.contador_de_opcoes.get()):
-                opcao: CaixaDeTexto = self.gvar.lista_txt_box[indice]
-                if not opcao.get_texto_completo():
-                    return True
-        return False
+            self.reset_question_form()
+            self.exportado = False
 
-    def salvar_edicao(self):
-        self._quest.create_new_question(
+        except Exception as e:
+            raise e
 
-        )
-        self.categoria = self.gvar.unidade.get()
-        self.gvar.questao_em_edicao.subcategoria = self.gvar.sub_categoria.get()
-        self.gvar.questao_em_edicao.tempo = self.gvar.tempo.get()
-        self.gvar.questao_em_edicao.tipo = self.gvar.tipo.get()
-        self.gvar.questao_em_edicao.dificuldade = self.gvar.dificuldade.get()
-        self.gvar.questao_em_edicao.peso = self.gvar.peso.get()
-        self.gvar.questao_em_edicao.pergunta = self.gvar.pergunta.get_texto_completo()
-        self.gvar.questao_em_edicao.alternativas = self.get_opcoes()
+        return None
 
-        self.gvar.quadro_de_questoes.salvar_edicao_de_questao()
+    def salvar_edicao(self, dict_infos: dict) -> None:
+        self._quest.edit_question(**dict_infos)
 
-        self.gvar.questao_em_edicao = None
-        self.gvar.reseta_informacoes()
+        row = self._row_dict.get(dict_infos.get('controle')).get('display')
+        row.set(dict_infos.get('pergunta'))
 
-    def get_opcoes(self) -> list[tuple[str, bool]]:
+        self._questao_em_edicao = None
+        self.reset_question_form()
+
+    def _get_opcoes(self) -> list[tuple[str, bool]]:
         def seleciona_bt(indice: int) -> [CTkRadioButton, CTkCheckBox]:
-            tipo = self.gvar.tipo.get()
+            tipo = self.tipo.get()
             if tipo == ME:
-                return self.gvar.lista_rd_bts[indice]
+                return self.lista_rd_bts[indice]
             elif tipo == MEN or tipo == VF:
-                return self.gvar.lista_ck_bts[indice]
+                return self.lista_ck_bts[indice]
 
         def verifica_correta(botao: [CTkRadioButton, CTkCheckBox], indice: int) -> bool:
-            if self.gvar.tipo.get() == ME:
-                return self.gvar.var_rd_button_value.get() == indice
+            if self.tipo.get() == ME:
+                return self.var_rd_button_value.get() == indice
             return botao.get()
 
         opcoes = list()
-        for indice in range(self.gvar.contador_de_opcoes.get()):
-            txt_box: CaixaDeTexto = self.gvar.lista_txt_box[indice]
+        for indice in range(self.contador_de_opcoes.get()):
+            txt_box: CaixaDeTexto = self.lista_txt_box[indice]
             texto = txt_box.get_texto_completo()
 
             correta = verifica_correta(seleciona_bt(indice), indice)
@@ -295,12 +274,14 @@ class API:
     def export_handler(self):
         serial_quests = self._quest.serialize()
 
-        if self.gvar.caminho_atual is None:
-            self.gvar.caminho_atual = self.gvar.arquivos.caminho_para_salvar('Exportar')
+        ic(serial_quests)
 
-        self.gvar.arquivos.exportar(self.gvar.caminho_atual, self.gvar.quadro_de_questoes.lista_de_questoes())
+        if self.caminho_atual is None:
+            self.caminho_atual = self.arquivos.caminho_para_salvar('Exportar')
 
-        self.gvar.exportado = True
+        self.arquivos.exportar(self.caminho_atual, self.quadro_de_questoes.lista_de_questoes())
+
+        self.exportado = True
         showinfo('Exportado', 'O banco de dados foi criado com sucesso!')
 
     def _create_line_frame(self, fg_color: str) -> CTkFrame:
@@ -314,10 +295,10 @@ class API:
 
         new_question_line = LinhaDeQuestao(
             line_frame, title, controle, self.img_edit, self.img_delete,
-            cmd_delete=self.delete_question_line, cmd_edit=self.editar_questao
+            cmd_delete=self.delete_question_line, cmd_edit=self.open_question_to_edit
         )
 
-        self._row_dict[controle] = {'row': line_frame, 'display': new_question_line}
+        self._row_dict[controle] = {'row': line_frame, 'display': new_question_line.title}
 
         self.display_question_count.set(len(self._row_dict))
 
@@ -346,18 +327,24 @@ class API:
         except pandas.errors.InvalidColumnName as e:
             showerror('Arquivo inválido', str(e))
             return None
+        except FileNotFoundError:
+            return None
 
         self.reset_questions_frame()
-        self.reseta_informacoes()
+        self.reset_question_form()
 
         for question in questions:
-            controle = self._quest.create_new_question(serial_dict=question)
-            self.create_new_question_line(question['pergunta'], controle)
+            control = self._quest.create_new_question(**question)
+
+            # Desta forma eu garanto que a questão foi escrita no banco de dados antes de criar a linha
+            question = self._quest.get_question_data(control)
+            self.create_new_question_line(question.get('pergunta'), question.get('controle'))
 
     def category_change_handler(self):
         self.save_new_config_handler('unidade_padrao', self.categoria.get())
 
     def master_wnidow_close_event(self):
+        # TODO: Variável exportado não está implementada, o programa não verifica isso ainda
         if not self.exportado:
             resposta = askyesnocancel(
                 'Salvamento pendente',
@@ -374,3 +361,25 @@ class API:
         qtd_questoes_atual = len(self._row_dict) + 1
         for controle in range(1, qtd_questoes_atual):
             self.delete_question_line(controle, False)
+
+    def setup_window_handler(self):
+        self.setuptoplevel.deiconify()
+
+    def open_help_tab(self):
+        self.setuptoplevel.abre_ajuda()
+
+    def _get_question_infos(self) -> dict:
+        infos = dict(
+            categoria=self.categoria.get(),
+            subcategoria=self.subcategoria.get(),
+            tempo=self.tempo.get(),
+            tipo=self.tipo.get(),
+            dificuldade=self.dificuldade.get(),
+            peso=self.peso.get(),
+            pergunta=self.pergunta.get_texto_completo(),
+            alternativas=self._get_opcoes()
+        )
+        if self._questao_em_edicao is not None:
+            self._questao_em_edicao.update(infos)
+            return self._questao_em_edicao
+        return infos
