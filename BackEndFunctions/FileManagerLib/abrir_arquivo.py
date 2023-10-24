@@ -20,8 +20,9 @@ class AbrirArquivo:
         """
         # TODO: Concertar exceptions
         try:
+            print(path)
             with ExcelFile(path, engine=ENGINE) as xls:
-                df = read_excel(xls, dtype='string', keep_default_na=False)
+                df = read_excel(xls, keep_default_na=False, dtype='string')
         except Exception as err:
             raise Exception(err)
 
