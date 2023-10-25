@@ -1,38 +1,47 @@
 from customtkinter import *
 
-from .SetupViews import FilesFrame
-from .SetupViews import CategorySelectionFrame
-from .SetupViews import GeneralPramsFrame
+from .SetupViews import FilesFrame, CategorySelectionFrame, GeneralPramsFrame, ShortcutsFrame, VersionFrame
+from .Hints import UserSetHint, SysImgHint
 
+
+# TODO: Variável posta
 
 TABOPCAO = 'Opção'
 TABAJUDA = 'Ajuda'
 GRAY = ('gray81', 'gray20')
+GREEN = ('#2cbe79', '#2FA572')
 
 
 class SetupTopLevel(CTkToplevel):
-    def __init__(self, master: CTk, views, controller):
+    def __init__(self, master: CTk, ctkview, controller, user_settings: UserSetHint, system_images: SysImgHint):
         super().__init__(master)
-
-        self.views = views
+        self.ctkview = ctkview
         self.controller = controller
+        self.user_settings = user_settings
+        self.system_images = system_images
 
-        self._configura_tela()
+        self._setup_window()
+        self._setup_variables()
+        self._setup_ui()
 
-        self._set_ui()
-
+        self.withdraw()
         self.protocol('WM_DELETE_WINDOW', self.close_window_event)
 
-    def _configura_tela(self):
+    def _setup_window(self):
         largura, altura = 750, 600
         pos_x = (self.winfo_screenwidth() - largura) // 2
         pos_y = (self.winfo_screenheight() - altura) // 2
 
         self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
         self.resizable(False, False)
-        # self.withdraw()
 
-    def _set_ui(self):
+    def _setup_variables(self):
+        self.var_erase_statement = BooleanVar(value=self.user_settings['erase_statement'])
+        self.var_auto_export = BooleanVar(value=self.user_settings['auto_export'])
+        self.var_escala_do_sistema = StringVar(value=self.user_settings['user_scaling'])
+        self.var_aparencia_do_sistema = StringVar(value=self.user_settings['user_appearance_mode'])
+
+    def _setup_ui(self):
         self.tabview = CTkTabview(self)
         self.tabview.pack(expand=True, fill=BOTH, padx=10, pady=10)
 
@@ -47,37 +56,40 @@ class SetupTopLevel(CTkToplevel):
 
     def create_tab_opcoes_widgets(self, master):
         FilesFrame(
-            master, self.views.label_settings, self.views.button_default_settings,
+            master, self.ctkview.label_settings, self.ctkview.button_default_settings,
             self.controller.new_bd_handler, self.controller.open_bd_handler,
             self.controller.export_bd_handler, self.controller.export_as_bd_handler,
             fg_color=GRAY
         ).grid(row=0, column=0, padx=10, pady=10)
 
         CategorySelectionFrame(
-            master, self.views.label_settings, self.views.category_options,
-            self.views.category, self.controller.default_category_change_handler,
-            fg_color=GRAY, **self.views.scrollable_label_settings
+            master, self.ctkview.button_default_settings, self.ctkview.category_options,
+            self.ctkview.category, self.category_change_handler,
+            fg_color=GRAY, **self.ctkview.scrollable_label_settings
         ).grid(row=0, column=1, rowspan=2, ipady=90, pady=(10, 0))
 
         GeneralPramsFrame(
-            master, self.views.label_settings, self.controller.save_user_settings_handler,
-            self._api.var_erase_statement, self._api.var_auto_export,
-            self._api.var_aparencia_do_sistema, self._api.change_appearance_handler,
-            self._api.var_escala_do_sistema, self._api.change_scale_handler, fg_color=GRAY
+            master, self.ctkview.label_settings, self.controller.save_user_settings_handler,
+            self.var_erase_statement, self.var_auto_export,
+            self.var_aparencia_do_sistema, self.ctkview.set_appearance,
+            self.var_escala_do_sistema, self.ctkview.set_scaling, fg_color=GRAY
         ).grid(row=1, column=0, pady=(30, 0))
 
     def create_tab_ajuda_widgets(self, tabela):
-        # ShortcutsFrame(
-        #     tabela, self._api.label_configs, fg_color=GRAY, height=260
-        # ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
-        #
-        # VersionFrame(tabela, self._api.label_configs, height=32).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
-        #
-        # CTkButton(
-        #     tabela, text='Enviar feedback', width=700, height=32, border_color=VERDE, border_width=2,
-        #     fg_color=TRANSPARENTE, anchor=CENTER, command=self._api, **self._api.button_configs
-        # ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
-        pass
+        ShortcutsFrame(
+            tabela, self.ctkview.label_settings, fg_color=GRAY, height=260
+        ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
+
+        VersionFrame(tabela, self.ctkview.label_settings, height=32).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
+
+        CTkButton(
+            tabela, text='Enviar feedback', width=700, height=32, border_color=GREEN, border_width=2,
+            fg_color='transparent', anchor=CENTER, command=self.controller.send_feedback,
+            **self.ctkview.button_title_settings
+        ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
+
+    def category_change_handler(self):
+        self.controller.save_user_settings_handler('default_category', self.ctkview.category.get())
 
     def abre_ajuda(self) -> None:
         self.wm_deiconify()

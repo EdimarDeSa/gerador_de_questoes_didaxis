@@ -12,6 +12,7 @@ class VersionFrame(CTkFrame):
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=3)
 
+        # TODO: Implementar atualização
         CTkLabel(
             self, text=f'Versão: {get_version(relative_to=__main__.__file__)}', **label_configs
         ).grid(row=0, column=0)

@@ -1,8 +1,7 @@
-from customtkinter import CTkFrame, CTk, CTkLabel, CTkButton
+from customtkinter import CTkFrame, CTk, CTkLabel, CTkButton, CTkTextbox
 
 
 from .Hints import MenuSettingsHint, Callable
-from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
 class QuestionStatementFrame(CTkFrame):
@@ -17,7 +16,7 @@ class QuestionStatementFrame(CTkFrame):
         button_configs.update({'width': 30, 'height': 30})
 
         CTkLabel(self, text='Enunciado da questão', **label_configs).place(relx=0.02, rely=0.025, relwidth=0.85)
-        self.question = CaixaDeTexto(self, **entry_configs, height=90)
+        self.question = CTkTextbox(self, **entry_configs, height=90)
         self.question.place(relx=0.02, rely=0.25, relwidth=0.85, relheight=0.7)
 
         CTkLabel(self, text='Opção', **label_configs).place(relx=0.85, rely=0.025, relwidth=0.15)

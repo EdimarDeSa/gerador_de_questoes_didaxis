@@ -5,7 +5,7 @@ from Views.Hints import Callable, MenuSettingsHint, List
 
 class CategorySelectionFrame(CTkScrollableFrame):
     def __init__(
-            self, master: CTkToplevel, label_settings: MenuSettingsHint,
+            self, master: CTkToplevel, button_default_settings: MenuSettingsHint,
             category_list: List, categoria: Variable, categori_change_handler: Callable,
             **kwargs
     ):
@@ -13,5 +13,6 @@ class CategorySelectionFrame(CTkScrollableFrame):
 
         for indice, unidade in enumerate(category_list):
             CTkRadioButton(
-                self, text=unidade, value=unidade, variable=categoria, command=categori_change_handler, **label_settings
+                self, text=unidade, value=unidade, variable=categoria,
+                command=categori_change_handler, **button_default_settings
             ).pack(ipadx=10, pady=(0, 5), fill=BOTH)

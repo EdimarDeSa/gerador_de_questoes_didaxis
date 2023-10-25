@@ -1,7 +1,6 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkScrollableFrame, CTkRadioButton, CTkCheckBox, Variable, CTkTextbox
 
 from .Hints import MenuSettingsHint, WidgetListHint
-# from FrontEndFunctions.caixa_de_texto import CaixaDeTexto
 
 
 class QuestionChoicesFrame(CTkFrame):

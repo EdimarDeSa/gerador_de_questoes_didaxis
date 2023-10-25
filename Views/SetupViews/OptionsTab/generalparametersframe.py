@@ -1,15 +1,20 @@
-from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkSwitch, CTkOptionMenu, CENTER, StringVar
+from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkSwitch, CTkOptionMenu, CENTER, StringVar, Variable
 
-from FrontEndFunctions.Constants import APARENCIAS_DO_SISTEMA, PORCENTAGENS
-from FrontEndFunctions.Hints import ConfigsHint, BooleanVarHint, StringVarHint, SaveNewConfigHint, Callable
+from Views.Hints import MenuSettingsHint, Callable
+
+# TODO: Variável posta
+
+PORCENTAGENS = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
+APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
 
 
 class GeneralPramsFrame(CTkFrame):
     def __init__(
-            self, master: CTkToplevel, label_configs: ConfigsHint, save_user_settings_handler: SaveNewConfigHint,
-            var_erase_statement: BooleanVarHint, var_auto_export: BooleanVarHint,
-            var_aparencia_do_sistema: StringVarHint, change_appearance_handler: Callable,
-            var_escala_do_sistema: StringVarHint, change_scale_handler: Callable, **kwargs
+            self, master: CTkToplevel, label_configs: MenuSettingsHint,
+            save_user_settings_handler: Callable, var_erase_statement: Variable,
+            var_auto_export: Variable, var_aparencia_do_sistema: Variable,
+            change_appearance_handler: Callable, var_escala_do_sistema: Variable,
+            change_scale_handler: Callable, **kwargs
     ):
         super().__init__(master, **kwargs)
 
@@ -60,22 +65,22 @@ class GeneralPramsFrame(CTkFrame):
 
     def change_erase_statement(self) -> None:
         value = self.var_erase_statement.get()
-        self.save_user_settings_handler('apagar_enunciado', value)
+        self.save_user_settings_handler('erase_statement', value)
         self._var_erase_statement_on_off.set(self.check_state(value))
 
     def change_auto_exportar(self) -> None:
         value = self.var_auto_export.get()
-        self.save_user_settings_handler('exportar_automaticamente', value)
+        self.save_user_settings_handler('auto_export', value)
         self._var_auto_export_on_off.set(self.check_state(value))
 
-    def salva_e_altera_aparencia(self, value: str) -> None:
-        self.save_user_settings_handler('aparencia_do_sistema', value)
-        self.change_appearance_handler(value)
+    def salva_e_altera_aparencia(self, new_appearence: str) -> None:
+        self.save_user_settings_handler('user_appearance_mode', new_appearence)
+        self.change_appearance_handler(new_appearence)
         self.foca()
 
-    def salva_e_altera_escala_do_sistema(self, nova_escala):
-        self.save_user_settings_handler('escala_do_sistema', nova_escala)
-        self.change_scale_handler(nova_escala)
+    def salva_e_altera_escala_do_sistema(self, new_scale: str) -> None:
+        self.save_user_settings_handler('user_scaling', new_scale)
+        self.change_scale_handler(new_scale)
         self.foca()
 
     def foca(self):

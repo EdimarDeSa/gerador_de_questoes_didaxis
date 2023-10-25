@@ -3,6 +3,13 @@ from customtkinter import CTkFrame, CTk, CTkButton, CTkImage, NSEW, NS
 from .Hints import MenuSettingsHint, Callable
 
 
+# TODO: Variável posta
+GRAY = ('gray66', 'gray37')
+BLUE = ('#3B8ED0', '#1F6AA5')
+HOVER_BLUE = ('#36719F', '#144870')
+BORDER_BLUE = ('#3E454A', '#949A9F')
+
+
 class CommandButtonsFrame(CTkFrame):
     def __init__(
             self, master: CTk, img_config: CTkImage, buttons_configs: MenuSettingsHint,
@@ -16,12 +23,12 @@ class CommandButtonsFrame(CTkFrame):
         self.grid_rowconfigure(0, weight=1)
 
         CTkButton(
-            self, text=None, fg_color=('gray66', 'gray37'), image=img_config, command=configs_window_handler, **buttons_configs
+            self, text=None, fg_color=GRAY, image=img_config, command=configs_window_handler, **buttons_configs
         ).grid(column=0, row=0, sticky=NS, padx=(10, 0), pady=5)
 
         CTkButton(
-            self, text='Exportar', fg_color=('#3B8ED0', '#1F6AA5'), hover_color=('#36719F', '#144870'),
-            border_color=('#3E454A', '#949A9F'), command=export_handler, **buttons_configs
+            self, text='Exportar', fg_color=BLUE, hover_color=HOVER_BLUE,
+            border_color=BORDER_BLUE, command=export_handler, **buttons_configs
         ).grid(column=1, row=0, sticky=NSEW, padx=10, pady=5)
 
         self.b = CTkButton(

@@ -1,20 +1,19 @@
 from abc import ABC, abstractmethod
 from tkinter.messagebox import showinfo, showerror, showwarning
 
-from customtkinter import CTk, CTkImage, CTkCheckBox, CTkRadioButton
-from customtkinter import WORD, CENTER, NSEW, IntVar, StringVar
-from customtkinter import set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme
+from customtkinter import (
+    CTk, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar, set_appearance_mode,
+    set_widget_scaling, set_window_scaling, set_default_color_theme
+)
 from icecream import ic
 
-from Views.Hints import QuestionDataHint, MenuSettingsHint, ChoicesHints, Literal, Optional, List
-from Views.questioncountframe import QuestionCountFrame
-from Views.questionparametersframe import QuestionParametersFrame
-from Views.questionstatementframe import QuestionStatementFrame
-from Views.questionchoicesframe import QuestionChoicesFrame
-from Views.questionsframe import QuestionsFrame
-from Views.commandbuttonsframe import CommandButtonsFrame
-from Views.setuptoplevel import SetupTopLevel
-
+from Views.Hints import (
+    QuestionDataHint, MenuSettingsHint, ChoicesHints, Literal, Optional, List, UserSetHint, SysImgHint
+)
+from Views import (
+    QuestionCountFrame, QuestionParametersFrame, QuestionStatementFrame, QuestionChoicesFrame, QuestionsFrame,
+    CommandButtonsFrame, SetupTopLevel
+)
 
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'
@@ -24,7 +23,7 @@ VF = 'Verdadeiro ou falso'
 
 class View(ABC):
     @abstractmethod
-    def setup(self, controller) -> None:
+    def setup(self, controller, user_settings: UserSetHint, system_images: SysImgHint) -> None:
         pass
 
     @abstractmethod
@@ -39,22 +38,12 @@ class View(ABC):
     def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
         pass
 
-    @abstractmethod
-    def set_appearance(self, param: str) -> None:
-        pass
-
-    @abstractmethod
-    def set_scaling(self, param: str) -> None:
-        pass
-
-    @abstractmethod
-    def set_color_theme(self, config: str) -> None:
-        pass
-
 
 class CTkView(View):
-    def setup(self, controller) -> None:
+    def setup(self, controller, user_settings, system_images) -> None:
         self.controller = controller
+        self.user_settings = user_settings
+        self.system_images = system_images
 
         self._setup_root()
         self._setup_variables()
@@ -63,26 +52,6 @@ class CTkView(View):
 
     def start_main_loop(self) -> None:
         self.root.mainloop()
-
-    def set_appearance(self, param: str) -> None:
-        set_appearance_mode(param)
-
-    def set_scaling(self, param: str) -> None:
-        nova_escala_float = int(param.replace("%", "")) / 100
-        set_widget_scaling(nova_escala_float)
-        set_window_scaling(nova_escala_float)
-
-    def set_color_theme(self, config: str) -> None:
-        set_default_color_theme(config)
-
-    def _setup_root(self):
-        self.root = CTk()
-        largura, altura = 1500, 750
-        pos_x = (self.root.winfo_screenwidth() - largura) // 2
-        pos_y = (self.root.winfo_screenheight() - altura) // 2 - 35
-        self.root.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
-        self.root.resizable(False, False)
-        self.root.wm_iconbitmap(default='./icons/prova.ico')
 
     def get_data_from_form_question(self) -> QuestionDataHint:
         data = dict(
@@ -107,9 +76,23 @@ class CTkView(View):
         self._question.insert(0.0, data.get('pergunta', '')),
         self._choices_set(data.get('alternativas')),
 
+    def _setup_root(self):
+        self.root = CTk()
+        largura, altura = 1500, 750
+        pos_x = (self.root.winfo_screenwidth() - largura) // 2
+        pos_y = (self.root.winfo_screenheight() - altura) // 2 - 35
+        self.root.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
+        self.root.resizable(False, False)
+        self.root.wm_iconbitmap(default='./icons/prova.ico')
+        self.root.title('Editor de questões')
+
+        self.set_scaling(self.user_settings['user_scaling'])
+        self.set_appearance(self.user_settings['user_appearance_mode'])
+        self.set_color_theme(self.user_settings['user_color_theme'])
+
     def _setup_variables(self) -> None:
-        titles_font_settings = self.controller.titles_font_settings
-        default_font_settings = self.controller.default_font_settings
+        titles_font_settings = self.user_settings['titles_font_settings']
+        default_font_settings = self.user_settings['default_font_settings']
 
         self.label_settings = {**titles_font_settings}
         self._entry_settings = {'exportselection': True, 'width': 180, **default_font_settings}
@@ -152,22 +135,21 @@ class CTkView(View):
         self._choices_count = 0
 
     def _setup_images(self):
-        large = (32, 32)
         medium = (24, 24)
         small = (16, 16)
 
-        setup_bt_img_light = self.controller.setup_bt_img_light
-        setup_bt_img_dark = self.controller.setup_bt_img_dark
+        setup_bt_img_light = self.system_images['configuracoes_light_mode']
+        setup_bt_img_dark = self.system_images['configuracoes_dark_mode']
         self._img_setup = CTkImage(setup_bt_img_light, setup_bt_img_dark, medium)
 
-        delete_light = self.controller.eraser_light
-        delete_dark = self.controller.eraser_dark
+        delete_light = self.system_images['eraser_light_mode']
+        delete_dark = self.system_images['eraser_dark_mode']
         self._img_delete = CTkImage(delete_light, delete_dark, small)
 
-        edit_light = self.controller.edit_light
-        edit_dark = self.controller.edit_dark
+        edit_light = self.system_images['edit_light_mode']
+        edit_dark = self.system_images['edit_dark_mode']
         self._img_edit = CTkImage(edit_light, edit_dark, small)
-        
+
     def _setup_ui(self) -> None:
         QuestionCountFrame(
             self.root, self.label_settings, self._question_count
@@ -201,10 +183,10 @@ class CTkView(View):
         CommandButtonsFrame(
             self.root, self._img_setup, self.button_title_settings,
             self.setup_window_handler, self.controller.export_bd_handler,
-            self.save_question_handler,
+            self._save_question_handler,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
-        self.setuptoplevel = SetupTopLevel(self.root, self, self.controller)
+        self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images)
 
     def _type_change_handler(self, _) -> None:
         quantidade_de_opcoes = self._choices_count
@@ -282,5 +264,23 @@ class CTkView(View):
     def setup_window_handler(self):
         self.setuptoplevel.deiconify()
 
-    def save_question_handler(self):
-        ...
+    # TODO: Estamos aqui
+    def _save_question_handler(self):
+        ic(__file__)
+
+    def set_appearance(self, param: str) -> None:
+        set_appearance_mode(param)
+        if not hasattr(self, 'controller'): return
+        self.controller.save_user_settings_handler('appearance_mode', param)
+
+    def set_scaling(self, param: str) -> None:
+        nova_escala_float = int(param.replace("%", "")) / 100
+        set_widget_scaling(nova_escala_float)
+        set_window_scaling(nova_escala_float)
+        if not hasattr(self, 'controller'): return
+        self.controller.save_user_settings_handler('scaling', param)
+
+    def set_color_theme(self, param: str) -> None:
+        set_default_color_theme(param)
+        if not hasattr(self, 'controller'): return
+        self.controller.save_user_settings_handler('color_theme', param)

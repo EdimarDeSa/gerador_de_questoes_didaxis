@@ -3,6 +3,10 @@ from customtkinter import CTk, CTkFrame, CTkLabel, CTkScrollableFrame, CTkImage,
 from Views.Hints import MenuSettingsHint
 
 
+# TODO: Variável posta
+GREEN = ('#2cbe79', '#2FA572')
+
+
 class QuestionsFrame(CTkScrollableFrame):
     def __init__(
             self, master: CTk, label_configs: MenuSettingsHint,
@@ -10,7 +14,7 @@ class QuestionsFrame(CTkScrollableFrame):
     ):
         super().__init__(master, **kwargs)
 
-        # TODO: Cabecalho com problemas em telas grandes.
+        # TODO: Cabecalho com problemas em telas grandes, melhorar responsividade
 
         self.label_configs = label_configs
         self.img_edit = img_edit
@@ -20,12 +24,12 @@ class QuestionsFrame(CTkScrollableFrame):
 
     def _init_header(self) -> None:
         fg_label_configs = self.label_configs.copy()
-        fg_label_configs['fg_color'] = ('#2cbe79', '#2FA572')
+        fg_label_configs['fg_color'] = GREEN
 
         bg_label_configs = self.label_configs.copy()
-        bg_label_configs['bg_color'] = ('#2cbe79', '#2FA572')
+        bg_label_configs['bg_color'] = GREEN
 
-        frame = CTkFrame(self, fg_color=('#2cbe79', '#2FA572'), height=45)
+        frame = CTkFrame(self, fg_color=GREEN, height=45)
         frame.pack(expand=True, fill=X)
 
         frame.grid_columnconfigure(0, weight=10)
