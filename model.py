@@ -30,7 +30,7 @@ TYPELIST = [D, ME, MEN, VF]
 FACIL = 'Fácil'
 MEDIO = 'Médio'
 DIFICIL = 'Difícil'
-SUBCATEGORYLIST = [FACIL, MEDIO, DIFICIL]
+DIFFICULTLIST = [FACIL, MEDIO, DIFICIL]
 
 
 # Theme settings
@@ -62,23 +62,25 @@ class ImageManager:
 
 @dataclass
 class UserManager:
-    erase_statement: bool
-    auto_export: bool
+    erase_statement: bool = False
+    auto_export: bool = False
+    user_default_category: str = field(default='')
     user_color_theme: str = field(default='green')
     user_scaling: str = field(default='100%')
     user_appearance_mode: str = field(default='system')
     titles_font_settings: dict = field(default_factory=dict)
     default_font_settings: dict = field(default_factory=dict)
+    category_options: list = field(default_factory=list)
+    question_type_list: list = field(default_factory=list)
+    difficulty_list: list = field(default_factory=list)
 
-    def get_settings(self) -> dict:
-        return self.__dict__
+    def __iter__(self):
+        return iter(self.__dict__.items())
 
+    def updatesetting(self, attribute: str, value: any) -> None:
+        setattr(self, attribute, value)
 
 class Model:
-    category_options = CATEGORYLIST
-    question_type_list = TYPELIST
-    difficulty_list = SUBCATEGORYLIST
-
     def __init__(self):
         local = Path().resolve()
 
@@ -95,22 +97,17 @@ class Model:
 
         configs_dir = local / 'configs'
         self._user_manager = UserManager(
-            erase_statement=False,
-            auto_export=False,
-            user_color_theme=COLORTHEMELIST[2],
-            user_scaling=SCALESTHEMELIST[2],
-            user_appearance_mode=APPEARANCEMODETHEME[2],
             titles_font_settings={'font': ('Roboto', 15, 'bold')},
             default_font_settings={'font': ('Roboto', 12)},
+            category_options=CATEGORYLIST,
+            question_type_list=TYPELIST,
+            difficulty_list=DIFFICULTLIST,
+            user_default_category='Comunicação'
         )
-        self.user_settings = self._user_manager.get_settings()
-
-        self.titles_font_settings = self._user_manager.titles_font_settings
-        self.default_font_settings = self._user_manager.default_font_settings
-        self.user_appearance_mode = self._user_manager.user_appearance_mode
-        self.user_scaling = self._user_manager.user_scaling
-        self.user_color_theme = self._user_manager.user_color_theme
+        self.user_settings = dict(self._user_manager).copy()
 
     def save_user_settings(self, param: str, value: any) -> None:
-        if param in self._user_manager.__dict__.keys():
-            self._user_manager.__dict__.update({param: value})
+        if param in dict(self._user_manager).keys():
+            self._user_manager.updatesetting(param, value)
+
+        assert dict(self._user_manager)[param] == value
