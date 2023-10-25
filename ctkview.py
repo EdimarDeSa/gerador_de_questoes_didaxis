@@ -1,42 +1,22 @@
-from abc import ABC, abstractmethod
 from tkinter.messagebox import showinfo, showerror, showwarning
 
-from customtkinter import (
-    CTk, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar, set_appearance_mode,
-    set_widget_scaling, set_window_scaling, set_default_color_theme
-)
 from icecream import ic
+from customtkinter import (
+    CTk, CTkFrame, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar,
+    set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme, X, BooleanVar, END
+)
 
-from Views.Hints import (
-    QuestionDataHint, MenuSettingsHint, ChoicesHints, Literal, Optional, List, UserSetHint, SysImgHint
+from contracts import View
+
+from Hints import (
+    QuestionDataHint, MenuSettingsHint, ChoicesHint, Literal, Optional, List, UserSetHint, SysImgHint
 )
 from Views import (
     QuestionCountFrame, QuestionParametersFrame, QuestionStatementFrame, QuestionChoicesFrame, QuestionsFrame,
     CommandButtonsFrame, SetupTopLevel
 )
-
-D = 'Dissertativa'
-ME = 'Multipla escolha 1 correta'
-MEN = 'Multipla escolha n corretas'
-VF = 'Verdadeiro ou falso'
-
-
-class View(ABC):
-    @abstractmethod
-    def setup(self, controller, user_settings: UserSetHint, system_images: SysImgHint) -> None:
-        pass
-
-    @abstractmethod
-    def start_main_loop(self) -> None:
-        pass
-
-    @abstractmethod
-    def get_data_from_form_question(self) -> QuestionDataHint:
-        pass
-
-    @abstractmethod
-    def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
-        pass
+from Views.linha_de_questao import LinhaDeQuestao
+from Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO
 
 
 class CTkView(View):
@@ -53,7 +33,7 @@ class CTkView(View):
     def start_main_loop(self) -> None:
         self.root.mainloop()
 
-    def get_data_from_form_question(self) -> QuestionDataHint:
+    def _get_data_from_form_question(self) -> QuestionDataHint:
         data = dict(
             categoria=self.category.get(),
             subcategoria=self._subcategory.get(),
@@ -117,7 +97,7 @@ class CTkView(View):
         self._question_type_list = self.controller.question_type_list
         self._question_type_settings: MenuSettingsHint = {'variable': self._question_type,
                                                           'values': self._question_type_list,
-                                                          'command': self._type_change_handler,
+                                                          'command': self._type_change,
                                                           'width': 180,
                                                           **self.list_settings}
         self._difficulty = StringVar()
@@ -129,10 +109,18 @@ class CTkView(View):
         self._question_weight = IntVar()
 
         self._var_rd_button_value = IntVar()
-        self._txt_box_lista = list()
+        self._txt_box_list = list()
         self._rd_bts_list = list()
-        self._ck_bts_lista = list()
+        self._ck_bts_list = list()
         self._choices_count = 0
+
+        self._editing = None
+        self._row_dict = dict()
+        self._zebrar = True
+
+        self.var_erase_statement = BooleanVar(value=self.user_settings['erase_statement'])
+        self.var_auto_export = BooleanVar(value=self.user_settings['auto_export'])
+
 
     def _setup_images(self):
         medium = (24, 24)
@@ -164,7 +152,7 @@ class CTkView(View):
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         question_statement_frame = QuestionStatementFrame(
             self.root, self.label_settings, self._entry_settings, self.button_title_settings,
-            self._add_choice_handler, self._rm_choice_handler
+            self._add_choice, self._rm_choice
         )
         question_statement_frame.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
         self._question = question_statement_frame.question
@@ -172,7 +160,7 @@ class CTkView(View):
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         QuestionChoicesFrame(
             self.root, self.label_settings, self._text_settings, self._var_rd_button_value,
-            self._txt_box_lista, self._rd_bts_list, self._ck_bts_lista
+            self._txt_box_list, self._rd_bts_list, self._ck_bts_list
         ).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
         self.questions_frame = QuestionsFrame(
@@ -183,43 +171,55 @@ class CTkView(View):
         CommandButtonsFrame(
             self.root, self._img_setup, self.button_title_settings,
             self.setup_window_handler, self.controller.export_bd_handler,
-            self._save_question_handler,
+            self._save_question,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
         self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images)
 
-    def _type_change_handler(self, _) -> None:
+    def _type_change(self, _) -> None:
         quantidade_de_opcoes = self._choices_count
         for indice in range(quantidade_de_opcoes):
-            self._rm_choice_handler(indice=indice)
-            self._add_choice_handler(indice=indice)
+            self._rm_choice(indice=indice)
+            self._add_choice(index=indice)
 
-    def _choices_get(self) -> ChoicesHints:
+    def _choices_get(self) -> ChoicesHint:
+        choices_list = []
+        _type = self._question_type.get()
+        for index in range(self._choices_count):
+            bt = self._select_choice_bt(index)
+
+            if _type == D: break
+
+            if _type == ME: correct = index == self._var_rd_button_value.get()
+            else: correct = bool(bt.get())
+
+            txt = self._txt_box_list[index].get(0.0, 'end-1c')
+            choices_list.append((txt, correct))
+        return choices_list
+
+    def _choices_set(self, param: ChoicesHint) -> None:
         pass
 
-    def _choices_set(self, param: ChoicesHints) -> None:
-        pass
-
-    def _add_choice_handler(self, texto_alternativa: str = None, indice: int = None, correta: bool = None) -> None:
+    def _add_choice(self, texto_alternativa: str = None, index: int = None, correta: bool = None) -> None:
         if self._question_type.get() == self._question_type_list[0]: return
 
-        if self._choices_count == len(self._txt_box_lista):
+        if self._choices_count == len(self._txt_box_list):
             self._alert('INFO', 'Limite de opções', 'Quantidade limite de opções atingida')
             return None
 
         # Ativado pela alteração de tipo de questão
-        if indice is None: indice = self._choices_count
+        if index is None: index = self._choices_count
 
         # Se a linha for zero, seta como 5, do contrário, 10
-        pady = (5 if not indice else 10, 0)
+        pady = (5 if not index else 10, 0)
 
-        self._txt_box_lista[indice].grid(column=0, row=indice, sticky=NSEW, pady=pady)
+        self._txt_box_list[index].grid(column=0, row=index, sticky=NSEW, pady=pady)
 
         # Ativado pela edição de questão
-        if texto_alternativa is not None: self._txt_box_lista[indice].insert(0.0, texto_alternativa)
+        if texto_alternativa is not None: self._txt_box_list[index].insert(0.0, texto_alternativa)
 
-        bt = self._select_choice_bt(indice)
-        bt.grid(column=1, row=indice, padx=(10, 0), pady=pady)
+        bt = self._select_choice_bt(index)
+        bt.grid(column=1, row=index, padx=(10, 0), pady=pady)
 
         if correta:
             bt.select()
@@ -229,15 +229,15 @@ class CTkView(View):
     def _select_choice_bt(self, indice: int) -> Optional[CTkCheckBox | CTkRadioButton]:
         select_list = {
             ME: self._rd_bts_list,
-            MEN: self._ck_bts_lista,
-            VF: self._ck_bts_lista,
+            MEN: self._ck_bts_list,
+            VF: self._ck_bts_list,
             D: None
         }
         bt: Optional[List] = select_list.get(self._question_type.get(), None)
         if bt is None: return bt
         return bt[indice]
 
-    def _rm_choice_handler(self, indice=None) -> None:
+    def _rm_choice(self, indice=None) -> None:
         # Se for zero signifca que não tem opção exibida e cancela a ação
         if not self._choices_count: return
 
@@ -246,8 +246,8 @@ class CTkView(View):
         # Ativado pela edição de questão
         if indice is None: indice = self._choices_count
 
-        self._txt_box_lista[indice].grid_forget()
-        self._ck_bts_lista[indice].grid_forget()
+        self._txt_box_list[indice].grid_forget()
+        self._ck_bts_list[indice].grid_forget()
         self._rd_bts_list[indice].grid_forget()
 
     def _alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str):
@@ -261,12 +261,71 @@ class CTkView(View):
             case _:
                 return
 
-    def setup_window_handler(self):
+    def setup_window_handler(self) -> None:
         self.setuptoplevel.deiconify()
 
     # TODO: Estamos aqui
-    def _save_question_handler(self):
-        ic(__file__)
+    def _save_question(self) -> None:
+        data = self._get_data_from_form_question()
+
+        if self._editing:
+            self.controller.save_editing_question(data)
+            return
+
+        controle = self.controller.save_new_question_handler(data)
+
+        self._create_new_question_line(data['pergunta'], controle)
+
+        self.reset_question_form()
+
+    def reset_question_form(self):
+        self._subcategory.set('')
+        self._deadline.set(PLACE_HOLDER_TEMPO)
+        self._question_type.set(self._question_type_list[1])
+        self._difficulty.set(self._difficulty_list[0])
+        self._question_weight.set(PLACE_HOLDER_PESO)
+
+        # Janela de enunciado
+        if self.var_erase_statement: self._question.delete(0.0, END)
+
+        # Janela de botões
+        self._var_rd_button_value.set(0)
+        total = self._choices_count
+        for index in range(total):
+            self._ck_bts_list[index].deselect()
+            self._txt_box_list[index].delete(0.0, END)
+            self._rm_choice()
+
+        self._question.focus()
+
+    def _create_new_question_line(self, title: str, controle: int) -> None:
+        color = self._select_color()
+        line_frame = self._create_line_frame(color)
+
+        new_question_line = LinhaDeQuestao(
+            line_frame, title, controle, self._img_edit, self._img_delete,
+            cmd_delete=self._delete_question, cmd_edit=self._open_question_to_edit
+        )
+
+        self._row_dict[controle] = {'row': line_frame, 'display': new_question_line.title}
+
+        self._question_count.set(len(self._row_dict))
+
+    def _delete_question(self, control: int) -> None:
+        ic(control)
+        ...
+
+    def _open_question_to_edit(self) -> None:
+        ...
+
+    def _select_color(self) -> str:
+        self._zebrar = not self._zebrar
+        return GREEN if self._zebrar else TRANSPARENT
+
+    def _create_line_frame(self, fg_color: str) -> CTkFrame:
+        window = CTkFrame(self.questions_frame, fg_color=fg_color, height=45)
+        window.pack(expand=True, fill=X)
+        return window
 
     def set_appearance(self, param: str) -> None:
         set_appearance_mode(param)
@@ -284,3 +343,9 @@ class CTkView(View):
         set_default_color_theme(param)
         if not hasattr(self, 'controller'): return
         self.controller.save_user_settings_handler('color_theme', param)
+
+    def insert_new_question(self, data: QuestionDataHint) -> None:
+        pass
+
+    def flush_questions(self) -> None:
+        pass

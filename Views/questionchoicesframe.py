@@ -1,6 +1,6 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkScrollableFrame, CTkRadioButton, CTkCheckBox, Variable, CTkTextbox
 
-from .Hints import MenuSettingsHint, WidgetListHint
+from Hints import MenuSettingsHint, WidgetListHint
 
 
 class QuestionChoicesFrame(CTkFrame):

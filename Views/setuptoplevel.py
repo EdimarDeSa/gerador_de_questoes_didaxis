@@ -1,15 +1,8 @@
 from customtkinter import *
 
 from .SetupViews import FilesFrame, CategorySelectionFrame, GeneralPramsFrame, ShortcutsFrame, VersionFrame
-from .Hints import UserSetHint, SysImgHint
-
-
-# TODO: Variável posta
-
-TABOPCAO = 'Opção'
-TABAJUDA = 'Ajuda'
-GRAY = ('gray81', 'gray20')
-GREEN = ('#2cbe79', '#2FA572')
+from Hints import UserSetHint, SysImgHint
+from Constants import TABAJUDA, TABOPCAO, GRAY, GREEN
 
 
 class SetupTopLevel(CTkToplevel):
@@ -36,8 +29,6 @@ class SetupTopLevel(CTkToplevel):
         self.resizable(False, False)
 
     def _setup_variables(self):
-        self.var_erase_statement = BooleanVar(value=self.user_settings['erase_statement'])
-        self.var_auto_export = BooleanVar(value=self.user_settings['auto_export'])
         self.var_escala_do_sistema = StringVar(value=self.user_settings['user_scaling'])
         self.var_aparencia_do_sistema = StringVar(value=self.user_settings['user_appearance_mode'])
 
@@ -70,7 +61,7 @@ class SetupTopLevel(CTkToplevel):
 
         GeneralPramsFrame(
             master, self.ctkview.label_settings, self.controller.save_user_settings_handler,
-            self.var_erase_statement, self.var_auto_export,
+            self.ctkview.var_erase_statement, self.ctkview.var_auto_export,
             self.var_aparencia_do_sistema, self.ctkview.set_appearance,
             self.var_escala_do_sistema, self.ctkview.set_scaling, fg_color=GRAY
         ).grid(row=1, column=0, pady=(30, 0))
@@ -84,7 +75,7 @@ class SetupTopLevel(CTkToplevel):
 
         CTkButton(
             tabela, text='Enviar feedback', width=700, height=32, border_color=GREEN, border_width=2,
-            fg_color='transparent', anchor=CENTER, command=self.controller.send_feedback,
+            fg_color='transparent', anchor=CENTER, command=self.controller.send_feedback_handler,
             **self.ctkview.button_title_settings
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 

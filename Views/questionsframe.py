@@ -1,10 +1,7 @@
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkScrollableFrame, CTkImage, X
 
-from Views.Hints import MenuSettingsHint
-
-
-# TODO: Variável posta
-GREEN = ('#2cbe79', '#2FA572')
+from Hints import MenuSettingsHint
+from Constants import GREEN
 
 
 class QuestionsFrame(CTkScrollableFrame):

@@ -3,6 +3,12 @@ from typing import Dict, List, Literal, Callable, Tuple, Optional
 from PIL import Image
 
 
+__all__ = [
+    'Dict', 'List', 'Literal', 'Callable', 'Tuple', 'Optional', 'MenuSettingsHint',
+    'QuestionDataHint', 'ChoicesHint', 'WidgetListHint', 'SysImgHint', 'UserSetHint'
+]
+
+
 MenuSettingsHint = Dict[str, ...]
 
 QuestionDataHint = dict[[Literal['categoria'], str],
@@ -14,7 +20,7 @@ QuestionDataHint = dict[[Literal['categoria'], str],
                         [Literal['pergunta'], str],
                         [Literal['alternativas'], List[Tuple[str, bool]]]]
 
-ChoicesHints = List[Tuple[str, bool]]
+ChoicesHint = List[Optional[Tuple[str, bool]]]
 
 WidgetListHint = List
 

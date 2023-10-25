@@ -1,15 +1,15 @@
+from abc import ABC, abstractmethod
 import subprocess
 
 from icecream import ic
 
+from contracts import View, ControllerHandlers
 from model import Model
-from ctkview import View
+from Hints import QuestionDataHint
+from Constants import LINK_FEEDBACK_FORM
 
 
-LINK_FEEDBACK_FORM = 'https://forms.office.com/r/xpjpRED6KK'
-
-
-class Controller:
+class Controller(ControllerHandlers):
     def __init__(self, views: View, models: Model):
         self.models = models
         self.views = views
@@ -43,8 +43,15 @@ class Controller:
     def export_as_bd_handler(self) -> None:
         ...
 
+    def save_new_question_handler(self, data: QuestionDataHint) -> int:
+        ic(data)
+        return 1
+
+    def save_editing_question_handler(self, data: QuestionDataHint):
+        ...
+
     def save_user_settings_handler(self, param: str, value: str) -> None:
         self.models.save_user_settings(param, value)
 
-    def send_feedback(self):
+    def send_feedback_handler(self):
         subprocess.call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)

@@ -1,13 +1,7 @@
 from customtkinter import CTkFrame, CTk, CTkButton, CTkImage, NSEW, NS
 
-from .Hints import MenuSettingsHint, Callable
-
-
-# TODO: Variável posta
-GRAY = ('gray66', 'gray37')
-BLUE = ('#3B8ED0', '#1F6AA5')
-HOVER_BLUE = ('#36719F', '#144870')
-BORDER_BLUE = ('#3E454A', '#949A9F')
+from Hints import MenuSettingsHint, Callable
+from Constants import DARKGRAY, BLUE, HOVER_BLUE, BORDER_BLUE
 
 
 class CommandButtonsFrame(CTkFrame):
@@ -23,7 +17,7 @@ class CommandButtonsFrame(CTkFrame):
         self.grid_rowconfigure(0, weight=1)
 
         CTkButton(
-            self, text=None, fg_color=GRAY, image=img_config, command=configs_window_handler, **buttons_configs
+            self, text=None, fg_color=DARKGRAY, image=img_config, command=configs_window_handler, **buttons_configs
         ).grid(column=0, row=0, sticky=NS, padx=(10, 0), pady=5)
 
         CTkButton(

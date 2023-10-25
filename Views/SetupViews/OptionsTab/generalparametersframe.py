@@ -1,11 +1,7 @@
 from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkSwitch, CTkOptionMenu, CENTER, StringVar, Variable
 
-from Views.Hints import MenuSettingsHint, Callable
-
-# TODO: Variável posta
-
-PORCENTAGENS = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
-APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
+from Hints import MenuSettingsHint, Callable
+from Constants import PORCENTAGENS, APARENCIAS_DO_SISTEMA
 
 
 class GeneralPramsFrame(CTkFrame):

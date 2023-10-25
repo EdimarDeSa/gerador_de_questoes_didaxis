@@ -193,7 +193,6 @@ class Controller:
             showinfo('Questão deletada', 'A questão foi deletada com sucesso!')
 
     def open_question_to_edit(self, control: int) -> None:
-        # TODO: A edição está deixando escrever None na subcategoria e limpa os campos peso e tempo
         self.reset_question_form()
 
         try:
