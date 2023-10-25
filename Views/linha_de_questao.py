@@ -4,6 +4,7 @@ from customtkinter import CTkFrame, CTkImage, CTkLabel, W, CTkButton, StringVar
 
 from Constants import BORDER_BLUE
 
+
 class LinhaDeQuestao:
     def __init__(self, master: CTkFrame, title: str, controle: int, img_edit: CTkImage, img_delete: CTkImage, **kwargs):
         self.controle = controle

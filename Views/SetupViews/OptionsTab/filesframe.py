@@ -8,7 +8,7 @@ class FilesFrame(CTkFrame):
             self, master: CTkToplevel,
             label_settings: MenuSettingsHint, button_settings: MenuSettingsHint,
             new_db_handler: Callable, open_db_handler: Callable,
-            export_db_handler: Callable, export_as_db_handler: Callable,
+            export_as_db_handler: Callable,
             **kwargs
     ):
         super().__init__(master, **kwargs)
@@ -21,6 +21,6 @@ class FilesFrame(CTkFrame):
 
         CTkButton(self, text='Abrir', command=open_db_handler, **button_settings).grid(row=1, column=1, **pad)
 
-        CTkButton(self, text='Salvar', command=export_db_handler, **button_settings).grid(row=2, column=0, **pad)
-
-        CTkButton(self, text='Salvar como', command=export_as_db_handler, **button_settings).grid(row=2, column=1, **pad)
+        CTkButton(
+            self, text='Salvar como', command=export_as_db_handler, **button_settings
+        ).grid(column=0, columnspan=2, row=2, **pad)

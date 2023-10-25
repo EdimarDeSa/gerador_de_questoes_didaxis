@@ -1,12 +1,15 @@
 from customtkinter import *
 
+from contracts.ControllerContracts import ControllerHandlers
+from contracts.ViewsContracts import View
+
 from .SetupViews import FilesFrame, CategorySelectionFrame, GeneralPramsFrame, ShortcutsFrame, VersionFrame
 from Hints import UserSetHint, SysImgHint
 from Constants import TABAJUDA, TABOPCAO, GRAY, GREEN
 
 
 class SetupTopLevel(CTkToplevel):
-    def __init__(self, master: CTk, ctkview, controller, user_settings: UserSetHint, system_images: SysImgHint):
+    def __init__(self, master: CTk, ctkview: View, controller: ControllerHandlers, user_settings: UserSetHint, system_images: SysImgHint):
         super().__init__(master)
         self.ctkview = ctkview
         self.controller = controller
@@ -17,8 +20,9 @@ class SetupTopLevel(CTkToplevel):
         self._setup_variables()
         self._setup_ui()
 
-        self.withdraw()
         self.protocol('WM_DELETE_WINDOW', self.close_window_event)
+
+        # self.withdraw()
 
     def _setup_window(self):
         largura, altura = 750, 600
@@ -48,8 +52,8 @@ class SetupTopLevel(CTkToplevel):
     def create_tab_opcoes_widgets(self, master):
         FilesFrame(
             master, self.ctkview.label_settings, self.ctkview.button_default_settings,
-            self.controller.new_bd_handler, self.controller.open_bd_handler,
-            self.controller.export_bd_handler, self.controller.export_as_bd_handler,
+            self.controller.new_db_handler, self.controller.open_db_handler,
+            self.ctkview.export_bd,
             fg_color=GRAY
         ).grid(row=0, column=0, padx=10, pady=10)
 
@@ -60,7 +64,7 @@ class SetupTopLevel(CTkToplevel):
         ).grid(row=0, column=1, rowspan=2, ipady=90, pady=(10, 0))
 
         GeneralPramsFrame(
-            master, self.ctkview.label_settings, self.controller.save_user_settings_handler,
+            master, self.ctkview.label_settings, self.controller.update_user_settings_handler,
             self.ctkview.var_erase_statement, self.ctkview.var_auto_export,
             self.var_aparencia_do_sistema, self.ctkview.set_appearance,
             self.var_escala_do_sistema, self.ctkview.set_scaling, fg_color=GRAY
@@ -80,7 +84,7 @@ class SetupTopLevel(CTkToplevel):
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
     def category_change_handler(self):
-        self.controller.save_user_settings_handler('default_category', self.ctkview.category.get())
+        self.controller.update_user_settings_handler('user_default_category', self.ctkview.category.get())
 
     def abre_ajuda(self) -> None:
         self.wm_deiconify()
