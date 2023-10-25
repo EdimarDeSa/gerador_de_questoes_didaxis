@@ -6,7 +6,7 @@ from customtkinter import (
     set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme, X, BooleanVar, END
 )
 
-from contracts import View
+from contracts.ViewsContracts import View
 
 from Hints import (
     QuestionDataHint, MenuSettingsHint, ChoicesHint, Literal, Optional, List, UserSetHint, SysImgHint
@@ -21,9 +21,7 @@ from Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLA
 
 class CTkView(View):
     def setup(self, controller, user_settings, system_images) -> None:
-        self.controller = controller
-        self.user_settings = user_settings
-        self.system_images = system_images
+        super().setup(controller, user_settings, system_images)
 
         self._setup_root()
         self._setup_variables()
@@ -85,28 +83,28 @@ class CTkView(View):
 
         self._question_count = IntVar()
 
-        self.category = StringVar()
-        self.category_options = self.controller.category_options
+        self.category = StringVar(value=self.user_settings['user_default_category'])
+        self.category_options = self.user_settings['category_options']
         self._category_settings: MenuSettingsHint = {'variable': self.category,
                                                      'values': self.category_options,
                                                      'width': 180,
                                                      **self.list_settings}
         self._subcategory = StringVar()
-        self._deadline = StringVar()
-        self._question_type = StringVar()
-        self._question_type_list = self.controller.question_type_list
+        self._deadline = StringVar(value=PLACE_HOLDER_TEMPO)
+        self._question_type_list = self.user_settings['question_type_list']
+        self._question_type = StringVar(value=self._question_type_list[1])
         self._question_type_settings: MenuSettingsHint = {'variable': self._question_type,
                                                           'values': self._question_type_list,
                                                           'command': self._type_change,
                                                           'width': 180,
                                                           **self.list_settings}
-        self._difficulty = StringVar()
-        self._difficulty_list = self.controller.difficulty_list
+        self._difficulty_list = self.user_settings['difficulty_list']
+        self._difficulty = StringVar(value=self._difficulty_list[0])
         self._difficulty_settings: MenuSettingsHint = {'variable': self._difficulty,
                                                        'values': self._difficulty_list,
                                                        'width': 180,
                                                        **self.list_settings}
-        self._question_weight = IntVar()
+        self._question_weight = IntVar(value=1)
 
         self._var_rd_button_value = IntVar()
         self._txt_box_list = list()
@@ -114,13 +112,12 @@ class CTkView(View):
         self._ck_bts_list = list()
         self._choices_count = 0
 
-        self._editing = None
-        self._row_dict = dict()
+        self._updating: Optional[int] = None
+        self._row_dict: dict[int, dict[[Literal['row'], LinhaDeQuestao], [Literal['display'], StringVar]]] = dict()
         self._zebrar = True
 
         self.var_erase_statement = BooleanVar(value=self.user_settings['erase_statement'])
         self.var_auto_export = BooleanVar(value=self.user_settings['auto_export'])
-
 
     def _setup_images(self):
         medium = (24, 24)
@@ -170,11 +167,18 @@ class CTkView(View):
 
         CommandButtonsFrame(
             self.root, self._img_setup, self.button_title_settings,
-            self.setup_window_handler, self.controller.export_bd_handler,
-            self._save_question,
+            self.setup_window_handler, self.export_bd,
+            self._create_question,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
         self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images)
+
+    def export_bd(self):
+        try:
+            self.controller.export_db_as_handler()
+            self.flush_questions()
+        except Exception as e:
+            self._alert('WARNING', 'Unable to export', str(e))
 
     def _type_change(self, _) -> None:
         quantidade_de_opcoes = self._choices_count
@@ -197,10 +201,12 @@ class CTkView(View):
             choices_list.append((txt, correct))
         return choices_list
 
-    def _choices_set(self, param: ChoicesHint) -> None:
-        pass
+    def _choices_set(self, choices_data: ChoicesHint) -> None:
+        if choices_data is None: return
+        for (txt, correct) in choices_data:
+            self._add_choice(texto_alternativa=txt, corret=correct)
 
-    def _add_choice(self, texto_alternativa: str = None, index: int = None, correta: bool = None) -> None:
+    def _add_choice(self, *, texto_alternativa: str = None, index: int = None, corret: bool = None) -> None:
         if self._question_type.get() == self._question_type_list[0]: return
 
         if self._choices_count == len(self._txt_box_list):
@@ -221,7 +227,7 @@ class CTkView(View):
         bt = self._select_choice_bt(index)
         bt.grid(column=1, row=index, padx=(10, 0), pady=pady)
 
-        if correta:
+        if corret:
             bt.select()
 
         self._choices_count += 1
@@ -250,7 +256,8 @@ class CTkView(View):
         self._ck_bts_list[indice].grid_forget()
         self._rd_bts_list[indice].grid_forget()
 
-    def _alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str):
+    @staticmethod
+    def _alert(alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str):
         match alert_type:
             case 'INFO':
                 showinfo(title, message)
@@ -264,21 +271,30 @@ class CTkView(View):
     def setup_window_handler(self) -> None:
         self.setuptoplevel.deiconify()
 
-    # TODO: Estamos aqui
-    def _save_question(self) -> None:
+    def _create_question(self) -> None:
         data = self._get_data_from_form_question()
 
-        if self._editing:
-            self.controller.save_editing_question(data)
+        if self._updating:
+            self._update_question(data)
             return
 
-        controle = self.controller.save_new_question_handler(data)
+        control = self.controller.create_question_handler(data)
 
-        self._create_new_question_line(data['pergunta'], controle)
+        self._create_new_question_line(data['pergunta'], control)
 
-        self.reset_question_form()
+        self._reset_question_form()
 
-    def reset_question_form(self):
+    def _update_question(self, data: QuestionDataHint) -> None:
+        self.controller.update_question_handler(data)
+
+        updating_line = self._row_dict[self._updating]
+        updating_line['display'].set(data['pergunta'])
+
+        self._reset_question_form()
+
+        self._updating = None
+
+    def _reset_question_form(self):
         self._subcategory.set('')
         self._deadline.set(PLACE_HOLDER_TEMPO)
         self._question_type.set(self._question_type_list[1])
@@ -304,19 +320,27 @@ class CTkView(View):
 
         new_question_line = LinhaDeQuestao(
             line_frame, title, controle, self._img_edit, self._img_delete,
-            cmd_delete=self._delete_question, cmd_edit=self._open_question_to_edit
+            cmd_delete=self._delete_question, cmd_edit=self._open_question_to_update
         )
 
         self._row_dict[controle] = {'row': line_frame, 'display': new_question_line.title}
 
-        self._question_count.set(len(self._row_dict))
+        self._update_question_counter()
 
     def _delete_question(self, control: int) -> None:
-        ic(control)
-        ...
+        self.controller.delete_question_handler(control)
 
-    def _open_question_to_edit(self) -> None:
-        ...
+        self._remove_question_from_questions_frame()
+
+    def _open_question_to_update(self, control: int) -> None:
+        question = self.controller.read_question_handler(control)
+        self.insert_data_in_question_form(question)
+        self._updating = control
+
+    def _reorder_colors(self):
+        self._zebrar = True
+        for row_info in self._row_dict.values():
+            row_info['row'].configure(fg_color=self._select_color())
 
     def _select_color(self) -> str:
         self._zebrar = not self._zebrar
@@ -330,22 +354,35 @@ class CTkView(View):
     def set_appearance(self, param: str) -> None:
         set_appearance_mode(param)
         if not hasattr(self, 'controller'): return
-        self.controller.save_user_settings_handler('appearance_mode', param)
+        self.controller.update_user_settings_handler('user_appearance_mode', param)
 
     def set_scaling(self, param: str) -> None:
         nova_escala_float = int(param.replace("%", "")) / 100
         set_widget_scaling(nova_escala_float)
         set_window_scaling(nova_escala_float)
         if not hasattr(self, 'controller'): return
-        self.controller.save_user_settings_handler('scaling', param)
+        self.controller.update_user_settings_handler('user_scaling', param)
 
     def set_color_theme(self, param: str) -> None:
         set_default_color_theme(param)
         if not hasattr(self, 'controller'): return
-        self.controller.save_user_settings_handler('color_theme', param)
+        self.controller.update_user_settings_handler('user_color_theme', param)
 
     def insert_new_question(self, data: QuestionDataHint) -> None:
         pass
 
     def flush_questions(self) -> None:
-        pass
+        questions: dict = self._row_dict.copy()
+        for control in questions.keys():
+            self._remove_question_from_questions_frame(control)
+
+    def _update_question_counter(self):
+        self._question_count.set(len(self._row_dict))
+
+    def _remove_question_from_questions_frame(self, control: int) -> None:
+        self._row_dict[control]['row'].destroy()
+        del self._row_dict[control]
+
+        self._update_question_counter()
+
+        self._reorder_colors()
