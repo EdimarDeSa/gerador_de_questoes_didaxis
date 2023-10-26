@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from Hints import QuestionDataHint, Optional
+from src.Hints import QuestionDataHint, Optional
 
 
 class ControllerHandlers(ABC):

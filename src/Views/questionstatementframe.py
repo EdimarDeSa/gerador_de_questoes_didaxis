@@ -1,7 +1,7 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkButton, CTkTextbox
 
 
-from Hints import MenuSettingsHint, Callable
+from src.Hints import MenuSettingsHint, Callable
 
 
 class QuestionStatementFrame(CTkFrame):

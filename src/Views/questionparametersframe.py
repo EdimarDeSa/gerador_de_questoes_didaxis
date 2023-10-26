@@ -1,6 +1,6 @@
 from customtkinter import CTkFrame, CTk, CTkLabel, CTkOptionMenu, CTkEntry, Variable
 
-from Hints import MenuSettingsHint
+from src.Hints import MenuSettingsHint
 
 
 class QuestionParametersFrame(CTkFrame):

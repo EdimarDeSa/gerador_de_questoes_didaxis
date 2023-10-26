@@ -1,7 +1,7 @@
 from customtkinter import CTkScrollableFrame, CTkLabel, E, W
 
-from Hints import MenuSettingsHint
-from Constants import SHORTCUTS
+from src.Hints import MenuSettingsHint
+from src.Constants import SHORTCUTS
 
 
 class ShortcutsFrame(CTkScrollableFrame):

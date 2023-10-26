@@ -1,7 +1,6 @@
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesno, askyesnocancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 
-from icecream import ic
 from customtkinter import (
     CTk, CTkFrame, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar,
     set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme, X, BooleanVar, END
@@ -16,6 +15,7 @@ from Views import (
 )
 from Views.linha_de_questao import LinhaDeQuestao
 from Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, FILETYPES, EXTENSION
+from Views.binds import Binds
 
 
 class CTkView(View):
@@ -27,6 +27,8 @@ class CTkView(View):
         self._setup_images()
         self._setup_ui()
 
+        Binds(self.root, self)
+
     def start_main_loop(self) -> None:
         self.root.mainloop()
 
@@ -35,8 +37,8 @@ class CTkView(View):
             categoria=self.category.get(),
             subcategoria=self._subcategory.get(),
             tempo=self._deadline.get(),
-            tipo=self._question_type.get(),
-            dificuldade=self._difficulty.get(),
+            tipo=self.question_type.get(),
+            dificuldade=self.difficulty.get(),
             peso=self._question_weight.get(),
             pergunta=self._question.get(0.0, 'end-1c'),
             alternativas=self._choices_get(),
@@ -47,13 +49,13 @@ class CTkView(View):
         self.category.set(data['categoria']),
         self._subcategory.set(data['subcategoria']),
         self._deadline.set(data['tempo']),
-        self._question_type.set(data['tipo']),
-        self._difficulty.set(data['dificuldade']),
+        self.question_type.set(data['tipo']),
+        self.difficulty.set(data['dificuldade']),
         self._question_weight.set(data['peso']),
         self._question.insert(0.0, data['pergunta']),
         self._choices_set(data['alternativas']),
 
-    def _setup_root(self):
+    def _setup_root(self) -> None:
         self.root = CTk()
         largura, altura = 1500, 750
         pos_x = (self.root.winfo_screenwidth() - largura) // 2
@@ -91,15 +93,15 @@ class CTkView(View):
         self._subcategory = StringVar()
         self._deadline = StringVar(value=PLACE_HOLDER_TEMPO)
         self._question_type_list = self.user_settings['question_type_list']
-        self._question_type = StringVar(value=self._question_type_list[1])
-        self._question_type_settings: MenuSettingsHint = {'variable': self._question_type,
+        self.question_type = StringVar(value=self._question_type_list[1])
+        self._question_type_settings: MenuSettingsHint = {'variable': self.question_type,
                                                           'values': self._question_type_list,
-                                                          'command': self._type_change,
+                                                          'command': self.type_change,
                                                           'width': 180,
                                                           **self.list_settings}
         self._difficulty_list = self.user_settings['difficulty_list']
-        self._difficulty = StringVar(value=self._difficulty_list[0])
-        self._difficulty_settings: MenuSettingsHint = {'variable': self._difficulty,
+        self.difficulty = StringVar(value=self._difficulty_list[0])
+        self._difficulty_settings: MenuSettingsHint = {'variable': self.difficulty,
                                                        'values': self._difficulty_list,
                                                        'width': 180,
                                                        **self.list_settings}
@@ -118,7 +120,7 @@ class CTkView(View):
         self.var_erase_statement = BooleanVar(value=self.user_settings['erase_statement'])
         self.var_auto_export = BooleanVar(value=self.user_settings['auto_export'])
 
-    def _setup_images(self):
+    def _setup_images(self) -> None:
         medium = (24, 24)
         small = (16, 16)
 
@@ -148,7 +150,7 @@ class CTkView(View):
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         question_statement_frame = QuestionStatementFrame(
             self.root, self.label_settings, self._entry_settings, self.button_title_settings,
-            self._add_choice, self._rm_choice
+            self.add_choice, self.rm_choice
         )
         question_statement_frame.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
         self._question = question_statement_frame.question
@@ -167,12 +169,12 @@ class CTkView(View):
         CommandButtonsFrame(
             self.root, self._img_setup, self.button_title_settings,
             self.setup_window_handler, self.export_db,
-            self._create_question,
+            self.create_question,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
         self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images)
 
-    def export_db(self):
+    def export_db(self) -> None:
         file_name = asksaveasfilename(
             filetypes=FILETYPES, defaultextension=EXTENSION, confirmoverwrite=True,
             initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_file()
@@ -183,15 +185,15 @@ class CTkView(View):
         except Exception as e:
             self._alert('WARNING', 'Unable to export', str(e))
 
-    def _type_change(self, _) -> None:
+    def type_change(self, _) -> None:
         quantidade_de_opcoes = self._choices_count
         for indice in range(quantidade_de_opcoes):
-            self._rm_choice(indice=indice)
-            self._add_choice(index=indice)
+            self.rm_choice(indice=indice)
+            self.add_choice(index=indice)
 
     def _choices_get(self) -> ChoicesHint:
         choices_list = []
-        _type = self._question_type.get()
+        _type = self.question_type.get()
         for index in range(self._choices_count):
             bt = self._select_choice_bt(index)
 
@@ -207,10 +209,10 @@ class CTkView(View):
     def _choices_set(self, choices_data: ChoicesHint) -> None:
         if choices_data is None: return
         for (txt, correct) in choices_data:
-            self._add_choice(texto_alternativa=txt, corret=correct)
+            self.add_choice(texto_alternativa=txt, corret=correct)
 
-    def _add_choice(self, *, texto_alternativa: str = None, index: int = None, corret: bool = None) -> None:
-        if self._question_type.get() == self._question_type_list[0]: return
+    def add_choice(self, *, texto_alternativa: str = None, index: int = None, corret: bool = None) -> None:
+        if self.question_type.get() == self._question_type_list[0]: return
 
         if self._choices_count == len(self._txt_box_list):
             self._alert('INFO', 'Limite de opções', 'Quantidade limite de opções atingida')
@@ -242,11 +244,11 @@ class CTkView(View):
             VF: self._ck_bts_list,
             D: None
         }
-        bt: Optional[List] = select_list.get(self._question_type.get(), None)
+        bt: Optional[List] = select_list.get(self.question_type.get(), None)
         if bt is None: return bt
         return bt[indice]
 
-    def _rm_choice(self, indice=None) -> None:
+    def rm_choice(self, indice: int = None) -> None:
         # Se for zero signifca que não tem opção exibida e cancela a ação
         if not self._choices_count: return
 
@@ -260,7 +262,7 @@ class CTkView(View):
         self._rd_bts_list[indice].grid_forget()
 
     @staticmethod
-    def _alert(alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str):
+    def _alert(alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
         match alert_type:
             case 'INFO':
                 showinfo(title, message)
@@ -274,7 +276,7 @@ class CTkView(View):
     def setup_window_handler(self) -> None:
         self.setuptoplevel.deiconify()
 
-    def _create_question(self) -> None:
+    def create_question(self) -> None:
         data = self._get_data_from_form_question()
 
         if self._updating:
@@ -297,11 +299,11 @@ class CTkView(View):
 
         self._updating = None
 
-    def _reset_question_form(self):
+    def _reset_question_form(self) -> None:
         self._subcategory.set('')
         self._deadline.set(PLACE_HOLDER_TEMPO)
-        self._question_type.set(self._question_type_list[1])
-        self._difficulty.set(self._difficulty_list[0])
+        self.question_type.set(self._question_type_list[1])
+        self.difficulty.set(self._difficulty_list[0])
         self._question_weight.set(PLACE_HOLDER_PESO)
 
         # Janela de enunciado
@@ -313,7 +315,7 @@ class CTkView(View):
         for index in range(total):
             self._ck_bts_list[index].deselect()
             self._txt_box_list[index].delete(0.0, END)
-            self._rm_choice()
+            self.rm_choice()
 
         self._question.focus()
 
@@ -340,7 +342,7 @@ class CTkView(View):
         self.insert_data_in_question_form(question)
         self._updating = control
 
-    def _reorder_colors(self):
+    def _reorder_colors(self) -> None:
         self._zebrar = True
         for row_info in self._row_dict.values():
             row_info['row'].configure(fg_color=self._select_color())
@@ -379,7 +381,7 @@ class CTkView(View):
         for control in questions.keys():
             self._remove_question_from_questions_frame(control)
 
-    def open_db(self):
+    def open_db(self) -> None:
         confirmation = self._confirm_export_first()
 
         if not confirmation: return
@@ -390,7 +392,7 @@ class CTkView(View):
         )
         self.controller.open_db_handler(file_name)
 
-    def _update_question_counter(self):
+    def _update_question_counter(self) -> None:
         self._question_count.set(len(self._row_dict))
 
     def _remove_question_from_questions_frame(self, control: int) -> None:
@@ -401,7 +403,7 @@ class CTkView(View):
 
         self._reorder_colors()
 
-    def new_db(self):
+    def new_db(self) -> None:
         confirmation = self._confirm_export_first()
 
         if not confirmation: return

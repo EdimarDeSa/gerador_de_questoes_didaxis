@@ -2,7 +2,7 @@ from tkinter.messagebox import askyesno
 
 from customtkinter import CTkFrame, CTkImage, CTkLabel, W, CTkButton, StringVar
 
-from Constants import BORDER_BLUE
+from src.Constants import BORDER_BLUE
 
 
 class LinhaDeQuestao:

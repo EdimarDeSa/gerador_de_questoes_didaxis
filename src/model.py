@@ -1,6 +1,3 @@
-from icecream import ic
-
-
 # Unidades de negócio
 ASTEC = 'Astec'
 COMUNICACAO = 'Comunicação'
@@ -32,7 +29,6 @@ MEDIO = 'Médio'
 DIFICIL = 'Difícil'
 DIFFICULTLIST = [FACIL, MEDIO, DIFICIL]
 
-
 # Theme settings
 COLORTHEMELIST = ['dark-blue', 'blue', 'green']
 SCALELIST = ['80%', '85%', '90%', '95%', '100%', '105%', '110%', '115%', '120%']
@@ -41,7 +37,8 @@ APPEARANCEMODETHEME = ["Light", "Dark", "System"]
 from pathlib import Path
 from PIL import Image
 from dataclasses import dataclass, field
-from typing import Dict
+
+from Hints.hints import SysImgHint, Dict, Optional
 
 
 @dataclass(kw_only=True)
@@ -52,11 +49,11 @@ class ImageManager:
     def __post_init__(self):
         self._images = {name: self._abre_imagem(path) for name, path in self.image_paths.items()}
 
-    def _abre_imagem(self, nome_imagem: str) -> Image:
+    def _abre_imagem(self, nome_imagem: str) -> Optional[Image]:
         caminho_imagem = self.icons_dir / nome_imagem
         return Image.open(caminho_imagem)
 
-    def get_images(self) -> Dict[str, Image]:
+    def get_images(self) -> SysImgHint:
         return self._images
 
 
@@ -87,14 +84,14 @@ class Model:
 
         icons_dir = local / 'icons'
         self._img_manager = ImageManager(icons_dir=icons_dir, image_paths={
-                'configuracoes_light_mode': 'configuracoes_light_mode.png',
-                'configuracoes_dark_mode': 'configuracoes_dark_mode.png',
-                'eraser_light_mode': 'eraser_light_mode.png',
-                'eraser_dark_mode': 'eraser_dark_mode.png',
-                'edit_light_mode': 'edit_light_mode.png',
-                'edit_dark_mode': 'edit_dark_mode.png',
-            })
-        self.system_images: Dict[str, Image] = self._img_manager.get_images()
+            'configuracoes_light_mode': 'configuracoes_light_mode.png',
+            'configuracoes_dark_mode': 'configuracoes_dark_mode.png',
+            'eraser_light_mode': 'eraser_light_mode.png',
+            'eraser_dark_mode': 'eraser_dark_mode.png',
+            'edit_light_mode': 'edit_light_mode.png',
+            'edit_dark_mode': 'edit_dark_mode.png',
+        })
+        self.system_images: SysImgHint = self._img_manager.get_images()
 
         configs_dir = local / 'configs'
         self._user_manager = UserManager(
@@ -108,6 +105,6 @@ class Model:
         self.user_settings = dict(self._user_manager).copy()
 
     def save_user_settings(self, param: str, value: any) -> None:
-        ic('update settings', param, value)
+        print('update settings', param, value)
         if param in dict(self._user_manager).keys():
             self._user_manager.updatesetting(param, value)

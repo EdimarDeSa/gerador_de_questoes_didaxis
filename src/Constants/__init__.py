@@ -46,3 +46,8 @@ FILETYPES = (('Pasta de Trabalho do Excel', '*.xlsx'),)
 
 # Extensão padrão de arquivo
 EXTENSION = '.xlsx'
+
+EASY = 'Fácil'
+MEDIUM = 'Médio'
+HARD = 'Difícil'
+SUBCATEGORYLIST = [EASY, MEDIUM, HARD]

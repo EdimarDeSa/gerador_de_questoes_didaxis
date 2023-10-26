@@ -7,6 +7,7 @@ from typing_extensions import TypedDict, Protocol
 class QuestionDataHint(TypedDict):
     categoria: str
     subcategoria: str
+    controle: int
     tempo: str
     tipo: str
     dificuldade: str

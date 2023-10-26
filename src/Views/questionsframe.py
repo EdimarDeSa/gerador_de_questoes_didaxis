@@ -1,7 +1,7 @@
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkScrollableFrame, CTkImage, X
 
-from Hints import MenuSettingsHint
-from Constants import GREEN
+from src.Hints import MenuSettingsHint
+from src.Constants import GREEN
 
 
 class QuestionsFrame(CTkScrollableFrame):

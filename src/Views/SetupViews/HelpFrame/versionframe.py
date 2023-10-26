@@ -1,10 +1,10 @@
-from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkButton, CENTER, BOTH
+from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkButton
 
-from FrontEndFunctions.Hints import ConfigsHint
+from src.Hints.hints import MenuSettingsHint
 
 
 class VersionFrame(CTkFrame):
-    def __init__(self, master: CTkToplevel, label_configs: ConfigsHint, **kwargs):
+    def __init__(self, master: CTkToplevel, label_configs: MenuSettingsHint, **kwargs):
         super().__init__(master, **kwargs)
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)

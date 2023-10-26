@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from .ControllerContracts import ControllerHandlers
-from Hints import QuestionDataHint, UserSetHint, SysImgHint
+from src.Hints import QuestionDataHint, UserSetHint, SysImgHint
 
 
 class View(ABC):
@@ -35,7 +35,7 @@ class View(ABC):
     # Base CRUD methods
 
     @abstractmethod
-    def _create_question(self) -> None:
+    def create_question(self) -> None:
         pass
 
     @abstractmethod

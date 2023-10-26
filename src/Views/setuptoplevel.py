@@ -1,11 +1,11 @@
-from customtkinter import *
+from customtkinter import CTk, CTkToplevel, StringVar, CTkTabview, BOTH, CTkButton, CENTER
 
-from contracts.ControllerContracts import ControllerHandlers
-from contracts.ViewsContracts import View
+from src.contracts.ControllerContracts import ControllerHandlers
+from src.contracts.ViewsContracts import View
 
 from .SetupViews import FilesFrame, CategorySelectionFrame, GeneralPramsFrame, ShortcutsFrame, VersionFrame
-from Hints import UserSetHint, SysImgHint
-from Constants import TABAJUDA, TABOPCAO, GRAY, GREEN
+from src.Hints import UserSetHint, SysImgHint
+from src.Constants import TABAJUDA, TABOPCAO, GRAY, GREEN
 
 
 class SetupTopLevel(CTkToplevel):
@@ -84,7 +84,7 @@ class SetupTopLevel(CTkToplevel):
     def category_change_handler(self):
         self.controller.update_user_settings_handler('user_default_category', self.ctkview.category.get())
 
-    def abre_ajuda(self) -> None:
+    def open_help_tab(self) -> None:
         self.wm_deiconify()
         self.tabview.set(TABAJUDA)
 
