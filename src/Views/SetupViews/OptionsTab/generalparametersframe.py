@@ -1,7 +1,7 @@
 from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkSwitch, CTkOptionMenu, CENTER, StringVar, Variable
 
 from Hints import MenuSettingsHint, Callable
-from Constants import PORCENTAGENS, APARENCIAS_DO_SISTEMA
+from Constants import SCALELIST, APPEARANCEMODETHEME
 
 
 class GeneralPramsFrame(CTkFrame):
@@ -49,13 +49,13 @@ class GeneralPramsFrame(CTkFrame):
 
         CTkLabel(self, text='Dark mode', **label_configs).pack(**self.position_top)
         CTkOptionMenu(
-            self, values=APARENCIAS_DO_SISTEMA, variable=self.var_aparencia_do_sistema,
+            self, values=APPEARANCEMODETHEME, variable=self.var_aparencia_do_sistema,
             command=self.salva_e_altera_aparencia
         ).pack(**self.position_bottom)
 
         CTkLabel(self, text='Escala do sistema', **label_configs).pack(**self.position_top)
         CTkOptionMenu(
-            self, values=PORCENTAGENS, variable=self.var_escala_do_sistema,
+            self, values=SCALELIST, variable=self.var_escala_do_sistema,
             command=self.salva_e_altera_escala_do_sistema
         ).pack(**self.position_bottom)
 

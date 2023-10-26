@@ -1,4 +1,4 @@
-from tkinter.messagebox import showinfo, showerror, showwarning,askyesno, askyesnocancel
+from tkinter.messagebox import showinfo, showerror, showwarning, askyesno, askyesnocancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 
 from icecream import ic
@@ -9,9 +9,7 @@ from customtkinter import (
 
 from contracts.ViewsContracts import View
 
-from Hints import (
-    QuestionDataHint, MenuSettingsHint, ChoicesHint, Literal, Optional, List, UserSetHint, SysImgHint
-)
+from Hints import (QuestionDataHint, MenuSettingsHint, ChoicesHint, RowDict, Optional, List, Literal)
 from Views import (
     QuestionCountFrame, QuestionParametersFrame, QuestionStatementFrame, QuestionChoicesFrame, QuestionsFrame,
     CommandButtonsFrame, SetupTopLevel
@@ -46,14 +44,14 @@ class CTkView(View):
         return data
 
     def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
-        self.category.set(data.get('categoria')),
-        self._subcategory.set(data.get('subcategoria')),
-        self._deadline.set(data.get('tempo')),
-        self._question_type.set(data.get('tipo')),
-        self._difficulty.set(data.get('dificuldade')),
-        self._question_weight.set(data.get('peso')),
-        self._question.insert(0.0, data.get('pergunta', '')),
-        self._choices_set(data.get('alternativas')),
+        self.category.set(data['categoria']),
+        self._subcategory.set(data['subcategoria']),
+        self._deadline.set(data['tempo']),
+        self._question_type.set(data['tipo']),
+        self._difficulty.set(data['dificuldade']),
+        self._question_weight.set(data['peso']),
+        self._question.insert(0.0, data['pergunta']),
+        self._choices_set(data['alternativas']),
 
     def _setup_root(self):
         self.root = CTk()
@@ -114,7 +112,7 @@ class CTkView(View):
         self._choices_count = 0
 
         self._updating: Optional[int] = None
-        self._row_dict: dict[int, dict[[Literal['row'], LinhaDeQuestao], [Literal['display'], StringVar]]] = dict()
+        self._row_dict: RowDict = dict()
         self._zebrar = True
 
         self.var_erase_statement = BooleanVar(value=self.user_settings['erase_statement'])
@@ -335,7 +333,7 @@ class CTkView(View):
     def _delete_question(self, control: int) -> None:
         self.controller.delete_question_handler(control)
 
-        self._remove_question_from_questions_frame()
+        self._remove_question_from_questions_frame(control)
 
     def _open_question_to_update(self, control: int) -> None:
         question = self.controller.read_question_handler(control)
@@ -408,16 +406,16 @@ class CTkView(View):
 
         if not confirmation: return
 
+        self.flush_questions()
+
     def _confirm_export_first(self) -> bool:
         if not self.controller.check_if_file_already_exported():
-            confirm = askyesnocancel(message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
-                                             'Gostaria de exportar esse banco antes?')
-            ic(confirm)
+            confirm = askyesnocancel(
+                title='Confirme a exportação primeiro',
+                message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
+                        'Gostaria de exportar esse banco antes?')
             if confirm is None:
-                ic(None)
                 return False
             if confirm:
-                ic(True)
                 self.export_db()
-        ic(False)
         return True

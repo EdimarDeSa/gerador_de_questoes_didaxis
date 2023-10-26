@@ -29,11 +29,11 @@ class Controller:
         self._img = ImageManager(self._file.base_dir)
 
         # Variáveis de perfil
-        self.var_aparencia_do_sistema: StringVar = StringVar(value=self._cnf.aparencia_do_sistema)
-        self.var_escala_do_sistema: StringVar = StringVar(value=self._cnf.escala_do_sistema)
-        self.var_cor_padrao: StringVar = StringVar(value=self._cnf.cor_padrao)
-        self.var_erase_statement: BooleanVar = BooleanVar(value=self._cnf.apagar_enunciado)
-        self.var_auto_export: BooleanVar = BooleanVar(value=self._cnf.exportar_automaticamente)
+        self.var_aparencia_do_sistema: Variable = StringVar(value=self._cnf.aparencia_do_sistema)
+        self.var_escala_do_sistema: Variable = StringVar(value=self._cnf.escala_do_sistema)
+        self.var_cor_padrao: Variable = StringVar(value=self._cnf.cor_padrao)
+        self.var_erase_statement: Variable = BooleanVar(value=self._cnf.apagar_enunciado)
+        self.var_auto_export: Variable = BooleanVar(value=self._cnf.exportar_automaticamente)
 
         # Variaveis de configurações
         self.label_configs: dict = self._cnf.label_titulos_configs
@@ -52,9 +52,9 @@ class Controller:
         self.difficulties_list: list = self._cnf.dificuldades
 
         # Variáveis de controle
-        self.contador_de_opcoes: IntVar = IntVar(value=0)
-        self.var_rd_button_value: IntVar = IntVar(value=0)
-        self.display_question_count: IntVar = IntVar(value=0)
+        self.contador_de_opcoes: Variable = IntVar(value=0)
+        self.var_rd_button_value: Variable = IntVar(value=0)
+        self.display_question_count: Variable = IntVar(value=0)
         self.exportado: bool = True
         self._questao_em_edicao: Optional[dict] = None
 
@@ -329,9 +329,9 @@ class Controller:
             questions = self._file.open_db(path)
         except pandas.errors.InvalidColumnName as e:
             showerror('Arquivo inválido', str(e))
-            return None
+            return
         except FileNotFoundError:
-            return None
+            return
 
         self.reset_questions_frame()
         self.reset_question_form()

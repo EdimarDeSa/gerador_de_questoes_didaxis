@@ -4,9 +4,7 @@ from model import Model
 
 
 def main():
-    views = CTkView()
-    models = Model()
-    controls = Controller(views, models)
+    controls = Controller(CTkView(), Model())
 
     controls.start()
 

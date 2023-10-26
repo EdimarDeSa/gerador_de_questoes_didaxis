@@ -1,3 +1,4 @@
+from typing import Iterator, Any
 from dataclasses import dataclass, field
 
 
@@ -10,8 +11,8 @@ class PerfilDataClass:
     cor_padrao: str = field(default='green', compare=True)
     exportar_automaticamente: bool = field(default=False, compare=True)
 
-    def atualiza_atributo(self, key: str, value: any):
+    def atualiza_atributo(self, key: str, value: Any) -> None:
         setattr(self, key, value)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         return iter(self.__dict__.items())

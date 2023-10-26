@@ -45,7 +45,7 @@ class ConfigurationManager:
             self._check_dictionary_customizations()
         else:
             words_list: list = self.read_json(self.PERSONAL_DICT_FILE)
-            self._personal_dict.dictionary = set(words_list)
+            self._personal_dict.words_set = set(words_list)
         return None
 
     def save_new_config(self, key: str, value: any) -> None:

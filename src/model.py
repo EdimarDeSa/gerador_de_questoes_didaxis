@@ -35,7 +35,7 @@ DIFFICULTLIST = [FACIL, MEDIO, DIFICIL]
 
 # Theme settings
 COLORTHEMELIST = ['dark-blue', 'blue', 'green']
-SCALESTHEMELIST = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
+SCALELIST = ['80%', '85%', '90%', '95%', '100%', '105%', '110%', '115%', '120%']
 APPEARANCEMODETHEME = ["Light", "Dark", "System"]
 
 from pathlib import Path

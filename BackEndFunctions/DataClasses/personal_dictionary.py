@@ -1,18 +1,17 @@
-from dataclasses import dataclass
-from pathlib import Path
+from dataclasses import dataclass, field
+from typing import Iterator, Optional, List
 
 
-@dataclass
 class PersonalDictionary:
-    dictionary: set | None = None
+    def __init__(self, words_set):
+        self.words_set: set[str] = set(words_set)
 
-    @classmethod
-    def atualiza_atributo(cls, value: str):
-        cls.dictionary.add(value)
+    def atualiza_atributo(self, value: str) -> None:
+        self.words_set.add(value)
 
     @property
-    def to_list(self):
-        return list(self.dictionary)
+    def to_list(self) -> List:
+        return list(self)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         return iter(self.__dict__.items())

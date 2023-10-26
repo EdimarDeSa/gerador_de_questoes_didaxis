@@ -26,8 +26,9 @@ SHORTCUTS = [
     ('Voltar campos:', 'Ctrl + Shift + TAB ou Shift + TAB')
 ]
 
-PORCENTAGENS = ['80%', '90%', '100%', '110%', '120%', '130%', '140%', '150%']
-APARENCIAS_DO_SISTEMA = ["Light", "Dark", "System"]
+COLORTHEMELIST = ['dark-blue', 'blue', 'green']
+SCALELIST = ['80%', '85%', '90%', '95%', '100%', '105%', '110%', '115%', '120%']
+APPEARANCEMODETHEME = ["Light", "Dark", "System"]
 
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'

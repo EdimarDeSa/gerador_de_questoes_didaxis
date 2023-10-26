@@ -1,8 +1,6 @@
 from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkButton, CENTER, BOTH
 
 from FrontEndFunctions.Hints import ConfigsHint
-from setuptools_scm import get_version
-import __main__
 
 
 class VersionFrame(CTkFrame):
@@ -14,6 +12,6 @@ class VersionFrame(CTkFrame):
 
         # TODO: Implementar atualização
         CTkLabel(
-            self, text=f'Versão: {get_version(relative_to=__main__.__file__)}', **label_configs
+            self, text=f'Versão: {self.__class__.__basicsize__}', **label_configs
         ).grid(row=0, column=0)
-        CTkButton(self, text='Verificar atualização', command='self.verifica_atualizacao').grid(row=0, column=1)
+        CTkButton(self, text='Verificar atualização', command=self).grid(row=0, column=1)
