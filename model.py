@@ -80,6 +80,7 @@ class UserManager:
     def updatesetting(self, attribute: str, value: any) -> None:
         setattr(self, attribute, value)
 
+
 class Model:
     def __init__(self):
         local = Path().resolve()
@@ -107,7 +108,6 @@ class Model:
         self.user_settings = dict(self._user_manager).copy()
 
     def save_user_settings(self, param: str, value: any) -> None:
+        ic('update settings', param, value)
         if param in dict(self._user_manager).keys():
             self._user_manager.updatesetting(param, value)
-
-        assert dict(self._user_manager)[param] == value

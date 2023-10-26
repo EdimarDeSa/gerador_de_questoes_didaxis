@@ -39,3 +39,9 @@ PLACE_HOLDER_TEMPO = '00:00:00'
 PLACE_HOLDER_PESO = '1'
 
 LINK_FEEDBACK_FORM = 'https://forms.office.com/r/xpjpRED6KK'
+
+# Tipos de arquivo permitidos
+FILETYPES = (('Pasta de Trabalho do Excel', '*.xlsx'),)
+
+# Extensão padrão de arquivo
+EXTENSION = '.xlsx'

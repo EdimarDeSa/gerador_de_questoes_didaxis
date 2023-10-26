@@ -52,9 +52,7 @@ class SetupTopLevel(CTkToplevel):
     def create_tab_opcoes_widgets(self, master):
         FilesFrame(
             master, self.ctkview.label_settings, self.ctkview.button_default_settings,
-            self.controller.new_db_handler, self.controller.open_db_handler,
-            self.ctkview.export_bd,
-            fg_color=GRAY
+            self.ctkview.new_db, self.ctkview.open_db, self.ctkview.export_db, fg_color=GRAY
         ).grid(row=0, column=0, padx=10, pady=10)
 
         CategorySelectionFrame(

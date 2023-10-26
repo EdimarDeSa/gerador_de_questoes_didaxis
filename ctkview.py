@@ -1,4 +1,5 @@
-from tkinter.messagebox import showinfo, showerror, showwarning
+from tkinter.messagebox import showinfo, showerror, showwarning,askyesno, askyesnocancel
+from tkinter.filedialog import asksaveasfilename, askopenfilename
 
 from icecream import ic
 from customtkinter import (
@@ -16,7 +17,7 @@ from Views import (
     CommandButtonsFrame, SetupTopLevel
 )
 from Views.linha_de_questao import LinhaDeQuestao
-from Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO
+from Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, FILETYPES, EXTENSION
 
 
 class CTkView(View):
@@ -167,15 +168,19 @@ class CTkView(View):
 
         CommandButtonsFrame(
             self.root, self._img_setup, self.button_title_settings,
-            self.setup_window_handler, self.export_bd,
+            self.setup_window_handler, self.export_db,
             self._create_question,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
         self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images)
 
-    def export_bd(self):
+    def export_db(self):
+        file_name = asksaveasfilename(
+            filetypes=FILETYPES, defaultextension=EXTENSION, confirmoverwrite=True,
+            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_file()
+        )
         try:
-            self.controller.export_db_as_handler()
+            self.controller.export_db_as_handler(file_name)
             self.flush_questions()
         except Exception as e:
             self._alert('WARNING', 'Unable to export', str(e))
@@ -376,6 +381,17 @@ class CTkView(View):
         for control in questions.keys():
             self._remove_question_from_questions_frame(control)
 
+    def open_db(self):
+        confirmation = self._confirm_export_first()
+
+        if not confirmation: return
+
+        file_name = askopenfilename(
+            filetypes=FILETYPES, defaultextension=EXTENSION,
+            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_file()
+        )
+        self.controller.open_db_handler(file_name)
+
     def _update_question_counter(self):
         self._question_count.set(len(self._row_dict))
 
@@ -386,3 +402,22 @@ class CTkView(View):
         self._update_question_counter()
 
         self._reorder_colors()
+
+    def new_db(self):
+        confirmation = self._confirm_export_first()
+
+        if not confirmation: return
+
+    def _confirm_export_first(self) -> bool:
+        if not self.controller.check_if_file_already_exported():
+            confirm = askyesnocancel(message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
+                                             'Gostaria de exportar esse banco antes?')
+            ic(confirm)
+            if confirm is None:
+                ic(None)
+                return False
+            if confirm:
+                ic(True)
+                self.export_db()
+        ic(False)
+        return True

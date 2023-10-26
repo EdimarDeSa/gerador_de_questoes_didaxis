@@ -29,7 +29,7 @@ class View(ABC):
         pass
 
     @abstractmethod
-    def export_bd(self) -> None:
+    def export_db(self) -> None:
         pass
 
     # Base CRUD methods

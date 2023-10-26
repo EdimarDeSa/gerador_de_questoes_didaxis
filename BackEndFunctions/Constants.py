@@ -64,7 +64,6 @@ LINK_FEEDBACK_FORM = 'https://forms.office.com/r/xpjpRED6KK'
 # Tipos de arquivo permitidos
 FILETYPES = (('Pasta de Trabalho do Excel', '*.xlsx'),)
 
-
 # Extensão padrão de arquivo
 EXTENSION = '.xlsx'
 
