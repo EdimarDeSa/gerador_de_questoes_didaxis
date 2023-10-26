@@ -30,10 +30,13 @@ COLORTHEMELIST = ['dark-blue', 'blue', 'green']
 SCALELIST = ['80%', '85%', '90%', '95%', '100%', '105%', '110%', '115%', '120%']
 APPEARANCEMODETHEME = ["Light", "Dark", "System"]
 
+CATEGORYLIST = ['Astec', 'Comunicação', 'Controle de acesso', 'Energia', 'Exportação', 'Gestão', 'Incêndio e iluminação', 'Negócios', 'Redes', 'Segurança eletrônica', 'Solar', 'Soluções', 'Varejo', 'Verticais']
+
 D = 'Dissertativa'
 ME = 'Multipla escolha 1 correta'
 MEN = 'Multipla escolha n corretas'
 VF = 'Verdadeiro ou falso'
+QUESTIONTYPELIST = [D, ME, MEN, VF]
 
 PLACE_HOLDER_CODIGO = 'TELEC-PXXXX'
 PLACE_HOLDER_TEMPO = '00:00:00'
@@ -50,4 +53,6 @@ EXTENSION = '.xlsx'
 EASY = 'Fácil'
 MEDIUM = 'Médio'
 HARD = 'Difícil'
-SUBCATEGORYLIST = [EASY, MEDIUM, HARD]
+DIFFICULTLIST = [EASY, MEDIUM, HARD]
+
+MAXIMO_DE_CARACTERES = 255

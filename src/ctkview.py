@@ -1,21 +1,24 @@
+import sys
 from tkinter.messagebox import showinfo, showerror, showwarning, askyesno, askyesnocancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
+
+from icecream import ic
 
 from customtkinter import (
     CTk, CTkFrame, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar,
     set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme, X, BooleanVar, END
 )
 
-from contracts.ViewsContracts import View
+from src.contracts.ViewsContracts import View
 
-from Hints import (QuestionDataHint, MenuSettingsHint, ChoicesHint, RowDict, Optional, List, Literal)
-from Views import (
+from src.Hints import QuestionDataHint, MenuSettingsHint, ChoicesHint, RowDict, Optional, List, Literal
+from src.Views import (
     QuestionCountFrame, QuestionParametersFrame, QuestionStatementFrame, QuestionChoicesFrame, QuestionsFrame,
     CommandButtonsFrame, SetupTopLevel
 )
-from Views.linha_de_questao import LinhaDeQuestao
-from Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, FILETYPES, EXTENSION
-from Views.binds import Binds
+from src.Views.linha_de_questao import LinhaDeQuestao
+from src.Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO, PLACE_HOLDER_TEMPO, FILETYPES, EXTENSION
+from src.Views.binds import Binds
 
 
 class CTkView(View):
@@ -36,6 +39,7 @@ class CTkView(View):
         data = dict(
             categoria=self.category.get(),
             subcategoria=self._subcategory.get(),
+            controle=None,
             tempo=self._deadline.get(),
             tipo=self.question_type.get(),
             dificuldade=self.difficulty.get(),
@@ -46,14 +50,14 @@ class CTkView(View):
         return data
 
     def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
-        self.category.set(data['categoria']),
-        self._subcategory.set(data['subcategoria']),
-        self._deadline.set(data['tempo']),
-        self.question_type.set(data['tipo']),
-        self.difficulty.set(data['dificuldade']),
-        self._question_weight.set(data['peso']),
-        self._question.insert(0.0, data['pergunta']),
-        self._choices_set(data['alternativas']),
+        self.category.set(data['categoria'])
+        self._subcategory.set(data['subcategoria'])
+        self._deadline.set(data['tempo'])
+        self.question_type.set(data['tipo'])
+        self.difficulty.set(data['dificuldade'])
+        self._question_weight.set(data['peso'])
+        self._question.insert(0.0, data['pergunta'])
+        self._choices_set(data['alternativas'])
 
     def _setup_root(self) -> None:
         self.root = CTk()
@@ -62,7 +66,8 @@ class CTkView(View):
         pos_y = (self.root.winfo_screenheight() - altura) // 2 - 35
         self.root.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
         self.root.resizable(False, False)
-        self.root.wm_iconbitmap(default='./icons/prova.ico')
+        icon_path = self.controller.get_base_dir() / 'icons/prova.ico'
+        self.root.wm_iconbitmap(default=icon_path)
         self.root.title('Editor de questões')
 
         self.set_scaling(self.user_settings['user_scaling'])
@@ -183,7 +188,7 @@ class CTkView(View):
             self.controller.export_db_as_handler(file_name)
             self.flush_questions()
         except Exception as e:
-            self._alert('WARNING', 'Unable to export', str(e))
+            self.alert('WARNING', 'Unable to export', str(e))
 
     def type_change(self, _) -> None:
         quantidade_de_opcoes = self._choices_count
@@ -215,7 +220,7 @@ class CTkView(View):
         if self.question_type.get() == self._question_type_list[0]: return
 
         if self._choices_count == len(self._txt_box_list):
-            self._alert('INFO', 'Limite de opções', 'Quantidade limite de opções atingida')
+            self.alert('INFO', 'Limite de opções', 'Quantidade limite de opções atingida')
             return None
 
         # Ativado pela alteração de tipo de questão
@@ -261,8 +266,7 @@ class CTkView(View):
         self._ck_bts_list[indice].grid_forget()
         self._rd_bts_list[indice].grid_forget()
 
-    @staticmethod
-    def _alert(alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
+    def alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
         match alert_type:
             case 'INFO':
                 showinfo(title, message)
@@ -421,3 +425,13 @@ class CTkView(View):
             if confirm:
                 self.export_db()
         return True
+
+    def close_window_event(self):
+        # confirmation = self._confirm_export_first()
+        #
+        # if not confirmation: return
+
+        self.root.destroy()
+
+    def tests(self):
+        self.root.after(5000, self.close_window_event)

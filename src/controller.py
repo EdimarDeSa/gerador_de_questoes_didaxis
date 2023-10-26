@@ -1,12 +1,13 @@
 from pathlib import Path
 import subprocess
 
-from contracts.ControllerContracts import ControllerHandlers
-from contracts.ViewsContracts import View
-from model import Model
-from Hints import QuestionDataHint, Optional
-from Constants import LINK_FEEDBACK_FORM
+from icecream import ic
 
+from src.contracts.ControllerContracts import ControllerHandlers
+from src.contracts.ViewsContracts import View
+from src.model import Model
+from src.Hints import QuestionDataHint, Optional
+from src.Constants import LINK_FEEDBACK_FORM
 
 class Controller(ControllerHandlers):
     def __init__(self, views: View, models: Model):
@@ -17,54 +18,51 @@ class Controller(ControllerHandlers):
 
     def start(self) -> None:
         self.views.setup(self, self.models.user_settings, self.models.system_images)
+
+    def loop(self):
         self.views.start_main_loop()
 
     def new_db_handler(self) -> None:
-        print('Criando novo banco')
+        ic('Criando novo banco')
         self.views.flush_questions()
         # self.models.new_db()
 
     def open_db_handler(self, path: str) -> None:
-        print('Abrindo banco de dados', path)
+        ic('Abrindo banco de dados', path)
         if not path: return
         # self.views.insert_data_in_question_form(...)
 
     def export_db_handler(self) -> None:
-        print('Exportado banco')
+        ic('Exportado banco')
 
         self._exported = True
         ...
 
     def export_db_as_handler(self, path: str) -> None:
-        print('Starting export', path)
+        # ic('Starting export', path)
         if not path: return
 
         self._exported = True
 
+    temp_count = -1
+
     def create_question_handler(self, data: QuestionDataHint) -> int:
-        print('create', data)
+        # ic('create', data)
+        self._temp_question = data
         self._exported = False
-        return 1
+        self.temp_count += 1
+        return self.temp_count
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
-        print('read', control)
-        return dict(
-            categoria='',
-            subcategoria='',
-            tempo='00:00:00',
-            tipo=self.models.user_settings['question_type_list'][1],
-            dificuldade=self.models.user_settings['difficulty_list'][0],
-            peso=1,
-            controle=control,
-            pergunta='Para atualizar',
-            alternativas=[('Op1', True), ('Op2', False), ('Op3', False), ('Op4', False)]
-        )
+        # ic('read', control)
+        return self._temp_question
 
     def update_question_handler(self, data: QuestionDataHint) -> None:
-        print('update', data)
+        # ic('update', data)
+        pass
 
     def delete_question_handler(self, control: int) -> None:
-        print('delete', control)
+        ic('delete', control)
 
     def update_user_settings_handler(self, param: str, value: str) -> None:
         self.models.save_user_settings(param, value)
@@ -78,7 +76,8 @@ class Controller(ControllerHandlers):
 
     # TODO: passar isso para Model
     def get_base_dir(self) -> Path:
-        return Path().home() / 'Desktop'
+        return self.models.base_dir
 
     def send_feedback_handler(self):
         subprocess.call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)
+

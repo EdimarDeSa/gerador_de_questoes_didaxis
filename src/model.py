@@ -1,44 +1,11 @@
-# Unidades de negócio
-ASTEC = 'Astec'
-COMUNICACAO = 'Comunicação'
-CONTROLE = 'Controle de acesso'
-ENERGIA = 'Energia'
-EXPORTACAO = 'Exportação'
-GESTAO = 'Gestão'
-INCENDIO = 'Incêndio e iluminação'
-NEGOCIOS = 'Negócios'
-REDES = 'Redes'
-SEGURANCA = 'Segurança eletrônica'
-SOLAR = 'Solar'
-SOLUCOES = 'Soluções'
-VAREJO = 'Varejo'
-VERTICAIS = 'Verticais'
-CATEGORYLIST = [ASTEC, COMUNICACAO, CONTROLE, ENERGIA, EXPORTACAO, GESTAO, INCENDIO,
-                NEGOCIOS, REDES, SEGURANCA, SOLAR, SOLUCOES, VAREJO, VERTICAIS]
-
-# Constantes para tipos de questão
-D = 'Dissertativa'
-ME = 'Multipla escolha 1 correta'
-MEN = 'Multipla escolha n corretas'
-VF = 'Verdadeiro ou falso'
-TYPELIST = [D, ME, MEN, VF]
-
-# Subcategorias
-FACIL = 'Fácil'
-MEDIO = 'Médio'
-DIFICIL = 'Difícil'
-DIFFICULTLIST = [FACIL, MEDIO, DIFICIL]
-
-# Theme settings
-COLORTHEMELIST = ['dark-blue', 'blue', 'green']
-SCALELIST = ['80%', '85%', '90%', '95%', '100%', '105%', '110%', '115%', '120%']
-APPEARANCEMODETHEME = ["Light", "Dark", "System"]
-
 from pathlib import Path
 from PIL import Image
 from dataclasses import dataclass, field
 
-from Hints.hints import SysImgHint, Dict, Optional
+from src.Hints.hints import SysImgHint, Dict
+from src.Constants import CATEGORYLIST, QUESTIONTYPELIST, DIFFICULTLIST
+
+
 
 
 @dataclass(kw_only=True)
@@ -49,7 +16,7 @@ class ImageManager:
     def __post_init__(self):
         self._images = {name: self._abre_imagem(path) for name, path in self.image_paths.items()}
 
-    def _abre_imagem(self, nome_imagem: str) -> Optional[Image]:
+    def _abre_imagem(self, nome_imagem: str) -> Image:
         caminho_imagem = self.icons_dir / nome_imagem
         return Image.open(caminho_imagem)
 
@@ -80,9 +47,9 @@ class UserManager:
 
 class Model:
     def __init__(self):
-        local = Path().resolve()
+        self.base_dir = Path(__file__).resolve().parent.parent
 
-        icons_dir = local / 'icons'
+        icons_dir = self.base_dir / 'icons'
         self._img_manager = ImageManager(icons_dir=icons_dir, image_paths={
             'configuracoes_light_mode': 'configuracoes_light_mode.png',
             'configuracoes_dark_mode': 'configuracoes_dark_mode.png',
@@ -93,18 +60,18 @@ class Model:
         })
         self.system_images: SysImgHint = self._img_manager.get_images()
 
-        configs_dir = local / 'configs'
+        configs_dir = self.base_dir / 'configs'
         self._user_manager = UserManager(
             titles_font_settings={'font': ('Roboto', 15, 'bold')},
             default_font_settings={'font': ('Roboto', 12)},
             category_options=CATEGORYLIST,
-            question_type_list=TYPELIST,
+            question_type_list=QUESTIONTYPELIST,
             difficulty_list=DIFFICULTLIST,
             user_default_category='Comunicação'
         )
         self.user_settings = dict(self._user_manager).copy()
 
     def save_user_settings(self, param: str, value: any) -> None:
-        print('update settings', param, value)
+        # print('update settings', param, value)
         if param in dict(self._user_manager).keys():
             self._user_manager.updatesetting(param, value)

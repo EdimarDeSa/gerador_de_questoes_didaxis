@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from .ControllerContracts import ControllerHandlers
-from src.Hints import QuestionDataHint, UserSetHint, SysImgHint
+from src.Hints import QuestionDataHint, UserSetHint, SysImgHint, Literal
 
 
 class View(ABC):
@@ -44,4 +44,12 @@ class View(ABC):
 
     @abstractmethod
     def _delete_question(self, control: int) -> None:
+        pass
+
+    @abstractmethod
+    def alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
+        pass
+
+    @abstractmethod
+    def close_window_event(self):
         pass

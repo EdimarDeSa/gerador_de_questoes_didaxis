@@ -1,6 +1,6 @@
 from customtkinter import CTkScrollableFrame, CTkToplevel, CTkRadioButton, BOTH, Variable
 
-from Hints import Callable, MenuSettingsHint, List
+from src.Hints import Callable, MenuSettingsHint, List
 
 
 class CategorySelectionFrame(CTkScrollableFrame):

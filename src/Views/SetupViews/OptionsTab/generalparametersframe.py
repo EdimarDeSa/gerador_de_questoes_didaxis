@@ -1,7 +1,7 @@
 from customtkinter import CTkFrame, CTkToplevel, CTkLabel, CTkSwitch, CTkOptionMenu, CENTER, StringVar, Variable
 
-from Hints import MenuSettingsHint, Callable
-from Constants import SCALELIST, APPEARANCEMODETHEME
+from src.Hints import MenuSettingsHint, Callable
+from src.Constants import SCALELIST, APPEARANCEMODETHEME
 
 
 class GeneralPramsFrame(CTkFrame):
