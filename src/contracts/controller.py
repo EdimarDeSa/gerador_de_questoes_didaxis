@@ -48,14 +48,14 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def get_base_file(self) -> Optional[str]:
-        ...
-
-    @abstractmethod
-    def check_if_file_already_exported(self) -> bool:
+    def get_base_filename(self) -> Optional[str]:
         ...
 
     @abstractmethod
     def get_base_dir(self) -> Path:
+        ...
+
+    @abstractmethod
+    def check_if_file_already_exported(self) -> bool:
         ...
 

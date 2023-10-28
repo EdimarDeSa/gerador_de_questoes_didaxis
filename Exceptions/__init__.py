@@ -9,4 +9,5 @@ class QuestionMatchError(Exception):
 
 
 class BrokenFileError(ExceptionBaseClass):
-    ...
+    def __init__(self, message: str = None):
+        self.message = message

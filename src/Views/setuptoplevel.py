@@ -1,7 +1,9 @@
+from pathlib import Path
+
 from customtkinter import CTk, CTkToplevel, StringVar, CTkTabview, BOTH, CTkButton, CENTER
 
-from src.contracts.ControllerContracts import ControllerHandlers
-from src.contracts.ViewsContracts import View
+from src.contracts.controller import ControllerHandlers
+from src.contracts.viewcontract import ViewContract
 
 from .SetupViews import FilesFrame, CategorySelectionFrame, GeneralPramsFrame, ShortcutsFrame, VersionFrame
 from src.Hints import UserSetHint, SysImgHint
@@ -9,12 +11,14 @@ from src.Constants import TABAJUDA, TABOPCAO, GRAY, GREEN
 
 
 class SetupTopLevel(CTkToplevel):
-    def __init__(self, master: CTk, ctkview: View, controller: ControllerHandlers, user_settings: UserSetHint, system_images: SysImgHint):
+    def __init__(self, master: CTk, ctkview: ViewContract, controller: ControllerHandlers, user_settings: UserSetHint,
+                 system_images: SysImgHint, icon_path: Path):
         super().__init__(master)
         self.ctkview = ctkview
         self.controller = controller
         self.user_settings = user_settings
         self.system_images = system_images
+        self.icon_path = icon_path
 
         self._setup_window()
         self._setup_variables()
@@ -31,6 +35,7 @@ class SetupTopLevel(CTkToplevel):
 
         self.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
         self.resizable(False, False)
+        self.wm_iconbitmap(default=self.icon_path)
 
     def _setup_variables(self):
         self.var_escala_do_sistema = StringVar(value=self.user_settings['user_scaling'])

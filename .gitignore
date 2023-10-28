@@ -54,3 +54,4 @@ Scripts/
 auto-py-to-exe/
 teste*.py
 configs/*.json
+.coverage

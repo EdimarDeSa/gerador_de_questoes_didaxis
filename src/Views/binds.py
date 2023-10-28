@@ -3,11 +3,11 @@ from tkinter import Event
 from customtkinter import CTk
 
 from src.Constants import ME, MEN, VF, EASY, MEDIUM, HARD
-from src.contracts import ViewsContracts
+from src.contracts.viewcontract import ViewContract
 
 
 class Binds:
-    def __init__(self, master: CTk, view: ViewsContracts) -> None:
+    def __init__(self, master: CTk, view: ViewContract) -> None:
         master.bind('<Control-Key>', self.ctrl_events)
         master.bind('<KeyRelease>', self.key_events)
         

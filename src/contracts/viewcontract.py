@@ -1,16 +1,15 @@
 from abc import ABC, abstractmethod
 
-from .ControllerContracts import ControllerHandlers
+from .controller import ControllerHandlers
 from src.Hints import QuestionDataHint, UserSetHint, SysImgHint, Literal
 
 
-class View(ABC):
+class ViewContract(ABC):
     @abstractmethod
     def setup(self, controller: ControllerHandlers, user_settings: UserSetHint, system_images: SysImgHint) -> None:
         self.controller = controller
         self.user_settings = user_settings
         self.system_images = system_images
-        ...
 
     @abstractmethod
     def start_main_loop(self) -> None:
