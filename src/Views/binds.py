@@ -1,8 +1,9 @@
 from tkinter import Event
 
+from icecream import ic
 from customtkinter import CTk
 
-from src.Constants import ME, MEN, VF, EASY, MEDIUM, HARD
+from src.Constants import ME, MEN, VF, D, EASY, MEDIUM, HARD
 from src.contracts.viewcontract import ViewContract
 
 
@@ -24,19 +25,19 @@ class Binds:
             'plus': self.view.add_choice,
             'minus': self.view.rm_choice,
             # 'backspace': self.limpa_tab
-            '1': self.seleciona_tipo(key),
-            '2': self.seleciona_tipo(key),
-            '3': self.seleciona_tipo(key),
-            '4': self.seleciona_dificuldade(key),
-            '5': self.seleciona_dificuldade(key),
-            '6': self.seleciona_dificuldade(key),
+            '1': self.seleciona_tipo,
+            '2': self.seleciona_tipo,
+            '3': self.seleciona_tipo,
+            '4': self.seleciona_dificuldade,
+            '5': self.seleciona_dificuldade,
+            '6': self.seleciona_dificuldade,
         }
 
         if key in events.keys():
-            if key.isdigit():
-                events.get(key)(key)
-            else:
-                events.get(key)()
+            command = events.get(key)
+
+            if key.isdigit(): command(key)
+            else: command()
 
     def key_events(self, event: Event) -> None:
         key = event.keysym
