@@ -57,7 +57,18 @@ DIFFICULTLIST = [EASY, MEDIUM, HARD]
 
 MAXIMO_DE_CARACTERES = 255
 
-QUESTIOHEADER = (
-        'ID', 'TIPO', 'PESO', 'TEMPO', 'CONTROLE', 'PERGUNTA', 'ALTERNATIVA',
-        'CORRETA', 'CATEGORIA', 'SUBCATEGORIA', 'DIFICULDADE'
-)
+QUESTIOHEADER = [
+    'id', 'tipo', 'peso', 'tempo', 'controle', 'pergunta', 'alternativa',
+    'correta', 'categoria', 'subcategoria', 'dificuldade'
+]
+
+TYPESCONVERTER = {
+    'me': ME,
+    ME: 'me',
+    'men': MEN,
+    MEN: 'men',
+    'vf': VF,
+    VF: 'vf',
+    'd': D,
+    D: 'd',
+}

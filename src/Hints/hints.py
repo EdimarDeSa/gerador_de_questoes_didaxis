@@ -1,19 +1,43 @@
 from tkinter import Variable
-from typing import Dict, List, Callable, Tuple, Optional, Any, Literal
+from typing import Dict, List, Callable, Tuple, Optional, Any, Literal, Iterable
+
+from PIL import Image
 
 from typing_extensions import TypedDict, Protocol
 
 
 class QuestionDataHint(TypedDict):
+    id: Optional[str]
     categoria: str
-    subcategoria: str
-    controle: int
-    tempo: str
+    subcategoria: Optional[str]
+    controle: Optional[int]
+    tempo: Optional[str]
     tipo: str
     dificuldade: str
     peso: int
     pergunta: str
     alternativas: List[Tuple[str, bool]]
+
+
+QuestionsDBHint = Dict[int, QuestionDataHint]
+
+
+class QuestionDBHint(TypedDict):
+    ID: Optional[str]
+    CATEGORIA: str
+    SUBCATEGORIA: Optional[str]
+    CONTROLE: Optional[int]
+    TEMPO: Optional[str]
+    TIPO: str
+    DIFICULDADE: str
+    PESO: int
+    PERGUNTA: str
+    ALTERNATIVA: Optional[str]
+    CORRETA: Optional[str]
+
+
+GroupedQuestionDBHint = Dict[str, QuestionDBHint]
+ListDBHint = List[QuestionDBHint]
 
 
 class FontHint(TypedDict):
@@ -24,26 +48,36 @@ class FontHint(TypedDict):
 
 
 class UserSetHint(TypedDict):
-    titles_font_settings: FontHint
-    default_font_settings: FontHint
-    user_appearance_mode: str
-    user_scaling: str
-    user_color_theme: str
-    erase_statement: bool
     auto_export: bool
-    user_default_category: str
     category_options: str
-    question_type_list: str
-    difficulty_list: str
+    default_font_size: int
+    difficulty_list: list
+    erase_statement: bool
+    font_family: str
+    question_type_list: list
+    title_font_size: int
+    user_appearance_mode: str
+    user_color_theme: str
+    user_default_category: str
+    user_scaling: str
+
+
+class ImageModelHint(TypedDict):
+    configuracoes_light_mode: str
+    configuracoes_dark_mode: str
+    eraser_light_mode: str
+    eraser_dark_mode: str
+    edit_light_mode: str
+    edit_dark_mode: str
 
 
 class SysImgHint(TypedDict):
-    configuracoes_light_mode: Optional[None]
-    configuracoes_dark_mode: Optional[None]
-    eraser_light_mode: Optional[None]
-    eraser_dark_mode: Optional[None]
-    edit_light_mode: Optional[None]
-    edit_dark_mode: Optional[None]
+    configuracoes_light_mode: Image.Image
+    configuracoes_dark_mode: Image.Image
+    eraser_light_mode: Image.Image
+    eraser_dark_mode: Image.Image
+    edit_light_mode: Image.Image
+    edit_dark_mode: Image.Image
 
 
 class RowFrame(Protocol):
