@@ -296,7 +296,9 @@ class CTkView(ViewContract):
         data = self._get_data_from_form_question()
 
         if self._updating:
+            data['controle'] = self._updating
             self._update_question(data)
+            self._updating = None
             return
 
         control = self.controller.create_question_handler(data)
@@ -355,6 +357,7 @@ class CTkView(ViewContract):
 
     def _open_question_to_update(self, control: int) -> None:
         question = self.controller.read_question_handler(control)
+        self._reset_question_form()
         self.insert_data_in_question_form(question)
         self._updating = control
 
