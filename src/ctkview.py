@@ -5,11 +5,11 @@ from tkinter.filedialog import asksaveasfilename, askopenfilename
 from icecream import ic
 
 from customtkinter import (
-    CTk, CTkFrame, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar,
+    CTk, CTkFrame, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar, CTkFont,
     set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme, X, BooleanVar, END
 )
 
-from src.contracts.ViewsContracts import View
+from contracts.viewcontract import ViewContract
 
 from src.Hints import QuestionDataHint, MenuSettingsHint, ChoicesHint, RowDict, Optional, List, Literal
 from src.Views import (
@@ -21,7 +21,7 @@ from src.Constants import D, ME, MEN, VF, TRANSPARENT, GREEN, PLACE_HOLDER_PESO,
 from src.Views.binds import Binds
 
 
-class CTkView(View):
+class CTkView(ViewContract):
     def setup(self, controller, user_settings, system_images) -> None:
         super().setup(controller, user_settings, system_images)
 
@@ -61,13 +61,18 @@ class CTkView(View):
 
     def _setup_root(self) -> None:
         self.root = CTk()
+
         largura, altura = 1500, 750
         pos_x = (self.root.winfo_screenwidth() - largura) // 2
         pos_y = (self.root.winfo_screenheight() - altura) // 2 - 35
         self.root.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
+
         self.root.resizable(False, False)
-        icon_path = self.controller.get_base_dir() / 'icons/prova.ico'
-        self.root.wm_iconbitmap(default=icon_path)
+
+        # TODO: TEM QUE REVER ESSA PORRA AQUI - TÁ GAMBIARRADO
+        self.icon_path = self.controller.models.create_path('icons/prova.ico')
+        self.root.wm_iconbitmap(default=self.icon_path)
+
         self.root.title('Editor de questões')
 
         self.set_scaling(self.user_settings['user_scaling'])
@@ -75,17 +80,23 @@ class CTkView(View):
         self.set_color_theme(self.user_settings['user_color_theme'])
 
     def _setup_variables(self) -> None:
-        titles_font_settings = self.user_settings['titles_font_settings']
-        default_font_settings = self.user_settings['default_font_settings']
+        titles_font_settings = CTkFont(
+            family=self.user_settings['font_family'],
+            size=self.user_settings['title_font_size'],
+            weight='bold'
+        )
+        default_font_settings = CTkFont(
+            family=self.user_settings['font_family'],
+            size=self.user_settings['default_font_size'],
+        )
 
-        self.label_settings = {**titles_font_settings}
-        self._entry_settings = {'exportselection': True, 'width': 180, **default_font_settings}
-        self.list_settings = {'dynamic_resizing': False, 'anchor': CENTER, **default_font_settings}
-        self.button_title_settings = {**titles_font_settings}
-        self.button_default_settings = {**default_font_settings}
-        self._text_settings = {'undo': True, 'wrap': WORD, 'autoseparators': True,
-                               'exportselection': True, 'maxundo': 5}
-        self.scrollable_label_settings = {'label_font': titles_font_settings['font']}
+        self.label_settings = {'font': titles_font_settings}
+        self.entry_settings = {'exportselection': True, 'width': 180, 'font': default_font_settings}
+        self.list_settings = {'dynamic_resizing': False, 'anchor': CENTER, 'font': default_font_settings}
+        self.button_title_settings = {'font': titles_font_settings}
+        self.button_default_settings = {'font': default_font_settings}
+        self.text_settings = {'undo': True, 'wrap': WORD, 'autoseparators': True, 'exportselection': True, 'maxundo': 5}
+        self.scrollable_label_settings = {'label_font': titles_font_settings}
 
         self._question_count = IntVar()
 
@@ -147,14 +158,14 @@ class CTkView(View):
         ).place(relx=0.01, rely=0.02, relwidth=0.08, relheight=0.19)
 
         QuestionParametersFrame(
-            self.root, self.label_settings, self._entry_settings, self._category_settings,
+            self.root, self.label_settings, self.entry_settings, self._category_settings,
             self._subcategory, self._deadline, self._question_type_settings,
             self._difficulty_settings, self._question_weight
         ).place(relx=0.1, relwidth=0.395, rely=0.02, relheight=0.19)
 
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         question_statement_frame = QuestionStatementFrame(
-            self.root, self.label_settings, self._entry_settings, self.button_title_settings,
+            self.root, self.label_settings, self.entry_settings, self.button_title_settings,
             self.add_choice, self.rm_choice
         )
         question_statement_frame.place(relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19)
@@ -162,7 +173,7 @@ class CTkView(View):
 
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         QuestionChoicesFrame(
-            self.root, self.label_settings, self._text_settings, self._var_rd_button_value,
+            self.root, self.label_settings, self.text_settings, self._var_rd_button_value,
             self._txt_box_list, self._rd_bts_list, self._ck_bts_list
         ).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
@@ -177,12 +188,13 @@ class CTkView(View):
             self.create_question,
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
-        self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images)
+        self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images,
+                                           self.icon_path)
 
     def export_db(self) -> None:
         file_name = asksaveasfilename(
             filetypes=FILETYPES, defaultextension=EXTENSION, confirmoverwrite=True,
-            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_file()
+            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_filename()
         )
         try:
             self.controller.export_db_as_handler(file_name)
@@ -362,23 +374,20 @@ class CTkView(View):
 
     def set_appearance(self, param: str) -> None:
         set_appearance_mode(param)
-        if not hasattr(self, 'controller'): return
         self.controller.update_user_settings_handler('user_appearance_mode', param)
 
     def set_scaling(self, param: str) -> None:
         nova_escala_float = int(param.replace("%", "")) / 100
         set_widget_scaling(nova_escala_float)
         set_window_scaling(nova_escala_float)
-        if not hasattr(self, 'controller'): return
         self.controller.update_user_settings_handler('user_scaling', param)
 
     def set_color_theme(self, param: str) -> None:
         set_default_color_theme(param)
-        if not hasattr(self, 'controller'): return
         self.controller.update_user_settings_handler('user_color_theme', param)
 
     def insert_new_question(self, data: QuestionDataHint) -> None:
-        pass
+        self._create_new_question_line(data['pergunta'], data['controle'])
 
     def flush_questions(self) -> None:
         questions: dict = self._row_dict.copy()
@@ -392,7 +401,7 @@ class CTkView(View):
 
         file_name = askopenfilename(
             filetypes=FILETYPES, defaultextension=EXTENSION,
-            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_file()
+            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_filename()
         )
         self.controller.open_db_handler(file_name)
 
@@ -427,11 +436,11 @@ class CTkView(View):
         return True
 
     def close_window_event(self):
-        # confirmation = self._confirm_export_first()
-        #
-        # if not confirmation: return
+        confirmation = self._confirm_export_first()
 
-        self.root.destroy()
+        if not confirmation: return
+
+        sys.exit(0)
 
     def tests(self):
-        self.root.after(5000, self.close_window_event)
+        self.root.after(2000, self.close_window_event)
