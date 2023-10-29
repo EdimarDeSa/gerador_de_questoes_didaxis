@@ -35,11 +35,11 @@ class ModelContract(ABC):
 
     # ------ Questions Data Base Handler ------ #
     @abstractmethod
-    def create_question_data_base(self, questions_data: Iterable[Iterable[QuestionDataHint]]) -> None:
+    def create_question_xlsx(self, questions_data: Iterable[Iterable[QuestionDataHint]]) -> None:
         pass
 
     @abstractmethod
-    def read_question_data_base(self, filename: Path) -> GroupedQuestionDBHint:
+    def read_question_xlsx(self, filename: Path) -> GroupedQuestionDBHint:
         pass
     # ------  ------ #
 
