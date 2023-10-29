@@ -15,7 +15,7 @@ class QuestionModel:
     alternativas: list = field(default_factory=list)
 
     def __iter__(self) -> iter:
-        return iter(self.__dict__.values())
+        return iter(self.__dict__.items())
 
     def update(self, **kwargs) -> None:
         self.__dict__.update(**kwargs)
