@@ -115,7 +115,7 @@ class Controller(ControllerHandlers):
         self.models.update_question(data)
 
     def delete_question_handler(self, control: int) -> None:
-        ic('delete', control)
+        self.models.delete_question(control)
     # ------  ------ #
 
     # ------ State Checking ------ #
