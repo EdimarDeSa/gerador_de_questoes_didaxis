@@ -69,7 +69,7 @@ class Controller(ControllerHandlers):
 
         file_path = Path(filename).resolve()
 
-        grouped_questions: GroupedQuestionDBHint = self.models.read_question_data_base(file_path)
+        grouped_questions: GroupedQuestionDBHint = self.models.read_question_xlsx(file_path)
 
         for group in grouped_questions.values():
             temp_data = dict(group[0])
@@ -78,6 +78,8 @@ class Controller(ControllerHandlers):
             temp_data.pop('correta')
 
             temp_data['tipo'] = TYPESCONVERTER.get(temp_data['tipo'])
+
+            temp_data['peso'] = int(temp_data['peso'])
 
             temp_data['alternativas'] = [(item['alternativa'], item['correta'] in ['CORRETA', 'V']) for item in group]
 
@@ -107,12 +109,10 @@ class Controller(ControllerHandlers):
         return
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
-        # ic('read', control)
-        return self._temp_question[control]
+        return self.models.read_question(control)
 
     def update_question_handler(self, data: QuestionDataHint) -> None:
-        # ic('update', data)
-        pass
+        self.models.update_question(data)
 
     def delete_question_handler(self, control: int) -> None:
         ic('delete', control)
