@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from .controller import ControllerHandlers
 from src.Hints import QuestionDataHint, UserSetHint, SysImgHint, Literal
@@ -6,10 +7,8 @@ from src.Hints import QuestionDataHint, UserSetHint, SysImgHint, Literal
 
 class ViewContract(ABC):
     @abstractmethod
-    def setup(self, controller: ControllerHandlers, user_settings: UserSetHint, system_images: SysImgHint) -> None:
-        self.controller = controller
-        self.user_settings = user_settings
-        self.system_images = system_images
+    def setup(self, controller: ControllerHandlers, user_settings: UserSetHint, system_images: SysImgHint, icon: Path) -> None:
+        pass
 
     @abstractmethod
     def start_main_loop(self, test_mode: bool = False, timeout: int = 5000) -> None:

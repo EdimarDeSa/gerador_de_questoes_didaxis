@@ -21,8 +21,11 @@ from src.Views.binds import Binds
 
 class CTkView(ViewContract):
     # ------ Initialization and Setup ------ #
-    def setup(self, controller, user_settings, system_images) -> None:
-        super().setup(controller, user_settings, system_images)
+    def setup(self, controller, user_settings, system_images, icon) -> None:
+        self.controller = controller
+        self.user_settings = user_settings
+        self.system_images = system_images
+        self.icon = icon
 
         self._setup_root()
         self._setup_variables()
@@ -46,9 +49,7 @@ class CTkView(ViewContract):
 
         self.root.resizable(False, False)
 
-        # TODO: TEM QUE REVER ESSA PORRA AQUI - TÁ GAMBIARRADO
-        self.icon_path = self.controller.models.create_path('icons/prova.ico')
-        self.root.wm_iconbitmap(default=self.icon_path)
+        self.root.wm_iconbitmap(default=self.icon)
 
         self.root.title('Editor de questões')
 
@@ -166,7 +167,7 @@ class CTkView(ViewContract):
         ).place(relx=0.01, rely=0.92, relwidth=0.485, relheight=0.06)
 
         self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images,
-                                           self.icon_path)
+                                           self.icon)
 
     def set_appearance(self, param: str) -> None:
         set_appearance_mode(param)
@@ -357,7 +358,6 @@ class CTkView(ViewContract):
         self._create_new_question_line(data['pergunta'], control)
 
         self._reset_question_form()
-        print(data)
 
     def update_question(self, data: QuestionDataHint) -> None:
         self.controller.update_question_handler(data)

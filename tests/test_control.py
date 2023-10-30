@@ -7,12 +7,8 @@ from src.Constants import D, VF, ME, MEN, CATEGORYLIST, DIFFICULTLIST, QUESTIONT
 
 
 class TestController:
-    def test_main(self):
-        view = CTkView()
+    def test_validate_question_data(self):
         model = Model()
-        controls = Controller(view, model)
-
-        controls.start()
 
         for i in range(50):
             random_tipo = random.choice(QUESTIONTYPELIST)
@@ -20,9 +16,9 @@ class TestController:
             random_peso = random.randint(1, 50)  # Gere um peso aleatório entre 1 e 10
             random_categoria = random.choice(CATEGORYLIST)
             alternativas = [
-                (f'op {j}', random.choice([True, False])) for j in range(1, 5)
+                (f'op {j}', random.choice([True, False])) for j in range(2, 5)
             ]
-            view.insert_data_in_question_form({
+            model._validate_question_data({
                 'id': str(i),
                 'categoria': random_categoria,
                 'subcategoria': random_categoria,
@@ -34,7 +30,3 @@ class TestController:
                 'pergunta': f'Pergunta {i}',
                 'alternativas': alternativas
             })
-            view.create_question()
-
-
-        controls.loop(True)

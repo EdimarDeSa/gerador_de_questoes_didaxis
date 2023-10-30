@@ -4,11 +4,11 @@ from model import Model
 
 
 def main():
-    view = CTkView()
     model = Model()
-    controls = Controller(view, model)
+    view = CTkView()
+    controls = Controller()
 
-    controls.start()
+    controls.start(view, model)
 
     controls.loop()
 

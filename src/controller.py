@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import subprocess
 
@@ -12,16 +13,18 @@ from Exceptions import *
 
 class Controller(ControllerHandlers):
     # ------ Initialization and Setup ------ #
-    def __init__(self, views: ViewContract, models: ModelContract):
+    def __init__(self):
+        self._exported = True
+
+    def start(self, views: ViewContract, models: ModelContract) -> None:
         self.models = models
         self.views = views
 
-        self._exported = True
-
-    def start(self) -> None:
         user_settings = self.setup_user_settings()
         images = self.setup_images()
-        self.views.setup(self, user_settings, images)
+        icon = self.models.create_path('icons/icon_bitmap.ico')
+
+        self.views.setup(self, user_settings, images, icon)
     # ------  ------ #
 
     # ------ Image Configuration ------ #
@@ -42,11 +45,12 @@ class Controller(ControllerHandlers):
         self._user_settings_path = self.models.create_path('configs/user_settings.json')
 
         try:
-            if self._user_settings_path.exists():
-                return self.models.read_user_settings(self._user_settings_path)
-            return self.models.create_user_settings(self._user_settings_path)
+            if not self._user_settings_path.exists():
+                self.models.create_user_settings(self._user_settings_path)
+            return self.models.read_user_settings(self._user_settings_path)
         except BrokenFileError:
-            return self.models.create_user_settings(self._user_settings_path)
+            os.remove(self._user_settings_path)
+            self.setup_user_settings()
 
     def update_user_settings_handler(self, param: str, value: str) -> None:
         self.models.update_user_settings(param, value, self._user_settings_path)

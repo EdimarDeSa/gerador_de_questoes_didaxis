@@ -6,13 +6,13 @@ from src.Constants import QUESTIOHEADER, QUESTIONTYPELIST, CATEGORYLIST, DIFFICU
 from src.contracts.model import ModelContract
 from src.contracts.serializer import Serializer
 from src.Hints.hints import SysImgHint, QuestionDataHint, ImageModelHint, UserSetHint, Any, Optional, Iterable, GroupedQuestionDBHint, ListDBHint, List
-from src.Models.imagemodel import ImageModel
-from src.Models.questionsdb import QuestionsDB
-from src.Models.usermodel import UserModel
-from src.Models.questionmodel import QuestionModel
-from src.Models.Serializers.json_serializer import JsonSerializer
-from src.Models.Serializers.binary_serializer import BinarySerializer
-from src.Models.Serializers.xlsxserializer import XLSXSerializer
+from src.DataModels.imagemodel import ImageModel
+from src.DataModels.questionsdb import QuestionsDB
+from src.DataModels.usermodel import UserModel
+from src.DataModels.questionmodel import QuestionModel
+from src.Serializers.json_serializer import JsonSerializer
+from src.Serializers.binary_serializer import BinarySerializer
+from src.Serializers.xlsxserializer import XLSXSerializer
 
 
 class Model(ModelContract):
@@ -190,6 +190,6 @@ class Model(ModelContract):
 
         if data['tipo'] == D: return
 
-        if len(data['alternativas']) > 1: raise ValueError('Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções')
+        if len(data['alternativas']) < 2: raise ValueError('Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções')
 
         if not any([bool(choice) for choice, _ in data['alternativas']]): raise ValueError(f'Alternativa {data['alternativas']} não pode conter opçõa em branco')
