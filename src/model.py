@@ -190,4 +190,6 @@ class Model(ModelContract):
 
         if data['tipo'] == D: return
 
+        if len(data['alternativas']) > 1: raise ValueError('Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções')
+
         if not any([bool(choice) for choice, _ in data['alternativas']]): raise ValueError(f'Alternativa {data['alternativas']} não pode conter opçõa em branco')
