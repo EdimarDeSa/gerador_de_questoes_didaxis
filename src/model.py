@@ -1,15 +1,15 @@
 from pathlib import Path
+from dataclasses import asdict
 from itertools import groupby
 
-from icecream import ic
-
-from src.Constants import QUESTIOHEADER, QUESTIONTYPELIST, CATEGORYLIST, DIFFICULTLIST, D
+from src.Constants import QUESTIOHEADER, QUESTIONTYPELIST, CATEGORYLIST, DIFFICULTLIST, D, TYPESCONVERTER
 from src.contracts.model import ModelContract
 from src.contracts.serializer import Serializer
-from src.Hints.hints import SysImgHint, QuestionDataHint, ImageModelHint, UserSetHint, Any, Optional, Iterable, GroupedQuestionDBHint, ListDBHint
+from src.Hints.hints import SysImgHint, QuestionDataHint, ImageModelHint, UserSetHint, Any, Optional, Iterable, GroupedQuestionDBHint, ListDBHint, List
 from src.Models.imagemodel import ImageModel
 from src.Models.questionsdb import QuestionsDB
 from src.Models.usermodel import UserModel
+from src.Models.questionmodel import QuestionModel
 from src.Models.Serializers.json_serializer import JsonSerializer
 from src.Models.Serializers.binary_serializer import BinarySerializer
 from src.Models.Serializers.xlsxserializer import XLSXSerializer
@@ -27,7 +27,9 @@ class Model(ModelContract):
     def create_new_question(self, question_data: QuestionDataHint) -> int:
         self._validate_question_data(question_data)
 
-        control = self.__db_connection.create_question(question_data)
+        question = QuestionModel(**question_data)
+
+        control = self.__db_connection.create_question(question)
 
         if not control: raise ConnectionError('Não foi possível conectar se banco de dados')
 
@@ -38,7 +40,7 @@ class Model(ModelContract):
 
         if not question: raise KeyError(f'Questão com controle: {control} inexistente')
 
-        return question
+        return asdict(question)
 
     def update_question(self, question_data: QuestionDataHint) -> None:
         self._validate_question_data(question_data)
@@ -50,16 +52,29 @@ class Model(ModelContract):
 
     def flush_questions(self) -> None:
         self.__db_connection.flush_questions()
+        self._base_dir = Path.home() / 'Desktop'
+        self._base_filename = None
 
-    def _get_all_questions(self) -> Iterable[QuestionDataHint]:
-        return self.__db_connection.select_all_questions()
     # ------  ------ #
 
     # ------ Questions xlsx Handler ------ #
-    def create_question_xlsx(self, questions_data: Iterable[Iterable[QuestionDataHint]], file_path: Path) -> None:
-        all_questions = self._get_all_questions()
-        self._select_serializer()
-        pass
+    def create_question_xlsx(self, file_path: Path) -> None:
+        all_questions = self.__db_connection.select_all_questions()
+
+        dict_of_questions = self._question_to_dict(all_questions)
+
+        list_to_export = list()
+        for question_data in dict_of_questions:
+            alternativas = question_data['alternativas']
+            for answer, correct in alternativas:
+                temp_question = question_data.copy()  # Crie um novo dicionário temporário
+                del temp_question['alternativas']
+                temp_question['tipo'] = TYPESCONVERTER.get(temp_question['tipo'])
+                temp_question['alternativa'] = answer
+                temp_question['correta'] = self._correct_onvert(correct, temp_question['tipo'])
+                list_to_export.append(temp_question)
+
+        self._save_file(file_path, list_to_export)
 
     def read_question_xlsx(self, filename: Path) -> GroupedQuestionDBHint:
         data: Iterable = self._read_file(filename)
@@ -68,7 +83,23 @@ class Model(ModelContract):
 
         lista_dicionarios_ordenada = sorted(lines, key=lambda x: x['pergunta'])
 
+        self._base_filename = filename.name
+
         return {chave: list(grupo) for chave, grupo in groupby(lista_dicionarios_ordenada, key=lambda x: x['pergunta'])}
+
+    @staticmethod
+    def _question_to_dict(all_questions: List[QuestionModel]) -> List[QuestionDataHint]:
+        return [asdict(q) for q in all_questions]
+
+    @staticmethod
+    def _correct_onvert(correct: bool, type_: str):
+        responses = {
+            'me': 'CORRETA' if correct else '',
+            'men': 'CORRETA' if correct else '',
+            'vf': 'V' if correct else 'F',
+            'd': ''
+        }
+        return responses.get(type_,'')
     # ------  ------ #
 
     # ------ System Images ------ #
@@ -135,6 +166,9 @@ class Model(ModelContract):
 
     def get_base_filename(self) -> str:
         return self._base_filename
+
+    def get_current_file_path(self) -> Path:
+        return self._base_dir / self._base_filename
     # ------  ------ #
 
     def _validate_question_data(self, data: QuestionDataHint) -> None:
