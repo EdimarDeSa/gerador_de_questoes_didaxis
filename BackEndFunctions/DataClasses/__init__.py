@@ -1,4 +1,0 @@
-from .question_data_class import QuestionDataClass
-from .configuration_data_class import ConfigurationDataClass
-from .perfil_data_class import PerfilDataClass
-from .personal_dictionary import PersonalDictionary
