@@ -1,8 +1,5 @@
 from pathlib import Path
 import subprocess
-from itertools import compress
-
-from icecream import ic
 
 from contracts.controller import ControllerHandlers
 from contracts.viewcontract import ViewContract
@@ -25,9 +22,6 @@ class Controller(ControllerHandlers):
         user_settings = self.setup_user_settings()
         images = self.setup_images()
         self.views.setup(self, user_settings, images)
-
-        self.open_db_handler('C:/Users/Edimar/Documents/GitHub/gerador_de_questoes_didaxis/auto-py-to-exe/novo_banco.xlsx')
-        # self.views.tests()
     # ------  ------ #
 
     # ------ Image Configuration ------ #
@@ -60,14 +54,18 @@ class Controller(ControllerHandlers):
 
     # ------ Database Export and Handling ------ #
     def new_db_handler(self) -> None:
-        ic('Criando novo banco')
-        self.views.flush_questions()
-        # self.models.new_db()
+        cancel = self._confirm_export_first()
 
-    def open_db_handler(self, filename: str) -> None:
-        if not filename: return
+        if cancel: return
 
-        file_path = Path(filename).resolve()
+        self.models.flush_questions()
+
+    def open_db_handler(self) -> None:
+        file_path = self.views.dialog_open_file()
+
+        if not file_path: return
+
+        file_path = Path(file_path).resolve()
 
         grouped_questions: GroupedQuestionDBHint = self.models.read_question_xlsx(file_path)
 
@@ -89,16 +87,35 @@ class Controller(ControllerHandlers):
             self.views.insert_new_question(temp_data)
 
     def export_db_handler(self) -> None:
-        ic('Exportado banco')
+        if not self.models.get_base_filename(): self._export_as_db_handler()
+
+        filename = self.models.get_current_file_path()
+
+        self.models.create_question_xlsx(filename)
 
         self._exported = True
-        ...
 
-    def export_db_as_handler(self, path: str) -> None:
-        # ic('Starting export', path)
-        if not path: return
+    def _export_as_db_handler(self) -> None:
+        filename = self.models.get_current_file_path()
+
+        if not filename: return
+
+        file_path = Path(filename).resolve()
+
+        self.models.create_question_xlsx(file_path)
 
         self._exported = True
+
+    def _confirm_export_first(self) -> bool:
+        if not self._exported:
+            confirm = self.views.dialog_yes_no_cancel()
+
+            if confirm is None:
+                return True
+
+            if confirm:
+                self.export_db_handler()
+        return False
     # ------  ------ #
 
     # ------ Question Handling ------ #
@@ -106,21 +123,23 @@ class Controller(ControllerHandlers):
         control = self.models.create_new_question(data)
 
         question = self.read_question_handler(control)
-        return
+
+        self._exported = False
+
+        return question['controle']
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
         return self.models.read_question(control)
 
     def update_question_handler(self, data: QuestionDataHint) -> None:
+        self._exported = False
+
         self.models.update_question(data)
 
     def delete_question_handler(self, control: int) -> None:
         self.models.delete_question(control)
-    # ------  ------ #
 
-    # ------ State Checking ------ #
-    def check_if_file_already_exported(self) -> bool:
-        return self._exported
+        self._exported = False
     # ------  ------ #
 
     # ------ Model-Related Functions ------ #

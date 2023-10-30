@@ -1,8 +1,6 @@
 import sys
-from tkinter.messagebox import showinfo, showerror, showwarning, askyesno, askyesnocancel
+from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
-
-from icecream import ic
 
 from customtkinter import (
     CTk, CTkFrame, CTkImage, CTkCheckBox, CTkRadioButton, WORD, CENTER, NSEW, IntVar, StringVar, CTkFont,
@@ -22,6 +20,7 @@ from src.Views.binds import Binds
 
 
 class CTkView(ViewContract):
+    # ------ Initialization and Setup ------ #
     def setup(self, controller, user_settings, system_images) -> None:
         super().setup(controller, user_settings, system_images)
 
@@ -32,32 +31,10 @@ class CTkView(ViewContract):
 
         Binds(self.root, self)
 
-    def start_main_loop(self) -> None:
+    def start_main_loop(self, test_mode: bool = False, overtime: int = 5000) -> None:
+        if test_mode: self._tests(overtime)
+
         self.root.mainloop()
-
-    def _get_data_from_form_question(self) -> QuestionDataHint:
-        data = dict(
-            categoria=self.category.get(),
-            subcategoria=self._subcategory.get(),
-            controle=None,
-            tempo=self._deadline.get(),
-            tipo=self.question_type.get(),
-            dificuldade=self.difficulty.get(),
-            peso=self._question_weight.get(),
-            pergunta=self._question.get(0.0, 'end-1c'),
-            alternativas=self._choices_get(),
-        )
-        return data
-
-    def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
-        self.category.set(data['categoria'])
-        self._subcategory.set(data['subcategoria'])
-        self._deadline.set(data['tempo'])
-        self.question_type.set(data['tipo'])
-        self.difficulty.set(data['dificuldade'])
-        self._question_weight.set(data['peso'])
-        self._question.insert(0.0, data['pergunta'])
-        self._choices_set(data['alternativas'])
 
     def _setup_root(self) -> None:
         self.root = CTk()
@@ -191,16 +168,46 @@ class CTkView(ViewContract):
         self.setuptoplevel = SetupTopLevel(self.root, self, self.controller, self.user_settings, self.system_images,
                                            self.icon_path)
 
-    def export_db(self) -> None:
-        file_name = asksaveasfilename(
-            filetypes=FILETYPES, defaultextension=EXTENSION, confirmoverwrite=True,
-            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_filename()
+    def set_appearance(self, param: str) -> None:
+        set_appearance_mode(param)
+        self.controller.update_user_settings_handler('user_appearance_mode', param)
+
+    def set_scaling(self, param: str) -> None:
+        nova_escala_float = int(param.replace("%", "")) / 100
+        set_widget_scaling(nova_escala_float)
+        set_window_scaling(nova_escala_float)
+        self.controller.update_user_settings_handler('user_scaling', param)
+
+    def set_color_theme(self, param: str) -> None:
+        set_default_color_theme(param)
+        self.controller.update_user_settings_handler('user_color_theme', param)
+    # ------  ------ #
+
+    # ------ Question Form Data ------ #
+    def _get_data_from_form_question(self) -> QuestionDataHint:
+        data = dict(
+            id=None,
+            categoria=self.category.get(),
+            subcategoria=self._subcategory.get(),
+            controle=None,
+            tempo=self._deadline.get(),
+            tipo=self.question_type.get(),
+            dificuldade=self.difficulty.get(),
+            peso=self._question_weight.get(),
+            pergunta=self._question.get(0.0, 'end-1c'),
+            alternativas=self._choices_get(),
         )
-        try:
-            self.controller.export_db_as_handler(file_name)
-            self.flush_questions()
-        except Exception as e:
-            self.alert('WARNING', 'Unable to export', str(e))
+        return data
+
+    def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
+        self.category.set(data.get('categoria', ''))
+        self._subcategory.set(data.get('subcategoria', ''))
+        self._deadline.set(data.get('tempo', '00:00:00'))
+        self.question_type.set(data.get('tipo', ''))
+        self.difficulty.set(data.get('dificuldade', 'Fácil'))
+        self._question_weight.set(data.get('peso', 1))
+        self._question.insert(0.0, data.get('pergunta', ''))
+        self._choices_set(data.get('alternativas', [('', False)]))
 
     def type_change(self, _) -> None:
         quantidade_de_opcoes = self._choices_count
@@ -277,66 +284,9 @@ class CTkView(ViewContract):
         self._txt_box_list[indice].grid_forget()
         self._ck_bts_list[indice].grid_forget()
         self._rd_bts_list[indice].grid_forget()
+    # ------  ------ #
 
-    def alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
-        match alert_type:
-            case 'INFO':
-                showinfo(title, message)
-            case 'WARNING':
-                showwarning(title, message)
-            case 'ERROR':
-                showerror(title, message)
-            case _:
-                return
-
-    def setup_window_handler(self) -> None:
-        self.setuptoplevel.deiconify()
-
-    def create_question(self) -> None:
-        data = self._get_data_from_form_question()
-
-        if self._updating:
-            data['controle'] = self._updating
-            self._update_question(data)
-            self._updating = None
-            return
-
-        control = self.controller.create_question_handler(data)
-
-        self._create_new_question_line(data['pergunta'], control)
-
-        self._reset_question_form()
-
-    def _update_question(self, data: QuestionDataHint) -> None:
-        self.controller.update_question_handler(data)
-
-        updating_line = self._row_dict[self._updating]
-        updating_line['display'].set(data['pergunta'])
-
-        self._reset_question_form()
-
-        self._updating = None
-
-    def _reset_question_form(self) -> None:
-        self._subcategory.set('')
-        self._deadline.set(PLACE_HOLDER_TEMPO)
-        self.question_type.set(self._question_type_list[1])
-        self.difficulty.set(self._difficulty_list[0])
-        self._question_weight.set(PLACE_HOLDER_PESO)
-
-        # Janela de enunciado
-        if self.var_erase_statement: self._question.delete(0.0, END)
-
-        # Janela de botões
-        self._var_rd_button_value.set(0)
-        total = self._choices_count
-        for index in range(total):
-            self._ck_bts_list[index].deselect()
-            self._txt_box_list[index].delete(0.0, END)
-            self.rm_choice()
-
-        self._question.focus()
-
+    # ------ Question List Management ------ #
     def _create_new_question_line(self, title: str, controle: int) -> None:
         color = self._select_color()
         line_frame = self._create_line_frame(color)
@@ -361,6 +311,62 @@ class CTkView(ViewContract):
         self.insert_data_in_question_form(question)
         self._updating = control
 
+    def _reset_question_form(self) -> None:
+        self._subcategory.set('')
+        self._deadline.set(PLACE_HOLDER_TEMPO)
+        self.question_type.set(self._question_type_list[1])
+        self.difficulty.set(self._difficulty_list[0])
+        self._question_weight.set(PLACE_HOLDER_PESO)
+
+        # Janela de enunciado
+        if self.var_erase_statement: self._question.delete(0.0, END)
+
+        # Janela de botões
+        self._var_rd_button_value.set(0)
+        total = self._choices_count
+        for index in range(total):
+            self._ck_bts_list[index].deselect()
+            self._txt_box_list[index].delete(0.0, END)
+            self.rm_choice()
+
+        self._question.focus()
+
+    def _update_question_counter(self) -> None:
+        self._question_count.set(len(self._row_dict))
+
+    def _remove_question_from_questions_frame(self, control: int) -> None:
+        self._row_dict[control]['row'].destroy()
+        del self._row_dict[control]
+
+        self._update_question_counter()
+
+        self._reorder_colors()
+
+    def create_question(self) -> None:
+        data = self._get_data_from_form_question()
+
+        if self._updating:
+            data['controle'] = self._updating
+            self.update_question(data)
+            self._updating = None
+            return
+
+        control = self.controller.create_question_handler(data)
+
+        self._create_new_question_line(data['pergunta'], control)
+
+        self._reset_question_form()
+
+    def update_question(self, data: QuestionDataHint) -> None:
+        self.controller.update_question_handler(data)
+
+        updating_line = self._row_dict[self._updating]
+        updating_line['display'].set(data['pergunta'])
+
+        self._reset_question_form()
+
+        self._updating = None
+
     def _reorder_colors(self) -> None:
         self._zebrar = True
         for row_info in self._row_dict.values():
@@ -375,20 +381,6 @@ class CTkView(ViewContract):
         window.pack(expand=True, fill=X)
         return window
 
-    def set_appearance(self, param: str) -> None:
-        set_appearance_mode(param)
-        self.controller.update_user_settings_handler('user_appearance_mode', param)
-
-    def set_scaling(self, param: str) -> None:
-        nova_escala_float = int(param.replace("%", "")) / 100
-        set_widget_scaling(nova_escala_float)
-        set_window_scaling(nova_escala_float)
-        self.controller.update_user_settings_handler('user_scaling', param)
-
-    def set_color_theme(self, param: str) -> None:
-        set_default_color_theme(param)
-        self.controller.update_user_settings_handler('user_color_theme', param)
-
     def insert_new_question(self, data: QuestionDataHint) -> None:
         self._create_new_question_line(data['pergunta'], data['controle'])
 
@@ -396,54 +388,74 @@ class CTkView(ViewContract):
         questions: dict = self._row_dict.copy()
         for control in questions.keys():
             self._remove_question_from_questions_frame(control)
+    # ------  ------ #
+
+    # ------ Database Functions ------ #
+    def new_db(self) -> None:
+        self._reset_question_form()
+        self.flush_questions()
+
+        self.controller.new_db_handler()
 
     def open_db(self) -> None:
-        confirmation = self._confirm_export_first()
+        self.controller.open_db_handler()
 
-        if not confirmation: return
+    def export_db(self) -> None:
+        self.controller.export_db_handler()
 
-        file_name = askopenfilename(
+        self._reset_question_form()
+        self.flush_questions()
+    # ------  ------ #
+
+    # ------ Dialogs ------ #
+    def dialog_save_as(self) -> str:
+        filename = asksaveasfilename(
+            filetypes=FILETYPES, defaultextension=EXTENSION, confirmoverwrite=True,
+            initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_filename()
+        )
+        return filename
+
+    def dialog_open_file(self):
+        filename = askopenfilename(
             filetypes=FILETYPES, defaultextension=EXTENSION,
             initialdir=self.controller.get_base_dir(), initialfile=self.controller.get_base_filename()
         )
-        self.controller.open_db_handler(file_name)
+        return filename
 
-    def _update_question_counter(self) -> None:
-        self._question_count.set(len(self._row_dict))
+    def dialog_yes_no_cancel(self) -> Optional[bool]:
+        confirm = askyesnocancel(
+            title='Confirme a exportação primeiro',
+            message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
+                    'Gostaria de exportar esse banco antes?')
+        return confirm
 
-    def _remove_question_from_questions_frame(self, control: int) -> None:
-        self._row_dict[control]['row'].destroy()
-        del self._row_dict[control]
+    def alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
+        match alert_type:
+            case 'INFO':
+                showinfo(title, message)
+            case 'WARNING':
+                showwarning(title, message)
+            case 'ERROR':
+                showerror(title, message)
+            case _:
+                return
+    # ------  ------ #
 
-        self._update_question_counter()
-
-        self._reorder_colors()
-
-    def new_db(self) -> None:
-        confirmation = self._confirm_export_first()
-
-        if not confirmation: return
-
-        self.flush_questions()
-
-    def _confirm_export_first(self) -> bool:
-        if not self.controller.check_if_file_already_exported():
-            confirm = askyesnocancel(
-                title='Confirme a exportação primeiro',
-                message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
-                        'Gostaria de exportar esse banco antes?')
-            if confirm is None:
-                return False
-            if confirm:
-                self.export_db()
-        return True
-
+    # ------ Close Window Event ------ #
     def close_window_event(self):
         confirmation = self._confirm_export_first()
 
         if not confirmation: return
 
         sys.exit(0)
+    # ------  ------ #
 
-    def tests(self):
-        self.root.after(2000, self.close_window_event)
+    # ------ Testing ------ #
+    def _tests(self, overtime: int):
+        self.root.after(overtime, self.close_window_event)
+    # ------  ------ #
+
+    # ------ Top Level ------ #
+    def setup_window_handler(self) -> None:
+        self.setuptoplevel.deiconify()
+    # ------  ------ #
