@@ -1,6 +1,5 @@
 from tkinter import Event
 
-from icecream import ic
 from customtkinter import CTk
 
 from src.Constants import ME, MEN, VF, D, EASY, MEDIUM, HARD

@@ -30,7 +30,7 @@ class TestClass:
             view.insert_data_in_question_form(inserted_question)
 
             view.create_question()
-        view.tests()
+        view._tests()
 
         for i in range(10):
             collectes_question = controls.read_question_handler(i)
