@@ -35,7 +35,7 @@ class ModelContract(ABC):
 
     # ------ Questions Data Base Handler ------ #
     @abstractmethod
-    def create_question_xlsx(self, questions_data: Iterable[Iterable[QuestionDataHint]]) -> None:
+    def create_question_xlsx(self, file_path: Path) -> None:
         pass
 
     @abstractmethod
@@ -68,3 +68,6 @@ class ModelContract(ABC):
     @abstractmethod
     def get_base_dir(self) -> Path:
         ...
+
+    def get_current_file_path(self) -> Path:
+        pass
