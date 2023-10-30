@@ -24,8 +24,8 @@ class QuestionsDB(QuestionDBContract):
         return self.__db.get(control)
 
     def update_question(self, question: QuestionDataHint) -> None:
-        current_qeuestion = self.__db.get(question['controle'])
-        self.__db[question['controle']] = replace(current_qeuestion, **question)
+        current_qeuestion = self.__db.get(question["controle"])
+        self.__db[question["controle"]] = replace(current_qeuestion, **question)
 
     def delete_question(self, control: int) -> None:
         del self.__db[control]

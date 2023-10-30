@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.Hints.hints import QuestionDataHint, SysImgHint, ImageModelHint, UserSetHint, Optional, Iterable, GroupedQuestionDBHint
+from src.Hints.hints import (
+    QuestionDataHint,
+    SysImgHint,
+    ImageModelHint,
+    UserSetHint,
+    Optional,
+    GroupedQuestionDBHint,
+)
 
 
 class ModelContract(ABC):
@@ -25,12 +32,14 @@ class ModelContract(ABC):
     @abstractmethod
     def flush_questions(self) -> None:
         pass
+
     # End of questions CRUD methods
 
     # System images CRUD methods
     @abstractmethod
     def read_system_images(self, image_paths: ImageModelHint) -> SysImgHint:
         pass
+
     # End of system images CRUD methods
 
     # ------ Questions Data Base Handler ------ #
@@ -41,6 +50,7 @@ class ModelContract(ABC):
     @abstractmethod
     def read_question_xlsx(self, filename: Path) -> GroupedQuestionDBHint:
         pass
+
     # ------  ------ #
 
     # User settings CRUD methods
@@ -55,6 +65,7 @@ class ModelContract(ABC):
     @abstractmethod
     def update_user_settings(self, param: str, value: any, file_path: Path) -> None:
         pass
+
     # End of user settings CRUD methods
 
     @abstractmethod

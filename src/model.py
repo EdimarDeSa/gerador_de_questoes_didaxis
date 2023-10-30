@@ -2,10 +2,28 @@ from pathlib import Path
 from dataclasses import asdict
 from itertools import groupby
 
-from src.Constants import QUESTIOHEADER, QUESTIONTYPELIST, CATEGORYLIST, DIFFICULTLIST, D, TYPESCONVERTER
+from src.Constants import (
+    QUESTIOHEADER,
+    QUESTIONTYPELIST,
+    CATEGORYLIST,
+    DIFFICULTLIST,
+    D,
+    TYPESCONVERTER,
+)
 from src.contracts.model import ModelContract
 from src.contracts.serializer import Serializer
-from src.Hints.hints import SysImgHint, QuestionDataHint, ImageModelHint, UserSetHint, Any, Optional, Iterable, GroupedQuestionDBHint, ListDBHint, List
+from src.Hints.hints import (
+    SysImgHint,
+    QuestionDataHint,
+    ImageModelHint,
+    UserSetHint,
+    Any,
+    Optional,
+    Iterable,
+    GroupedQuestionDBHint,
+    ListDBHint,
+    List,
+)
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.questionsdb import QuestionsDB
 from src.DataModels.usermodel import UserModel
@@ -21,6 +39,7 @@ class Model(ModelContract):
         self._base_dir = Path(__file__).resolve().parent.parent
         self._base_filename: Optional[str] = None
         self.__db_connection = QuestionsDB()
+
     # ------  ------ #
 
     # ------ Question Handling ------ #
@@ -31,14 +50,16 @@ class Model(ModelContract):
 
         control = self.__db_connection.create_question(question)
 
-        if not control: raise ConnectionError('Não foi possível conectar se banco de dados')
+        if not control:
+            raise ConnectionError("Não foi possível conectar se banco de dados")
 
         return control
 
     def read_question(self, control: int) -> QuestionDataHint:
         question = self.__db_connection.read_question(control)
 
-        if not question: raise KeyError(f'Questão com controle: {control} inexistente')
+        if not question:
+            raise KeyError(f"Questão com controle: {control} inexistente")
 
         return asdict(question)
 
@@ -52,7 +73,7 @@ class Model(ModelContract):
 
     def flush_questions(self) -> None:
         self.__db_connection.flush_questions()
-        self._base_dir = Path.home() / 'Desktop'
+        self._base_dir = Path.home() / "Desktop"
         self._base_filename = None
 
     # ------  ------ #
@@ -65,13 +86,17 @@ class Model(ModelContract):
 
         list_to_export = list()
         for question_data in dict_of_questions:
-            alternativas = question_data['alternativas']
+            alternativas = question_data["alternativas"]
             for answer, correct in alternativas:
-                temp_question = question_data.copy()  # Crie um novo dicionário temporário
-                del temp_question['alternativas']
-                temp_question['tipo'] = TYPESCONVERTER.get(temp_question['tipo'])
-                temp_question['alternativa'] = answer
-                temp_question['correta'] = self._correct_onvert(correct, temp_question['tipo'])
+                temp_question = (
+                    question_data.copy()
+                )  # Crie um novo dicionário temporário
+                del temp_question["alternativas"]
+                temp_question["tipo"] = TYPESCONVERTER.get(temp_question["tipo"])
+                temp_question["alternativa"] = answer
+                temp_question["correta"] = self._correct_onvert(
+                    correct, temp_question["tipo"]
+                )
                 list_to_export.append(temp_question)
 
         self._save_file(file_path, list_to_export)
@@ -79,13 +104,20 @@ class Model(ModelContract):
     def read_question_xlsx(self, filename: Path) -> GroupedQuestionDBHint:
         data: Iterable = self._read_file(filename)
 
-        lines: ListDBHint = [dict(zip(QUESTIOHEADER, line)) for id_, line in enumerate(data) if id_]
+        lines: ListDBHint = [
+            dict(zip(QUESTIOHEADER, line)) for id_, line in enumerate(data) if id_
+        ]
 
-        lista_dicionarios_ordenada = sorted(lines, key=lambda x: x['pergunta'])
+        lista_dicionarios_ordenada = sorted(lines, key=lambda x: x["pergunta"])
 
         self._base_filename = filename.name
 
-        return {chave: list(grupo) for chave, grupo in groupby(lista_dicionarios_ordenada, key=lambda x: x['pergunta'])}
+        return {
+            chave: list(grupo)
+            for chave, grupo in groupby(
+                lista_dicionarios_ordenada, key=lambda x: x["pergunta"]
+            )
+        }
 
     @staticmethod
     def _question_to_dict(all_questions: List[QuestionModel]) -> List[QuestionDataHint]:
@@ -94,21 +126,25 @@ class Model(ModelContract):
     @staticmethod
     def _correct_onvert(correct: bool, type_: str):
         responses = {
-            'me': 'CORRETA' if correct else '',
-            'men': 'CORRETA' if correct else '',
-            'vf': 'V' if correct else 'F',
-            'd': ''
+            "me": "CORRETA" if correct else "",
+            "men": "CORRETA" if correct else "",
+            "vf": "V" if correct else "F",
+            "d": "",
         }
-        return responses.get(type_,'')
+        return responses.get(type_, "")
+
     # ------  ------ #
 
     # ------ System Images ------ #
     def read_system_images(self, image_names: ImageModelHint) -> SysImgHint:
-        icons_dir = self._base_dir / 'icons'
-        image_paths = {img_key: icons_dir / img_name for img_key, img_name in image_names.items()}
+        icons_dir = self._base_dir / "icons"
+        image_paths = {
+            img_key: icons_dir / img_name for img_key, img_name in image_names.items()
+        }
 
         self._img_manager = ImageModel(image_paths)
         return self._img_manager.get_images()
+
     # ------  ------ #
 
     # ------ User Settings ------ #
@@ -131,6 +167,7 @@ class Model(ModelContract):
             self._save_file(file_path, dict(self._user_settings))
             return
         raise KeyError(f'User setting "{param}" does not exist')
+
     # ------  ------ #
 
     # ------ File Handling and Serialization ------ #
@@ -148,18 +185,14 @@ class Model(ModelContract):
     @staticmethod
     def _select_serializer(filename: Path) -> Serializer:
         match filename.suffix.lower():
-            case '.json':
+            case ".json":
                 return JsonSerializer()
-            case '.bin':
+            case ".bin":
                 return BinarySerializer()
-            case '.xlsx':
+            case ".xlsx":
                 return XLSXSerializer()
-            case '.csv':
-                pass
-            case '.txt':
-                pass
             case _:
-                raise ValueError('Invalid extension!')
+                raise ValueError("Invalid extension!")
 
     def get_base_dir(self) -> Path:
         return self._base_dir
@@ -169,27 +202,46 @@ class Model(ModelContract):
 
     def get_current_file_path(self) -> Path:
         return self._base_dir / self._base_filename
+
     # ------  ------ #
 
     def _validate_question_data(self, data: QuestionDataHint) -> None:
-        if not data: raise SyntaxError('Faltam informações para uma questão válida')
+        if not data:
+            raise SyntaxError("Faltam informações para uma questão válida")
 
-        # if self.read_question(data['controle']): KeyError('Questão já existente')
+        if data["categoria"] not in CATEGORYLIST:
+            raise KeyError(
+                f'Categoria: {data["categoria"]} deve ser um dos {CATEGORYLIST}'
+            )
 
-        if data['categoria'] not in CATEGORYLIST: raise KeyError(f'Categoria: {data['categoria']} deve ser um dos {CATEGORYLIST}')
+        if len(data["tempo"].split(":")) != 3:
+            raise KeyError(
+                f'Tempo: {data["tempo"]} com formato inválido deve ser 00:00:00'
+            )
 
-        if len(data['tempo'].split(':')) != 3: raise KeyError(f'Tempo: {data['tempo']} com formato inválido deve ser 00:00:00')
+        if data["tipo"] not in QUESTIONTYPELIST:
+            raise KeyError(f'Tipo: {data["tipo"]} deve ser um dos {QUESTIONTYPELIST}')
 
-        if data['tipo'] not in QUESTIONTYPELIST: raise KeyError(f'Tipo: {data['tipo']} deve ser um dos {QUESTIONTYPELIST}')
+        if data["dificuldade"] not in DIFFICULTLIST:
+            raise KeyError(
+                f'Dificuldade: {data["dificuldade"]} deve ser um dos {DIFFICULTLIST}'
+            )
 
-        if data['dificuldade'] not in DIFFICULTLIST: raise KeyError(f'Dificuldade: {data['dificuldade']} deve ser um dos {DIFFICULTLIST}')
+        if not isinstance(data["peso"], int):
+            raise ValueError(f'Peso {data["peso"]} deve ser do tipo int')
 
-        if not isinstance(data['peso'], int): raise ValueError(f'Peso {data['peso']} deve ser do tipo int')
+        if not data["pergunta"]:
+            raise ValueError(f'Pergunta {data["pergunta"]} não pode ser None')
 
-        if not data['pergunta']: raise ValueError(f'Pergunta {data['pergunta']} não pode ser None')
+        if data["tipo"] == D:
+            return
 
-        if data['tipo'] == D: return
+        if len(data["alternativas"]) < 2:
+            raise ValueError(
+                "Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções"
+            )
 
-        if len(data['alternativas']) < 2: raise ValueError('Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções')
-
-        if not any([bool(choice) for choice, _ in data['alternativas']]): raise ValueError(f'Alternativa {data['alternativas']} não pode conter opçõa em branco')
+        if not any([bool(choice) for choice, _ in data["alternativas"]]):
+            raise ValueError(
+                f'Alternativa {data["alternativas"]} não pode conter opçõa em branco'
+            )

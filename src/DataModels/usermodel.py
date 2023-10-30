@@ -10,13 +10,13 @@ class UserModel:
     default_font_size: int = field(default=12)
     difficulty_list: list = field(default_factory=list)
     erase_statement: bool = field(default=0)
-    font_family: str = field(default='Roboto')
+    font_family: str = field(default="Roboto")
     question_type_list: list = field(default_factory=list)
     title_font_size: int = field(default=15)
-    user_appearance_mode: str = field(default='system')
-    user_color_theme: str = field(default='green')
-    user_default_category: str = field(default='')
-    user_scaling: str = field(default='100%')
+    user_appearance_mode: str = field(default="system")
+    user_color_theme: str = field(default="green")
+    user_default_category: str = field(default="")
+    user_scaling: str = field(default="100%")
 
     def __post_init__(self):
         if not self.category_options:

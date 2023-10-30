@@ -22,27 +22,29 @@ class Controller(ControllerHandlers):
 
         user_settings = self.setup_user_settings()
         images = self.setup_images()
-        icon = self.models.create_path('icons/icon_bitmap.ico')
+        icon = self.models.create_path("icons/icon_bitmap.ico")
 
         self.views.setup(self, user_settings, images, icon)
+
     # ------  ------ #
 
     # ------ Image Configuration ------ #
     def setup_images(self) -> SysImgHint:
         image_paths = {
-            'configuracoes_light_mode': 'configuracoes_light_mode.png',
-            'configuracoes_dark_mode': 'configuracoes_dark_mode.png',
-            'eraser_light_mode': 'eraser_light_mode.png',
-            'eraser_dark_mode': 'eraser_dark_mode.png',
-            'edit_light_mode': 'edit_light_mode.png',
-            'edit_dark_mode': 'edit_dark_mode.png',
+            "configuracoes_light_mode": "configuracoes_light_mode.png",
+            "configuracoes_dark_mode": "configuracoes_dark_mode.png",
+            "eraser_light_mode": "eraser_light_mode.png",
+            "eraser_dark_mode": "eraser_dark_mode.png",
+            "edit_light_mode": "edit_light_mode.png",
+            "edit_dark_mode": "edit_dark_mode.png",
         }
         return self.models.read_system_images(image_paths)
+
     # ------  ------ #
 
     # ------ User Settings Configuration ------ #
     def setup_user_settings(self):
-        self._user_settings_path = self.models.create_path('configs/user_settings.json')
+        self._user_settings_path = self.models.create_path("configs/user_settings.json")
 
         try:
             if not self._user_settings_path.exists():
@@ -54,39 +56,47 @@ class Controller(ControllerHandlers):
 
     def update_user_settings_handler(self, param: str, value: str) -> None:
         self.models.update_user_settings(param, value, self._user_settings_path)
+
     # ------  ------ #
 
     # ------ Database Export and Handling ------ #
     def new_db_handler(self) -> None:
         cancel = self.confirm_export_first()
 
-        if cancel: return
+        if cancel:
+            return
 
         self.models.flush_questions()
 
     def open_db_handler(self) -> None:
         file_path = self.views.dialog_open_file()
 
-        if not file_path: return
+        if not file_path:
+            return
 
         file_path = Path(file_path).resolve()
 
-        grouped_questions: GroupedQuestionDBHint = self.models.read_question_xlsx(file_path)
+        grouped_questions: GroupedQuestionDBHint = self.models.read_question_xlsx(
+            file_path
+        )
 
         for group in grouped_questions.values():
             temp_data = dict(group[0])
 
-            temp_data.pop('alternativa')
-            temp_data.pop('correta')
+            temp_data.pop("alternativa")
+            temp_data.pop("correta")
 
-            temp_data['tipo'] = TYPESCONVERTER.get(temp_data['tipo'])
+            temp_data["tipo"] = TYPESCONVERTER.get(temp_data["tipo"])
 
-            temp_data['peso'] = int(temp_data['peso'])
+            temp_data["peso"] = int(temp_data["peso"])
 
-            temp_data['alternativas'] = [(item['alternativa'], item['correta'] in ['CORRETA', 'V']) for item in group]
+            temp_data["alternativas"] = [
+                (item["alternativa"], item["correta"] in ["CORRETA", "V"])
+                for item in group
+            ]
 
             controle = self.models.create_new_question(temp_data)
-            temp_data['controle'] = controle
+            temp_data["controle"] = controle
 
             self.views.insert_new_question(temp_data)
 
@@ -104,7 +114,8 @@ class Controller(ControllerHandlers):
     def export_as_db_handler(self) -> None:
         filename = self.views.dialog_save_as()
 
-        if not filename: return
+        if not filename:
+            return
 
         file_path = Path(filename).resolve()
 
@@ -122,6 +133,7 @@ class Controller(ControllerHandlers):
             if confirm:
                 self.export_db_handler()
         return False
+
     # ------  ------ #
 
     # ------ Question Handling ------ #
@@ -132,7 +144,7 @@ class Controller(ControllerHandlers):
 
         self._exported = False
 
-        return question['controle']
+        return question["controle"]
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
         return self.models.read_question(control)
@@ -146,6 +158,7 @@ class Controller(ControllerHandlers):
         self.models.delete_question(control)
 
         self._exported = False
+
     # ------  ------ #
 
     # ------ Model-Related Functions ------ #
@@ -154,11 +167,13 @@ class Controller(ControllerHandlers):
 
     def get_base_dir(self) -> Path:
         return self.models.get_base_dir()
+
     # ------  ------ #
 
     # ------ Feedback Sending ------ #
     def send_feedback_handler(self):
-        subprocess.call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)
+        subprocess.call(f"start {LINK_FEEDBACK_FORM}", shell=True, stdout=False)
+
     # ------  ------ #
 
     def loop(self, test_mode: bool = False, timeout: int = 5000):

@@ -6,18 +6,28 @@ from src.Constants import BORDER_BLUE
 
 
 class LinhaDeQuestao:
-    def __init__(self, master: CTkFrame, title: str, controle: int, img_edit: CTkImage, img_delete: CTkImage, **kwargs):
+    def __init__(
+        self,
+        master: CTkFrame,
+        title: str,
+        controle: int,
+        img_edit: CTkImage,
+        img_delete: CTkImage,
+        **kwargs
+    ):
         self.controle = controle
         self.title = StringVar(value=title)
 
-        self.cmd_edit = kwargs.get('cmd_edit')
-        self.cmd_delete = kwargs.get('cmd_delete')
+        self.cmd_edit = kwargs.get("cmd_edit")
+        self.cmd_delete = kwargs.get("cmd_delete")
         border = dict(border_width=1, border_spacing=1, border_color=BORDER_BLUE)
 
-        CTkLabel(master, textvariable=self.title, anchor=W, wraplength=540).place(relx=0.01, relwidth=0.8, relheight=1)
+        CTkLabel(master, textvariable=self.title, anchor=W, wraplength=540).place(
+            relx=0.01, relwidth=0.8, relheight=1
+        )
 
         CTkButton(
-            master, text=None, command=self._botao_editar, image=img_edit,  **border
+            master, text=None, command=self._botao_editar, image=img_edit, **border
         ).place(relx=0.815, rely=0.05, relwidth=0.06, relheight=0.9)
 
         CTkButton(
@@ -25,8 +35,10 @@ class LinhaDeQuestao:
         ).place(relx=0.915, rely=0.05, relwidth=0.06, relheight=0.9)
 
     def _botao_deletar(self):
-        resposta = askyesno('Deseja deletar a questão?',
-                            'Tem certeza que deseja deletar a questão? Esse processo não poderá ser desfeito.')
+        resposta = askyesno(
+            "Deseja deletar a questão?",
+            "Tem certeza que deseja deletar a questão? Esse processo não poderá ser desfeito.",
+        )
 
         if resposta:
             self.cmd_delete(self.controle)

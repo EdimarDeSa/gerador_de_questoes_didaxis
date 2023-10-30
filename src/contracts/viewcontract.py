@@ -7,7 +7,13 @@ from src.Hints import QuestionDataHint, UserSetHint, SysImgHint, Literal
 
 class ViewContract(ABC):
     @abstractmethod
-    def setup(self, controller: ControllerHandlers, user_settings: UserSetHint, system_images: SysImgHint, icon: Path) -> None:
+    def setup(
+        self,
+        controller: ControllerHandlers,
+        user_settings: UserSetHint,
+        system_images: SysImgHint,
+        icon: Path,
+    ) -> None:
         pass
 
     @abstractmethod
@@ -49,7 +55,9 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
-    def alert(self, alert_type: Literal['INFO', 'WARNING', 'ERROR'], title: str, message: str) -> None:
+    def alert(
+        self, alert_type: Literal["INFO", "WARNING", "ERROR"], title: str, message: str
+    ) -> None:
         pass
 
     @abstractmethod
