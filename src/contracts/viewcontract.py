@@ -12,7 +12,7 @@ class ViewContract(ABC):
         self.system_images = system_images
 
     @abstractmethod
-    def start_main_loop(self) -> None:
+    def start_main_loop(self, test_mode: bool = False, overtime: int = 5000) -> None:
         ...
 
     @abstractmethod
@@ -28,6 +28,10 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
+    def new_db(self) -> None:
+        pass
+
+    @abstractmethod
     def export_db(self) -> None:
         pass
 
@@ -38,7 +42,7 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
-    def _update_question(self, data: QuestionDataHint) -> None:
+    def update_question(self, data: QuestionDataHint) -> None:
         pass
 
     @abstractmethod
@@ -50,5 +54,17 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
-    def close_window_event(self):
+    def close_window_event(self) -> None:
+        pass
+
+    @abstractmethod
+    def dialog_save_as(self) -> str:
+        pass
+
+    @abstractmethod
+    def dialog_open_file(self) -> str:
+        pass
+
+    @abstractmethod
+    def dialog_yes_no_cancel(self) -> bool | None:
         pass
