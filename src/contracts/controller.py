@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.Hints import QuestionDataHint, Optional
+from src.Hints.hints import QuestionDataHint, Optional
 
 
 class ControllerHandlers(ABC):
@@ -10,7 +10,7 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def open_db_handler(self, path: str) -> None:
+    def open_db_handler(self) -> None:
         ...
 
     @abstractmethod
@@ -18,7 +18,7 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def export_db_as_handler(self, path: str) -> None:
+    def _export_as_db_handler(self) -> None:
         ...
 
     @abstractmethod
@@ -54,8 +54,3 @@ class ControllerHandlers(ABC):
     @abstractmethod
     def get_base_dir(self) -> Path:
         ...
-
-    @abstractmethod
-    def check_if_file_already_exported(self) -> bool:
-        ...
-
