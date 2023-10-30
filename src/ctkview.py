@@ -7,7 +7,7 @@ from customtkinter import (
     set_appearance_mode, set_widget_scaling, set_window_scaling, set_default_color_theme, X, BooleanVar, END
 )
 
-from contracts.viewcontract import ViewContract
+from src.contracts.viewcontract import ViewContract
 
 from src.Hints import QuestionDataHint, MenuSettingsHint, ChoicesHint, RowDict, Optional, List, Literal
 from src.Views import (
@@ -31,8 +31,8 @@ class CTkView(ViewContract):
 
         Binds(self.root, self)
 
-    def start_main_loop(self, test_mode: bool = False, overtime: int = 5000) -> None:
-        if test_mode: self._tests(overtime)
+    def start_main_loop(self, test_mode: bool = False, timeout: int = 200) -> None:
+        if test_mode: self._tests(timeout)
 
         self.root.mainloop()
 
@@ -193,6 +193,7 @@ class CTkView(ViewContract):
             tempo=self._deadline.get(),
             tipo=self.question_type.get(),
             dificuldade=self.difficulty.get(),
+            # TODO: Fazer uma validação no peso para que seja possível apenas adicionar números
             peso=self._question_weight.get(),
             pergunta=self._question.get(0.0, 'end-1c'),
             alternativas=self._choices_get(),
@@ -356,6 +357,7 @@ class CTkView(ViewContract):
         self._create_new_question_line(data['pergunta'], control)
 
         self._reset_question_form()
+        print(data)
 
     def update_question(self, data: QuestionDataHint) -> None:
         self.controller.update_question_handler(data)
@@ -364,8 +366,6 @@ class CTkView(ViewContract):
         updating_line['display'].set(data['pergunta'])
 
         self._reset_question_form()
-
-        self._updating = None
 
     def _reorder_colors(self) -> None:
         self._zebrar = True
@@ -388,22 +388,28 @@ class CTkView(ViewContract):
         questions: dict = self._row_dict.copy()
         for control in questions.keys():
             self._remove_question_from_questions_frame(control)
+
+        self._reset_question_form()
     # ------  ------ #
 
     # ------ Database Functions ------ #
     def new_db(self) -> None:
-        self._reset_question_form()
+        self.controller.confirm_export_first()
+
         self.flush_questions()
 
         self.controller.new_db_handler()
 
     def open_db(self) -> None:
+        self.controller.confirm_export_first()
+
+        self.flush_questions()
+
         self.controller.open_db_handler()
 
     def export_db(self) -> None:
         self.controller.export_db_handler()
 
-        self._reset_question_form()
         self.flush_questions()
     # ------  ------ #
 
@@ -443,16 +449,14 @@ class CTkView(ViewContract):
 
     # ------ Close Window Event ------ #
     def close_window_event(self):
-        confirmation = self._confirm_export_first()
-
-        if not confirmation: return
+        self.controller.export_db_handler()
 
         sys.exit(0)
     # ------  ------ #
 
     # ------ Testing ------ #
-    def _tests(self, overtime: int):
-        self.root.after(overtime, self.close_window_event)
+    def _tests(self, timeout: int):
+        self.root.after(timeout, self.root.destroy)
     # ------  ------ #
 
     # ------ Top Level ------ #

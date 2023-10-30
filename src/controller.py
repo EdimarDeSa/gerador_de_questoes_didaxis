@@ -1,9 +1,9 @@
 from pathlib import Path
 import subprocess
 
-from contracts.controller import ControllerHandlers
-from contracts.viewcontract import ViewContract
-from contracts.model import ModelContract
+from src.contracts.controller import ControllerHandlers
+from src.contracts.viewcontract import ViewContract
+from src.contracts.model import ModelContract
 from src.Hints import QuestionDataHint, Optional, SysImgHint, GroupedQuestionDBHint
 from src.Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
 
@@ -54,7 +54,7 @@ class Controller(ControllerHandlers):
 
     # ------ Database Export and Handling ------ #
     def new_db_handler(self) -> None:
-        cancel = self._confirm_export_first()
+        cancel = self.confirm_export_first()
 
         if cancel: return
 
@@ -87,7 +87,9 @@ class Controller(ControllerHandlers):
             self.views.insert_new_question(temp_data)
 
     def export_db_handler(self) -> None:
-        if not self.models.get_base_filename(): self._export_as_db_handler()
+        if not self.models.get_base_filename():
+            self.export_as_db_handler()
+            return
 
         filename = self.models.get_current_file_path()
 
@@ -95,8 +97,8 @@ class Controller(ControllerHandlers):
 
         self._exported = True
 
-    def _export_as_db_handler(self) -> None:
-        filename = self.models.get_current_file_path()
+    def export_as_db_handler(self) -> None:
+        filename = self.views.dialog_save_as()
 
         if not filename: return
 
@@ -106,7 +108,7 @@ class Controller(ControllerHandlers):
 
         self._exported = True
 
-    def _confirm_export_first(self) -> bool:
+    def confirm_export_first(self) -> bool:
         if not self._exported:
             confirm = self.views.dialog_yes_no_cancel()
 
@@ -155,5 +157,5 @@ class Controller(ControllerHandlers):
         subprocess.call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)
     # ------  ------ #
 
-    def loop(self):
-        self.views.start_main_loop()
+    def loop(self, test_mode: bool = False, timeout: int = 5000):
+        self.views.start_main_loop(test_mode, timeout)

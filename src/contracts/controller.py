@@ -18,7 +18,7 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def _export_as_db_handler(self) -> None:
+    def confirm_export_first(self) -> bool:
         ...
 
     @abstractmethod

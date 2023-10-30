@@ -12,7 +12,7 @@ class ViewContract(ABC):
         self.system_images = system_images
 
     @abstractmethod
-    def start_main_loop(self, test_mode: bool = False, overtime: int = 5000) -> None:
+    def start_main_loop(self, test_mode: bool = False, timeout: int = 5000) -> None:
         ...
 
     @abstractmethod
