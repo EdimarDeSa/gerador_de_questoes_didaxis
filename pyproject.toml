@@ -1,20 +1,20 @@
 [tool.poetry]
-name = "gerador-de-questoes-didaxis"
-version = "4.3.1"
+name = "editor-de-questoes-didaxis"
+version = "4.3.0"
 description = "O Gerador de Questões Didaxis é um programa que permite criar e gerenciar questões didáticas. Com o novo layout e recursos aprimorados, foram feitas alterações significativas para melhorar a experiência do usuário."
 authors = ["Edimar de Sá <edimarfreitas95@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
-icecream = "^2.1.3"
-pandas = "^2.1.1"
-customtkinter = "^5.2.1"
+python = "^3.12"
 openpyxl = "^3.1.2"
-Pillow = "^10.1.0"
 requests = "^2.31.0"
+customtkinter = "^5.2.1"
 pyspellchecker = "^0.7.2"
+Pillow = "^10.1.0"
+typing-extensions = "^4.8.0"
+packaging = "^23.2"
 
 
 [build-system]
