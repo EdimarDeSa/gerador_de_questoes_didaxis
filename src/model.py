@@ -7,6 +7,7 @@ from PIL import Image
 from src.Constants import (
     CATEGORYLIST,
     DIFFICULTLIST,
+    ME,
     QUESTIOHEADER,
     QUESTIONTYPELIST,
     TYPESCONVERTER,
@@ -18,6 +19,7 @@ from src.DataModels.imagemodel import ImageModel
 from src.DataModels.questionmodel import QuestionModel
 from src.DataModels.questionsdb import QuestionsDB
 from src.DataModels.usermodel import UserModel
+from src.Exceptions import QuestionValidationError
 from src.Hints.hints import (
     Any,
     GroupedQuestionDBHint,
@@ -51,7 +53,7 @@ class Model(ModelContract):
         :return: Número do controle da questão (identificador genérico)
         :rtype: int
 
-        >>> create_new_question({ 'id': None, 'categoria': 'Comunicação', 'subcategoria': None, 'controle': None, 'tempo': '00:00:00', 'tipo': 'Multipla escolha 1 correta', 'dificuldade': 'Fácil', 'peso': 1, 'pergunta': 'Pergunta 1', 'alternativas': [('Opção 1', False), ('Opção 2', True), ('Opção 3', False), ('Opção 4', False)] }) 1
+        >>> create_new_question({ 'id': None, 'categoria': 'Comunicação', 'subcategoria': None, 'tempo': '00:00:00', 'tipo': 'Multipla escolha 1 correta', 'dificuldade': 'Fácil', 'peso': 1, 'pergunta': 'Pergunta 1', 'alternativas': [('Opção 1', False), ('Opção 2', True), ('Opção 3', False), ('Opção 4', False)] }) 1
         """
         self._validate_question_data(question_data)
 
@@ -224,45 +226,63 @@ class Model(ModelContract):
 
     # ------  ------ #
 
-    def _validate_question_data(self, data: QuestionDataHint) -> None:
+    @staticmethod
+    def _validate_question_data(data: QuestionDataHint) -> None:
         if not data:
-            raise SyntaxError('Faltam informações para uma questão válida')
+            raise QuestionValidationError(
+                'Faltam informações para uma questão válida'
+            )
 
         if data['categoria'] not in CATEGORYLIST:
-            raise KeyError(
+            raise QuestionValidationError(
                 f'Categoria: {data["categoria"]} deve ser um dos {CATEGORYLIST}'
             )
 
         if len(data['tempo'].split(':')) != 3:
-            raise KeyError(
+            raise QuestionValidationError(
                 f'Tempo: {data["tempo"]} com formato inválido deve ser 00:00:00'
             )
 
         if data['tipo'] not in QUESTIONTYPELIST:
-            raise KeyError(
+            raise QuestionValidationError(
                 f'Tipo: {data["tipo"]} deve ser um dos {QUESTIONTYPELIST}'
             )
 
         if data['dificuldade'] not in DIFFICULTLIST:
-            raise KeyError(
+            raise QuestionValidationError(
                 f'Dificuldade: {data["dificuldade"]} deve ser um dos {DIFFICULTLIST}'
             )
 
         if not isinstance(data['peso'], int):
-            raise ValueError(f'Peso {data["peso"]} deve ser do tipo int')
+            raise QuestionValidationError(
+                f'Peso {data["peso"]} deve ser do tipo int'
+            )
 
         if not data['pergunta']:
-            raise ValueError(f'Pergunta {data["pergunta"]} não pode ser None')
+            raise QuestionValidationError(
+                f'Pergunta {data["pergunta"]} não pode ser None'
+            )
 
         if data['tipo'] == D:
             return
 
         if len(data['alternativas']) < 2:
-            raise ValueError(
+            raise QuestionValidationError(
                 'Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções'
             )
 
         if not any([bool(choice) for choice, _ in data['alternativas']]):
-            raise ValueError(
+            raise QuestionValidationError(
                 f'Alternativa {data["alternativas"]} não pode conter opçõa em branco'
             )
+
+        if data['tipo'] == ME:
+            count = 0
+            for _, correta in data['alternativas']:
+                if correta:
+                    count += 1
+
+            if 0 == count > 1:
+                raise QuestionValidationError(
+                    f'Alternativas de questoes {ME} devem conter exclusivamente 1 questão correta.'
+                )
