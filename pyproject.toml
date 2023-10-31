@@ -1,24 +1,53 @@
 [tool.poetry]
 name = "editor-de-questoes-didaxis"
-version = "4.3.0"
+version = "0.4.4"
 description = "O Gerador de Questões Didaxis é um programa que permite criar e gerenciar questões didáticas. Com o novo layout e recursos aprimorados, foram feitas alterações significativas para melhorar a experiência do usuário."
 authors = ["Edimar de Sá <edimarfreitas95@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10,<3.13"
 openpyxl = "^3.1.2"
 requests = "^2.31.0"
-customtkinter = "^5.2.1"
+customtkinter = "^5.2.0"
 pyspellchecker = "^0.7.2"
 Pillow = "^10.1.0"
 typing-extensions = "^4.8.0"
 packaging = "^23.2"
-pytest = "^7.4.3"
-black = "^23.10.1"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+blue = "^0.9.1"
+isort = "^5.12.0"
+taskipy = "^1.12.0"
+pytest-cov = "^4.1.0"
+
+
+[tool.poetry.group.doc.dependencies]
+mkdocstrings-python = "^1.7.3"
+mkdocs-material = "^9.4.7"
+mkdocstrings = "^0.23.0"
+
+[tool.poetry.scripts]
+editor = "src.__main__:main"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_option]
+pythonpath = "./src/"
+addopts = "--doctest-modules"
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.taskipy.tasks]
+lint = "blue --diff --check ./src/ && isort --diff --check ./src/"
+docs = "cd ./src/ && mkdocs serve"
+pre_test = "task lint"
+test = "pytest --cache-clear -s -x --ignore-glob=./src/contracts/ --ignore-glob=./src/Exceptions/ --ignore-glob=./src/Hints/ --ignore=./src/__main__.py --cov=./src/ -vv"
+post_test = "coverage html && start ./htmlcov/index.html"
