@@ -1,12 +1,12 @@
 from customtkinter import (
-    CTkFrame,
     CTk,
-    CTkLabel,
-    CTkScrollableFrame,
-    CTkRadioButton,
     CTkCheckBox,
-    Variable,
+    CTkFrame,
+    CTkLabel,
+    CTkRadioButton,
+    CTkScrollableFrame,
     CTkTextbox,
+    Variable,
 )
 
 from src.Hints import MenuSettingsHint, WidgetListHint
@@ -25,7 +25,9 @@ class QuestionChoicesFrame(CTkFrame):
     ):
         super().__init__(master)
 
-        CTkLabel(self, text="Opções", **label_configs).place(rely=0.02, relwidth=1)
+        CTkLabel(self, text='Opções', **label_configs).place(
+            rely=0.02, relwidth=1
+        )
 
         sc_frame = CTkScrollableFrame(self)
         sc_frame.place(rely=0.12, relwidth=1, relheight=0.88)

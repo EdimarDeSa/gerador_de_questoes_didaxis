@@ -1,7 +1,14 @@
-from customtkinter import CTk, CTkFrame, CTkLabel, CTkScrollableFrame, CTkImage, X
+from customtkinter import (
+    CTk,
+    CTkFrame,
+    CTkImage,
+    CTkLabel,
+    CTkScrollableFrame,
+    X,
+)
 
-from src.Hints import MenuSettingsHint
 from src.Constants import GREEN
+from src.Hints import MenuSettingsHint
 
 
 class QuestionsFrame(CTkScrollableFrame):
@@ -25,10 +32,10 @@ class QuestionsFrame(CTkScrollableFrame):
 
     def _init_header(self) -> None:
         fg_label_configs = self.label_configs.copy()
-        fg_label_configs["fg_color"] = GREEN
+        fg_label_configs['fg_color'] = GREEN
 
         bg_label_configs = self.label_configs.copy()
-        bg_label_configs["bg_color"] = GREEN
+        bg_label_configs['bg_color'] = GREEN
 
         frame = CTkFrame(self, fg_color=GREEN, height=45)
         frame.pack(expand=True, fill=X)
@@ -37,12 +44,12 @@ class QuestionsFrame(CTkScrollableFrame):
         for i in range(1, 3):
             frame.grid_columnconfigure(i, weight=1)
 
-        CTkLabel(frame, text="Enunciado", height=40, **fg_label_configs).grid(
+        CTkLabel(frame, text='Enunciado', height=40, **fg_label_configs).grid(
             column=0, row=0
         )
-        CTkLabel(frame, text="Editar", height=40, **bg_label_configs).grid(
+        CTkLabel(frame, text='Editar', height=40, **bg_label_configs).grid(
             column=1, row=0
         )
-        CTkLabel(frame, text="Deletar", height=40, **bg_label_configs).grid(
+        CTkLabel(frame, text='Deletar', height=40, **bg_label_configs).grid(
             column=2, row=0
         )

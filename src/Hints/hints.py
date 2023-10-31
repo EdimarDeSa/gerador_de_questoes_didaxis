@@ -1,9 +1,17 @@
 from tkinter import Variable
-from typing import Dict, List, Callable, Tuple, Optional, Any, Literal, Iterable
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+)
 
 from PIL import Image
-
-from typing_extensions import TypedDict, Protocol
+from typing_extensions import Protocol, TypedDict
 
 
 class QuestionDataHint(TypedDict):

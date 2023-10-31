@@ -1,7 +1,7 @@
-from customtkinter import CTkScrollableFrame, CTkLabel, E, W
+from customtkinter import CTkLabel, CTkScrollableFrame, E, W
 
-from src.Hints import MenuSettingsHint
 from src.Constants import SHORTCUTS
+from src.Hints import MenuSettingsHint
 
 
 class ShortcutsFrame(CTkScrollableFrame):
@@ -17,6 +17,7 @@ class ShortcutsFrame(CTkScrollableFrame):
             CTkLabel(self, text=descricao, **label_settings).grid(
                 column=0, row=i, sticky=E, **pad
             )
+
             CTkLabel(self, text=atalho, **label_settings).grid(
                 column=1, row=i, sticky=W, **pad
             )

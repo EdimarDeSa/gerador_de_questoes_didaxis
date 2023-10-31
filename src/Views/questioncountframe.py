@@ -1,5 +1,4 @@
-from customtkinter import CTk, CTkFrame, CTkLabel
-from customtkinter import S, N, Variable
+from customtkinter import CTk, CTkFrame, CTkLabel, N, S, Variable
 
 from src.Hints import MenuSettingsHint
 
@@ -8,15 +7,15 @@ class QuestionCountFrame(CTkFrame):
     def __init__(
         self,
         master: CTk,
-        label_configs: MenuSettingsHint,
-        display_question_count: Variable,
+        label_settings: MenuSettingsHint,
+        question_count: Variable,
     ):
         super().__init__(master)
 
-        CTkLabel(self, text="Total de questões:", **label_configs, wraplength=85).pack(
-            anchor=S, expand=True
-        )
+        CTkLabel(
+            self, text='Total de questões:', **label_settings, wraplength=85
+        ).pack(anchor=S, expand=True)
 
-        CTkLabel(self, textvariable=display_question_count, **label_configs).pack(
+        CTkLabel(self, textvariable=question_count, **label_settings).pack(
             anchor=N, expand=True
         )

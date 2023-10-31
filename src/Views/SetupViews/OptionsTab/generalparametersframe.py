@@ -1,16 +1,16 @@
 from customtkinter import (
-    CTkFrame,
-    CTkToplevel,
-    CTkLabel,
-    CTkSwitch,
-    CTkOptionMenu,
     CENTER,
+    CTkFrame,
+    CTkLabel,
+    CTkOptionMenu,
+    CTkSwitch,
+    CTkToplevel,
     StringVar,
     Variable,
 )
 
-from src.Hints import MenuSettingsHint, Callable
-from src.Constants import SCALELIST, APPEARANCEMODETHEME
+from src.Constants import APPEARANCEMODETHEME, SCALELIST
+from src.Hints import Callable, MenuSettingsHint
 
 
 class GeneralPramsFrame(CTkFrame):
@@ -45,19 +45,24 @@ class GeneralPramsFrame(CTkFrame):
             value=self.check_state(var_auto_export.get())
         )
 
-        self.position_top = dict(padx=10, anchor=CENTER, expand=True)
-        self.position_bottom = dict(padx=10, pady=(0, 20), anchor=CENTER, expand=True)
+        self.position_top = {'padx': 10, 'anchor': CENTER, 'expand': True}
+        self.position_bottom = {
+            'padx': 10,
+            'pady': (0, 20),
+            'anchor': CENTER,
+            'expand': True,
+        }
 
         self.change_erase_statement()
         self.change_auto_exportar()
 
-        CTkLabel(self, text="Configurações gerais", **label_configs).pack(
+        CTkLabel(self, text='Configurações gerais', **label_configs).pack(
             **self.position_bottom
         )
 
-        CTkLabel(self, text="Apagar enunciado ao salvar?", **label_configs).pack(
-            **self.position_top
-        )
+        CTkLabel(
+            self, text='Apagar enunciado ao salvar?', **label_configs
+        ).pack(**self.position_top)
         # noinspection PyTypeChecker
         CTkSwitch(
             self,
@@ -69,7 +74,7 @@ class GeneralPramsFrame(CTkFrame):
             textvariable=self._var_erase_statement_on_off,
         ).pack(**self.position_bottom)
 
-        CTkLabel(self, text="Exportar automaticamente?", **label_configs).pack(
+        CTkLabel(self, text='Exportar automaticamente?', **label_configs).pack(
             **self.position_top
         )
         CTkSwitch(
@@ -82,7 +87,9 @@ class GeneralPramsFrame(CTkFrame):
             textvariable=self._var_auto_export_on_off,
         ).pack(**self.position_bottom)
 
-        CTkLabel(self, text="Dark mode", **label_configs).pack(**self.position_top)
+        CTkLabel(self, text='Dark mode', **label_configs).pack(
+            **self.position_top
+        )
         CTkOptionMenu(
             self,
             values=APPEARANCEMODETHEME,
@@ -90,7 +97,7 @@ class GeneralPramsFrame(CTkFrame):
             command=self.salva_e_altera_aparencia,
         ).pack(**self.position_bottom)
 
-        CTkLabel(self, text="Escala do sistema", **label_configs).pack(
+        CTkLabel(self, text='Escala do sistema', **label_configs).pack(
             **self.position_top
         )
         CTkOptionMenu(
@@ -102,27 +109,24 @@ class GeneralPramsFrame(CTkFrame):
 
     def change_erase_statement(self) -> None:
         value = self.var_erase_statement.get()
-        self.save_user_settings_handler("erase_statement", value)
+        self.save_user_settings_handler(erase_statement=value)
         self._var_erase_statement_on_off.set(self.check_state(value))
 
     def change_auto_exportar(self) -> None:
         value = self.var_auto_export.get()
-        self.save_user_settings_handler("auto_export", value)
+        self.save_user_settings_handler(auto_export=value)
         self._var_auto_export_on_off.set(self.check_state(value))
 
     def salva_e_altera_aparencia(self, new_appearence: str) -> None:
-        self.save_user_settings_handler("user_appearance_mode", new_appearence)
+        self.save_user_settings_handler(user_appearance_mode=new_appearence)
         self.change_appearance_handler(new_appearence)
-        self.foca()
+        self.after(200, self.focus)
 
     def salva_e_altera_escala_do_sistema(self, new_scale: str) -> None:
-        self.save_user_settings_handler("user_scaling", new_scale)
+        self.save_user_settings_handler(user_scaling=new_scale)
         self.change_scale_handler(new_scale)
-        self.foca()
-
-    def foca(self):
         self.after(200, self.focus)
 
     @staticmethod
     def check_state(state: bool) -> str:
-        return "LIGADO" if state else "DESLIGADO"
+        return 'LIGADO' if state else 'DESLIGADO'

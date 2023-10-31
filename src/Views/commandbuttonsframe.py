@@ -1,7 +1,7 @@
-from customtkinter import CTkFrame, CTk, CTkButton, CTkImage, NSEW, NS
+from customtkinter import NS, NSEW, CTk, CTkButton, CTkFrame, CTkImage
 
-from src.Hints import MenuSettingsHint, Callable
-from src.Constants import DARKGRAY, BLUE, HOVER_BLUE, BORDER_BLUE
+from src.Constants import BLUE, BORDER_BLUE, DARKGRAY, HOVER_BLUE
+from src.Hints import Callable, MenuSettingsHint
 
 
 class CommandButtonsFrame(CTkFrame):
@@ -32,7 +32,7 @@ class CommandButtonsFrame(CTkFrame):
 
         CTkButton(
             self,
-            text="Exportar",
+            text='Exportar',
             fg_color=BLUE,
             hover_color=HOVER_BLUE,
             border_color=BORDER_BLUE,
@@ -41,6 +41,9 @@ class CommandButtonsFrame(CTkFrame):
         ).grid(column=1, row=0, sticky=NSEW, padx=10, pady=5)
 
         self.b = CTkButton(
-            self, text="Salvar", command=save_question_handler, **buttons_configs
+            self,
+            text='Salvar',
+            command=save_question_handler,
+            **buttons_configs
         )
         self.b.grid(column=2, row=0, sticky=NSEW, padx=(0, 10), pady=5)

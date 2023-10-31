@@ -1,35 +1,35 @@
-from pathlib import Path
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from itertools import groupby
+from pathlib import Path
+
+from PIL import Image
 
 from src.Constants import (
-    QUESTIOHEADER,
-    QUESTIONTYPELIST,
     CATEGORYLIST,
     DIFFICULTLIST,
-    D,
+    QUESTIOHEADER,
+    QUESTIONTYPELIST,
     TYPESCONVERTER,
+    D,
 )
 from src.contracts.model import ModelContract
 from src.contracts.serializer import Serializer
-from src.Hints.hints import (
-    SysImgHint,
-    QuestionDataHint,
-    ImageModelHint,
-    UserSetHint,
-    Any,
-    Optional,
-    Iterable,
-    GroupedQuestionDBHint,
-    ListDBHint,
-    List,
-)
 from src.DataModels.imagemodel import ImageModel
+from src.DataModels.questionmodel import QuestionModel
 from src.DataModels.questionsdb import QuestionsDB
 from src.DataModels.usermodel import UserModel
-from src.DataModels.questionmodel import QuestionModel
-from src.Serializers.json_serializer import JsonSerializer
+from src.Hints.hints import (
+    Any,
+    GroupedQuestionDBHint,
+    ImageModelHint,
+    Iterable,
+    List,
+    ListDBHint,
+    Optional,
+    QuestionDataHint,
+)
 from src.Serializers.binary_serializer import BinarySerializer
+from src.Serializers.json_serializer import JsonSerializer
 from src.Serializers.xlsxserializer import XLSXSerializer
 
 
@@ -44,6 +44,15 @@ class Model(ModelContract):
 
     # ------ Question Handling ------ #
     def create_new_question(self, question_data: QuestionDataHint) -> int:
+        """
+        Valida  as informações da questão, gera um objeto com os dados e armazena no banco de dados.
+        :param question_data: Dados da questão
+        :type question_data: QuestionDataHint
+        :return: Número do controle da questão (identificador genérico)
+        :rtype: int
+
+        >>> create_new_question({ 'id': None, 'categoria': 'Comunicação', 'subcategoria': None, 'controle': None, 'tempo': '00:00:00', 'tipo': 'Multipla escolha 1 correta', 'dificuldade': 'Fácil', 'peso': 1, 'pergunta': 'Pergunta 1', 'alternativas': [('Opção 1', False), ('Opção 2', True), ('Opção 3', False), ('Opção 4', False)] }) 1
+        """
         self._validate_question_data(question_data)
 
         question = QuestionModel(**question_data)
@@ -51,7 +60,9 @@ class Model(ModelContract):
         control = self.__db_connection.create_question(question)
 
         if not control:
-            raise ConnectionError("Não foi possível conectar se banco de dados")
+            raise ConnectionError(
+                'Não foi possível conectar se banco de dados'
+            )
 
         return control
 
@@ -59,7 +70,7 @@ class Model(ModelContract):
         question = self.__db_connection.read_question(control)
 
         if not question:
-            raise KeyError(f"Questão com controle: {control} inexistente")
+            raise KeyError(f'Questão com controle: {control} inexistente')
 
         return asdict(question)
 
@@ -73,7 +84,7 @@ class Model(ModelContract):
 
     def flush_questions(self) -> None:
         self.__db_connection.flush_questions()
-        self._base_dir = Path.home() / "Desktop"
+        self._base_dir = Path.home() / 'Desktop'
         self._base_filename = None
 
     # ------  ------ #
@@ -86,16 +97,18 @@ class Model(ModelContract):
 
         list_to_export = list()
         for question_data in dict_of_questions:
-            alternativas = question_data["alternativas"]
+            alternativas = question_data['alternativas']
             for answer, correct in alternativas:
                 temp_question = (
                     question_data.copy()
                 )  # Crie um novo dicionário temporário
-                del temp_question["alternativas"]
-                temp_question["tipo"] = TYPESCONVERTER.get(temp_question["tipo"])
-                temp_question["alternativa"] = answer
-                temp_question["correta"] = self._correct_onvert(
-                    correct, temp_question["tipo"]
+                del temp_question['alternativas']
+                temp_question['tipo'] = TYPESCONVERTER.get(
+                    temp_question['tipo']
+                )
+                temp_question['alternativa'] = answer
+                temp_question['correta'] = self._correct_onvert(
+                    correct, temp_question['tipo']
                 )
                 list_to_export.append(temp_question)
 
@@ -105,68 +118,74 @@ class Model(ModelContract):
         data: Iterable = self._read_file(filename)
 
         lines: ListDBHint = [
-            dict(zip(QUESTIOHEADER, line)) for id_, line in enumerate(data) if id_
+            dict(zip(QUESTIOHEADER, line))
+            for id_, line in enumerate(data)
+            if id_
         ]
 
-        lista_dicionarios_ordenada = sorted(lines, key=lambda x: x["pergunta"])
+        lista_dicionarios_ordenada = sorted(lines, key=lambda x: x['pergunta'])
 
         self._base_filename = filename.name
 
         return {
             chave: list(grupo)
             for chave, grupo in groupby(
-                lista_dicionarios_ordenada, key=lambda x: x["pergunta"]
+                lista_dicionarios_ordenada, key=lambda x: x['pergunta']
             )
         }
 
     @staticmethod
-    def _question_to_dict(all_questions: List[QuestionModel]) -> List[QuestionDataHint]:
+    def _question_to_dict(
+        all_questions: List[QuestionModel],
+    ) -> List[QuestionDataHint]:
         return [asdict(q) for q in all_questions]
 
     @staticmethod
     def _correct_onvert(correct: bool, type_: str):
         responses = {
-            "me": "CORRETA" if correct else "",
-            "men": "CORRETA" if correct else "",
-            "vf": "V" if correct else "F",
-            "d": "",
+            'me': 'CORRETA' if correct else '',
+            'men': 'CORRETA' if correct else '',
+            'vf': 'V' if correct else 'F',
+            'd': '',
         }
-        return responses.get(type_, "")
+        return responses.get(type_, '')
 
     # ------  ------ #
 
     # ------ System Images ------ #
-    def read_system_images(self, image_names: ImageModelHint) -> SysImgHint:
-        icons_dir = self._base_dir / "icons"
-        image_paths = {
-            img_key: icons_dir / img_name for img_key, img_name in image_names.items()
+    def read_system_images(self, image_names: ImageModelHint) -> ImageModel:
+        images_dict = {
+            key: Image.open(img_path) for key, img_path in image_names.items()
         }
-
-        self._img_manager = ImageModel(image_paths)
-        return self._img_manager.get_images()
+        return ImageModel(**images_dict)
 
     # ------  ------ #
 
     # ------ User Settings ------ #
-    def create_user_settings(self, configs_dir: Path) -> UserSetHint:
-        self._user_settings = UserModel()
+    def create_user_settings(self, configs_dir: Path) -> None:
+        user_settings = UserModel(
+            category_options=CATEGORYLIST,
+            question_type_list=QUESTIONTYPELIST,
+            difficulty_list=DIFFICULTLIST,
+        )
 
-        self._save_file(configs_dir, dict(self._user_settings))
+        self._save_file(configs_dir, asdict(user_settings))
 
-        return dict(self._user_settings)
-
-    def read_user_settings(self, configs_dir: Path) -> UserSetHint:
+    def read_user_settings(self, configs_dir: Path) -> UserModel:
         user_data = self._read_file(configs_dir)
 
         self._user_settings = UserModel(**user_data)
-        return dict(self._user_settings)
+        return self._user_settings
 
-    def update_user_settings(self, param: str, value: any, file_path: Path) -> None:
-        if param in dict(self._user_settings).keys():
-            self._user_settings.updatesetting(param, value)
-            self._save_file(file_path, dict(self._user_settings))
-            return
-        raise KeyError(f'User setting "{param}" does not exist')
+    def update_user_settings(self, file_path: Path, **new_config) -> None:
+        for key in new_config.keys():
+            if key in asdict(self._user_settings):
+                self._user_settings = replace(
+                    self._user_settings, **new_config
+                )
+                self._save_file(file_path, asdict(self._user_settings))
+                return
+            raise KeyError(f'User setting "{key}" does not exist')
 
     # ------  ------ #
 
@@ -185,14 +204,14 @@ class Model(ModelContract):
     @staticmethod
     def _select_serializer(filename: Path) -> Serializer:
         match filename.suffix.lower():
-            case ".json":
+            case '.json':
                 return JsonSerializer()
-            case ".bin":
+            case '.bin':
                 return BinarySerializer()
-            case ".xlsx":
+            case '.xlsx':
                 return XLSXSerializer()
             case _:
-                raise ValueError("Invalid extension!")
+                raise ValueError('Invalid extension!')
 
     def get_base_dir(self) -> Path:
         return self._base_dir
@@ -207,41 +226,43 @@ class Model(ModelContract):
 
     def _validate_question_data(self, data: QuestionDataHint) -> None:
         if not data:
-            raise SyntaxError("Faltam informações para uma questão válida")
+            raise SyntaxError('Faltam informações para uma questão válida')
 
-        if data["categoria"] not in CATEGORYLIST:
+        if data['categoria'] not in CATEGORYLIST:
             raise KeyError(
                 f'Categoria: {data["categoria"]} deve ser um dos {CATEGORYLIST}'
             )
 
-        if len(data["tempo"].split(":")) != 3:
+        if len(data['tempo'].split(':')) != 3:
             raise KeyError(
                 f'Tempo: {data["tempo"]} com formato inválido deve ser 00:00:00'
             )
 
-        if data["tipo"] not in QUESTIONTYPELIST:
-            raise KeyError(f'Tipo: {data["tipo"]} deve ser um dos {QUESTIONTYPELIST}')
+        if data['tipo'] not in QUESTIONTYPELIST:
+            raise KeyError(
+                f'Tipo: {data["tipo"]} deve ser um dos {QUESTIONTYPELIST}'
+            )
 
-        if data["dificuldade"] not in DIFFICULTLIST:
+        if data['dificuldade'] not in DIFFICULTLIST:
             raise KeyError(
                 f'Dificuldade: {data["dificuldade"]} deve ser um dos {DIFFICULTLIST}'
             )
 
-        if not isinstance(data["peso"], int):
+        if not isinstance(data['peso'], int):
             raise ValueError(f'Peso {data["peso"]} deve ser do tipo int')
 
-        if not data["pergunta"]:
+        if not data['pergunta']:
             raise ValueError(f'Pergunta {data["pergunta"]} não pode ser None')
 
-        if data["tipo"] == D:
+        if data['tipo'] == D:
             return
 
-        if len(data["alternativas"]) < 2:
+        if len(data['alternativas']) < 2:
             raise ValueError(
-                "Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções"
+                'Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções'
             )
 
-        if not any([bool(choice) for choice, _ in data["alternativas"]]):
+        if not any([bool(choice) for choice, _ in data['alternativas']]):
             raise ValueError(
                 f'Alternativa {data["alternativas"]} não pode conter opçõa em branco'
             )

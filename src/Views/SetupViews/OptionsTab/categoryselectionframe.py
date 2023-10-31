@@ -1,12 +1,12 @@
 from customtkinter import (
+    BOTH,
+    CTkRadioButton,
     CTkScrollableFrame,
     CTkToplevel,
-    CTkRadioButton,
-    BOTH,
     Variable,
 )
 
-from src.Hints import Callable, MenuSettingsHint, List
+from src.Hints import Callable, List, MenuSettingsHint
 
 
 class CategorySelectionFrame(CTkScrollableFrame):
@@ -19,9 +19,9 @@ class CategorySelectionFrame(CTkScrollableFrame):
         categori_change_handler: Callable,
         **kwargs
     ):
-        super().__init__(master, label_text="Unidade padrão", **kwargs)
+        super().__init__(master, label_text='Unidade padrão', **kwargs)
 
-        for indice, unidade in enumerate(category_list):
+        for unidade in category_list:
             CTkRadioButton(
                 self,
                 text=unidade,
