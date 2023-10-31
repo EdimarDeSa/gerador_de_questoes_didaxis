@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from src.DataModels.imagemodel import ImageModel
+from src.DataModels.usermodel import UserModel
 from src.Hints.hints import (
+    GroupedQuestionDBHint,
+    ImageModelHint,
+    Optional,
     QuestionDataHint,
     SysImgHint,
-    ImageModelHint,
-    UserSetHint,
-    Optional,
-    GroupedQuestionDBHint,
 )
 
 
@@ -37,7 +38,7 @@ class ModelContract(ABC):
 
     # System images CRUD methods
     @abstractmethod
-    def read_system_images(self, image_paths: ImageModelHint) -> SysImgHint:
+    def read_system_images(self, image_paths: ImageModelHint) -> ImageModel:
         pass
 
     # End of system images CRUD methods
@@ -55,15 +56,15 @@ class ModelContract(ABC):
 
     # User settings CRUD methods
     @abstractmethod
-    def create_user_settings(self, configs_dir: Path) -> UserSetHint:
+    def create_user_settings(self, configs_dir: Path) -> None:
         pass
 
     @abstractmethod
-    def read_user_settings(self, configs_dir: Path) -> UserSetHint:
+    def read_user_settings(self, configs_dir: Path) -> UserModel:
         pass
 
     @abstractmethod
-    def update_user_settings(self, param: str, value: any, file_path: Path) -> None:
+    def update_user_settings(self, file_path: Path, **new_config) -> None:
         pass
 
     # End of user settings CRUD methods

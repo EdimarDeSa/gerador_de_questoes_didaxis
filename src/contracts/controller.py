@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.Hints.hints import QuestionDataHint, Optional
+from src.Hints.hints import Optional, QuestionDataHint
 
 
 class ControllerHandlers(ABC):
@@ -18,7 +18,8 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def confirm_export_first(self) -> bool:
+    def export_first(self) -> bool:
+        """Returns if user want to cancel or not"""
         ...
 
     @abstractmethod
@@ -26,7 +27,7 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def update_user_settings_handler(self, param: str, value: str) -> None:
+    def update_user_settings_handler(self, **new_config) -> None:
         ...
 
     # Base CRUD methods

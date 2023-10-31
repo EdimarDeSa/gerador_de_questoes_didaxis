@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from .controller import ControllerHandlers
-from src.Hints import QuestionDataHint, UserSetHint, SysImgHint, Literal
+from src.contracts.controller import ControllerHandlers
+from src.DataModels.imagemodel import ImageModel
+from src.DataModels.usermodel import UserModel
+from src.Hints import Literal, QuestionDataHint
 
 
 class ViewContract(ABC):
@@ -10,14 +12,16 @@ class ViewContract(ABC):
     def setup(
         self,
         controller: ControllerHandlers,
-        user_settings: UserSetHint,
-        system_images: SysImgHint,
+        user_settings: UserModel,
+        system_images: ImageModel,
         icon: Path,
     ) -> None:
         pass
 
     @abstractmethod
-    def start_main_loop(self, test_mode: bool = False, timeout: int = 5000) -> None:
+    def start_main_loop(
+        self, test_mode: bool = False, timeout: int = 5000
+    ) -> None:
         ...
 
     @abstractmethod
@@ -56,7 +60,10 @@ class ViewContract(ABC):
 
     @abstractmethod
     def alert(
-        self, alert_type: Literal["INFO", "WARNING", "ERROR"], title: str, message: str
+        self,
+        alert_type: Literal['INFO', 'WARNING', 'ERROR'],
+        title: str,
+        message: str,
     ) -> None:
         pass
 

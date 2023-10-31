@@ -1,62 +1,63 @@
 import sys
-from tkinter.messagebox import showinfo, showerror, showwarning, askyesnocancel
-from tkinter.filedialog import asksaveasfilename, askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.messagebox import askyesnocancel, showerror, showinfo, showwarning
 
 from customtkinter import (
+    CENTER,
+    END,
+    NSEW,
+    WORD,
+    BooleanVar,
     CTk,
+    CTkCheckBox,
+    CTkFont,
     CTkFrame,
     CTkImage,
-    CTkCheckBox,
     CTkRadioButton,
-    WORD,
-    CENTER,
-    NSEW,
     IntVar,
     StringVar,
-    CTkFont,
+    X,
     set_appearance_mode,
+    set_default_color_theme,
     set_widget_scaling,
     set_window_scaling,
-    set_default_color_theme,
-    X,
-    BooleanVar,
-    END,
 )
 
-from src.contracts.viewcontract import ViewContract
-
-from src.Hints import (
-    QuestionDataHint,
-    MenuSettingsHint,
-    ChoicesHint,
-    RowDict,
-    Optional,
-    List,
-    Literal,
-)
-from src.Views import (
-    QuestionCountFrame,
-    QuestionParametersFrame,
-    QuestionStatementFrame,
-    QuestionChoicesFrame,
-    QuestionsFrame,
-    CommandButtonsFrame,
-    SetupTopLevel,
-)
-from src.Views.linha_de_questao import LinhaDeQuestao
 from src.Constants import (
-    D,
+    EXTENSION,
+    FILETYPES,
+    GREEN,
     ME,
     MEN,
-    VF,
-    TRANSPARENT,
-    GREEN,
     PLACE_HOLDER_PESO,
     PLACE_HOLDER_TEMPO,
-    FILETYPES,
-    EXTENSION,
+    TRANSPARENT,
+    VF,
+    D,
+)
+from src.contracts.viewcontract import ViewContract
+from src.DataModels.topleveltoolsmodel import TopLevelToolsModel
+from src.DataModels.widgetssettingsmodel import WidgetsSettingsModel
+from src.Hints import (
+    ChoicesHint,
+    List,
+    Literal,
+    MenuSettingsHint,
+    Optional,
+    QuestionDataHint,
+    RowDict,
+)
+from src.Views import (
+    CommandButtonsFrame,
+    QuestionChoicesFrame,
+    QuestionCountFrame,
+    QuestionParametersFrame,
+    QuestionsFrame,
+    QuestionStatementFrame,
+    SetupTopLevel,
 )
 from src.Views.binds import Binds
+from src.Views.linha_de_questao import LinhaDeQuestao
 
 
 class CTkView(ViewContract):
@@ -74,7 +75,9 @@ class CTkView(ViewContract):
 
         Binds(self.root, self)
 
-    def start_main_loop(self, test_mode: bool = False, timeout: int = 200) -> None:
+    def start_main_loop(
+        self, test_mode: bool = False, timeout: int = 200
+    ) -> None:
         if test_mode:
             self._tests(timeout)
 
@@ -83,83 +86,94 @@ class CTkView(ViewContract):
     def _setup_root(self) -> None:
         self.root = CTk()
 
-        largura, altura = 1500, 750
-        pos_x = (self.root.winfo_screenwidth() - largura) // 2
-        pos_y = (self.root.winfo_screenheight() - altura) // 2 - 35
-        self.root.geometry(f"{largura}x{altura}+{pos_x}+{pos_y}")
+        root_width, root_height = 1500, 750
+        pos_x = (self.root.winfo_screenwidth() - root_width) // 2
+        pos_y = (self.root.winfo_screenheight() - root_height) // 2 - 35
+        self.root.geometry(f'{root_width}x{root_height}+{pos_x}+{pos_y}')
 
         self.root.resizable(False, False)
 
         self.root.wm_iconbitmap(default=self.icon)
 
-        self.root.title("Editor de questões")
+        self.root.title('Editor de questões')
 
-        self.set_scaling(self.user_settings["user_scaling"])
-        self.set_appearance(self.user_settings["user_appearance_mode"])
-        self.set_color_theme(self.user_settings["user_color_theme"])
+        self.set_appearance(self.user_settings.user_appearance_mode)
+        self.set_color_theme(self.user_settings.user_color_theme)
+        self.set_scaling(self.user_settings.user_scaling)
 
     def _setup_variables(self) -> None:
         titles_font_settings = CTkFont(
-            family=self.user_settings["font_family"],
-            size=self.user_settings["title_font_size"],
-            weight="bold",
-        )
-        default_font_settings = CTkFont(
-            family=self.user_settings["font_family"],
-            size=self.user_settings["default_font_size"],
+            family=self.user_settings.font_family,
+            size=self.user_settings.title_font_size,
+            weight='bold',
         )
 
-        self.label_settings = {"font": titles_font_settings}
-        self.entry_settings = {
-            "exportselection": True,
-            "width": 180,
-            "font": default_font_settings,
-        }
-        self.list_settings = {
-            "dynamic_resizing": False,
-            "anchor": CENTER,
-            "font": default_font_settings,
-        }
-        self.button_title_settings = {"font": titles_font_settings}
-        self.button_default_settings = {"font": default_font_settings}
-        self.text_settings = {
-            "undo": True,
-            "wrap": WORD,
-            "autoseparators": True,
-            "exportselection": True,
-            "maxundo": 5,
-        }
-        self.scrollable_label_settings = {"label_font": titles_font_settings}
+        default_font_settings = CTkFont(
+            family=self.user_settings.font_family,
+            size=self.user_settings.default_font_size,
+        )
+
+        self.widgets_settings = WidgetsSettingsModel(
+            label_settings={'font': titles_font_settings},
+            entry_settings={
+                'exportselection': True,
+                'width': 180,
+                'font': default_font_settings,
+            },
+            list_settings={
+                'dynamic_resizing': False,
+                'anchor': CENTER,
+                'font': default_font_settings,
+            },
+            button_title_settings={'font': titles_font_settings},
+            button_default_settings={'font': default_font_settings},
+            text_settings={
+                'undo': True,
+                'wrap': WORD,
+                'autoseparators': True,
+                'exportselection': True,
+                'maxundo': 5,
+            },
+            scrollable_label_settings={'label_font': titles_font_settings},
+        )
 
         self._question_count = IntVar()
 
-        self.category = StringVar(value=self.user_settings["user_default_category"])
-        self.category_options = self.user_settings["category_options"]
+        self.category = StringVar(
+            value=self.user_settings.user_default_category
+        )
         self._category_settings: MenuSettingsHint = {
-            "variable": self.category,
-            "values": self.category_options,
-            "width": 180,
-            **self.list_settings,
+            'variable': self.category,
+            'values': self.user_settings.category_options,
+            'width': 180,
+            **self.widgets_settings.list_settings,
         }
+
         self._subcategory = StringVar()
+
         self._deadline = StringVar(value=PLACE_HOLDER_TEMPO)
-        self._question_type_list = self.user_settings["question_type_list"]
-        self.question_type = StringVar(value=self._question_type_list[1])
+
+        self.question_type = StringVar(
+            value=self.user_settings.question_type_list[1]
+        )
         self._question_type_settings: MenuSettingsHint = {
-            "variable": self.question_type,
-            "values": self._question_type_list,
-            "command": self.type_change,
-            "width": 180,
-            **self.list_settings,
+            'variable': self.question_type,
+            'values': self.user_settings.question_type_list,
+            'command': self.type_change,
+            'width': 180,
+            **self.widgets_settings.list_settings,
         }
-        self._difficulty_list = self.user_settings["difficulty_list"]
-        self.difficulty = StringVar(value=self._difficulty_list[0])
+
+        self.difficulty = StringVar(
+            value=self.user_settings.difficulty_list[0]
+        )
         self._difficulty_settings: MenuSettingsHint = {
-            "variable": self.difficulty,
-            "values": self._difficulty_list,
-            "width": 180,
-            **self.list_settings,
+            'variable': self.difficulty,
+            'values': self.user_settings.difficulty_list,
+            'width': 180,
+            **self.widgets_settings.list_settings,
         }
+
         self._question_weight = IntVar(value=1)
 
         self._var_rd_button_value = IntVar()
@@ -169,39 +183,56 @@ class CTkView(ViewContract):
         self._choices_count = 0
 
         self._updating: Optional[int] = None
+
         self._row_dict: RowDict = dict()
         self._zebrar = True
 
         self.var_erase_statement = BooleanVar(
-            value=self.user_settings["erase_statement"]
+            value=self.user_settings.erase_statement
         )
-        self.var_auto_export = BooleanVar(value=self.user_settings["auto_export"])
+
+        self.var_auto_export = BooleanVar(value=self.user_settings.auto_export)
+
+        self.top_level_tools = TopLevelToolsModel(
+            self.new_db,
+            self.open_db,
+            self.export_db,
+            self.set_appearance,
+            self.set_scaling,
+            self.category,
+            self.var_erase_statement,
+            self.var_auto_export,
+        )
 
     def _setup_images(self) -> None:
         medium = (24, 24)
         small = (16, 16)
 
-        setup_bt_img_light = self.system_images["configuracoes_light_mode"]
-        setup_bt_img_dark = self.system_images["configuracoes_dark_mode"]
-        self._img_setup = CTkImage(setup_bt_img_light, setup_bt_img_dark, medium)
+        setup_bt_img_light = self.system_images.configuracoes_light_mode
+        setup_bt_img_dark = self.system_images.configuracoes_dark_mode
+        self._img_setup = CTkImage(
+            setup_bt_img_light, setup_bt_img_dark, medium
+        )
 
-        delete_light = self.system_images["eraser_light_mode"]
-        delete_dark = self.system_images["eraser_dark_mode"]
+        delete_light = self.system_images.eraser_light_mode
+        delete_dark = self.system_images.eraser_dark_mode
         self._img_delete = CTkImage(delete_light, delete_dark, small)
 
-        edit_light = self.system_images["edit_light_mode"]
-        edit_dark = self.system_images["edit_dark_mode"]
+        edit_light = self.system_images.edit_light_mode
+        edit_dark = self.system_images.edit_dark_mode
         self._img_edit = CTkImage(edit_light, edit_dark, small)
 
     def _setup_ui(self) -> None:
-        QuestionCountFrame(self.root, self.label_settings, self._question_count).place(
-            relx=0.01, rely=0.02, relwidth=0.08, relheight=0.19
-        )
+        QuestionCountFrame(
+            self.root,
+            self.widgets_settings.label_settings,
+            self._question_count,
+        ).place(relx=0.01, rely=0.02, relwidth=0.08, relheight=0.19)
 
         QuestionParametersFrame(
             self.root,
-            self.label_settings,
-            self.entry_settings,
+            self.widgets_settings.label_settings,
+            self.widgets_settings.entry_settings,
             self._category_settings,
             self._subcategory,
             self._deadline,
@@ -213,9 +244,9 @@ class CTkView(ViewContract):
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         question_statement_frame = QuestionStatementFrame(
             self.root,
-            self.label_settings,
-            self.entry_settings,
-            self.button_title_settings,
+            self.widgets_settings.label_settings,
+            self.widgets_settings.entry_settings,
+            self.widgets_settings.button_title_settings,
             self.add_choice,
             self.rm_choice,
         )
@@ -227,8 +258,8 @@ class CTkView(ViewContract):
         # TODO: Ainda tenho que criar um jeito de colocar o spellchecker
         QuestionChoicesFrame(
             self.root,
-            self.label_settings,
-            self.text_settings,
+            self.widgets_settings.label_settings,
+            self.widgets_settings.text_settings,
             self._var_rd_button_value,
             self._txt_box_list,
             self._rd_bts_list,
@@ -236,7 +267,10 @@ class CTkView(ViewContract):
         ).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
         self.questions_frame = QuestionsFrame(
-            self.root, self.label_settings, self._img_edit, self._img_delete
+            self.root,
+            self.widgets_settings.label_settings,
+            self._img_edit,
+            self._img_delete,
         )
         self.questions_frame.place(
             relx=0.505, rely=0.02, relwidth=0.485, relheight=0.96
@@ -245,7 +279,7 @@ class CTkView(ViewContract):
         CommandButtonsFrame(
             self.root,
             self._img_setup,
-            self.button_title_settings,
+            self.widgets_settings.button_title_settings,
             self.setup_window_handler,
             self.export_db,
             self.create_question,
@@ -253,7 +287,8 @@ class CTkView(ViewContract):
 
         self.setuptoplevel = SetupTopLevel(
             self.root,
-            self,
+            self.widgets_settings,
+            self.top_level_tools,
             self.controller,
             self.user_settings,
             self.system_images,
@@ -261,89 +296,113 @@ class CTkView(ViewContract):
         )
 
     def set_appearance(self, param: str) -> None:
+        """
+        >>> set_appearance('system')
+        :param param:
+            The name of the new appearance
+        :type param:
+            str
+        :return:
+            None
+        """
         set_appearance_mode(param)
-        self.controller.update_user_settings_handler("user_appearance_mode", param)
-
-    def set_scaling(self, param: str) -> None:
-        nova_escala_float = int(param.replace("%", "")) / 100
-        set_widget_scaling(nova_escala_float)
-        set_window_scaling(nova_escala_float)
-        self.controller.update_user_settings_handler("user_scaling", param)
+        self.controller.update_user_settings_handler(
+            user_appearance_mode=param
+        )
 
     def set_color_theme(self, param: str) -> None:
         set_default_color_theme(param)
-        self.controller.update_user_settings_handler("user_color_theme", param)
+        self.controller.update_user_settings_handler(user_color_theme=param)
+
+    def set_scaling(self, param: str) -> None:
+        nova_escala_float = int(param.replace('%', '')) / 100
+        set_widget_scaling(nova_escala_float)
+        set_window_scaling(nova_escala_float)
+        self.controller.update_user_settings_handler(user_scaling=param)
 
     # ------  ------ #
 
     # ------ Question Form Data ------ #
     def _get_data_from_form_question(self) -> QuestionDataHint:
-        data = dict(
-            id=None,
-            categoria=self.category.get(),
-            subcategoria=self._subcategory.get(),
-            controle=None,
-            tempo=self._deadline.get(),
-            tipo=self.question_type.get(),
-            dificuldade=self.difficulty.get(),
-            # TODO: Fazer uma validação no peso para que seja possível apenas adicionar números
-            peso=self._question_weight.get(),
-            pergunta=self._question.get(0.0, "end-1c"),
-            alternativas=self._choices_get(),
-        )
+        data = {
+            'id': None,
+            'categoria': self.category.get(),
+            'subcategoria': self._subcategory.get(),
+            'controle': None,
+            'tempo': self._deadline.get(),
+            'tipo': self.question_type.get(),
+            'dificuldade': self.difficulty.get(),
+            # TODO: Validar o peso para que aceite apenas numeros
+            'peso': self._question_weight.get(),
+            'pergunta': self._question.get(0.0, 'end-1c'),
+            'alternativas': self._choices_get(),
+        }
         return data
 
-    def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
-        self.category.set(data.get("categoria", ""))
-        self._subcategory.set(data.get("subcategoria", ""))
-        self._deadline.set(data.get("tempo", "00:00:00"))
-        self.question_type.set(data.get("tipo", ""))
-        self.difficulty.set(data.get("dificuldade", "Fácil"))
-        self._question_weight.set(data.get("peso", 1))
-        self._question.insert(0.0, data.get("pergunta", ""))
-        self._choices_set(data.get("alternativas", [("", False)]))
-
-    def type_change(self, _) -> None:
-        quantidade_de_opcoes = self._choices_count
-        for indice in range(quantidade_de_opcoes):
-            self.rm_choice(indice=indice)
-            self.add_choice(index=indice)
-
     def _choices_get(self) -> ChoicesHint:
-        choices_list = []
+        choices_list: ChoicesHint = []
         _type = self.question_type.get()
+
         for index in range(self._choices_count):
             bt = self._select_choice_bt(index)
+            correct: bool
 
             if _type == D:
                 break
 
             if _type == ME:
                 correct = index == self._var_rd_button_value.get()
+
             else:
                 correct = bool(bt.get())
 
-            txt = self._txt_box_list[index].get(0.0, "end-1c")
+            txt = self._txt_box_list[index].get(0.0, 'end-1c')
             choices_list.append((txt, correct))
+
         return choices_list
+
+    def insert_data_in_question_form(self, data: QuestionDataHint) -> None:
+        self.category.set(data.get('categoria', ''))
+        self._subcategory.set(data.get('subcategoria', ''))
+        self._deadline.set(data.get('tempo', '00:00:00'))
+        self.question_type.set(data.get('tipo', ''))
+        self.difficulty.set(data.get('dificuldade', 'Fácil'))
+        self._question_weight.set(data.get('peso', 1))
+        self._question.insert(0.0, data.get('pergunta', ''))
+        self._choices_set(data.get('alternativas', [('', False)]))
+
+        self._question.focus()
+
+    def type_change(self, _=None) -> None:
+        quantidade_de_opcoes = self._choices_count
+        for indice in range(quantidade_de_opcoes):
+            self.rm_choice(indice=indice)
+            self.add_choice(index=indice)
 
     def _choices_set(self, choices_data: ChoicesHint) -> None:
         if choices_data is None:
             return
+
         for txt, correct in choices_data:
             self.add_choice(texto_alternativa=txt, corret=correct)
 
     def add_choice(
-        self, *, texto_alternativa: str = None, index: int = None, corret: bool = None
+        self,
+        *,
+        texto_alternativa: str = None,
+        index: int = None,
+        corret: bool = None,
     ) -> None:
-        if self.question_type.get() == self._question_type_list[0]:
+        if self.question_type.get() == D:
             return
 
         if self._choices_count == len(self._txt_box_list):
             self.alert(
-                "INFO", "Limite de opções", "Quantidade limite de opções atingida"
+                'INFO',
+                'Limite de opções atingido',
+                'Quantidade limite de opções atualmente é 10',
             )
-            return None
+            return
 
         # Ativado pela alteração de tipo de questão
         if index is None:
@@ -352,7 +411,9 @@ class CTkView(ViewContract):
         # Se a linha for zero, seta como 5, do contrário, 10
         pady = (5 if not index else 10, 0)
 
-        self._txt_box_list[index].grid(column=0, row=index, sticky=NSEW, pady=pady)
+        self._txt_box_list[index].grid(
+            column=0, row=index, sticky=NSEW, pady=pady
+        )
 
         # Ativado pela edição de questão
         if texto_alternativa is not None:
@@ -366,7 +427,9 @@ class CTkView(ViewContract):
 
         self._choices_count += 1
 
-    def _select_choice_bt(self, indice: int) -> Optional[CTkCheckBox | CTkRadioButton]:
+    def _select_choice_bt(
+        self, indice: int
+    ) -> Optional[CTkCheckBox | CTkRadioButton]:
         select_list = {
             ME: self._rd_bts_list,
             MEN: self._ck_bts_list,
@@ -411,8 +474,8 @@ class CTkView(ViewContract):
         )
 
         self._row_dict[controle] = {
-            "row": line_frame,
-            "display": new_question_line.title,
+            'row': line_frame,
+            'display': new_question_line.title,
         }
 
         self._update_question_counter()
@@ -429,10 +492,10 @@ class CTkView(ViewContract):
         self._updating = control
 
     def _reset_question_form(self) -> None:
-        self._subcategory.set("")
+        self._subcategory.set('')
         self._deadline.set(PLACE_HOLDER_TEMPO)
-        self.question_type.set(self._question_type_list[1])
-        self.difficulty.set(self._difficulty_list[0])
+        self.question_type.set(self.user_settings.question_type_list[1])
+        self.difficulty.set(self.user_settings.difficulty_list[0])
         self._question_weight.set(PLACE_HOLDER_PESO)
 
         # Janela de enunciado
@@ -453,7 +516,7 @@ class CTkView(ViewContract):
         self._question_count.set(len(self._row_dict))
 
     def _remove_question_from_questions_frame(self, control: int) -> None:
-        self._row_dict[control]["row"].destroy()
+        self._row_dict[control]['row'].destroy()
         del self._row_dict[control]
 
         self._update_question_counter()
@@ -464,14 +527,14 @@ class CTkView(ViewContract):
         data = self._get_data_from_form_question()
 
         if self._updating:
-            data["controle"] = self._updating
+            data['controle'] = self._updating
             self.update_question(data)
             self._updating = None
             return
 
         control = self.controller.create_question_handler(data)
 
-        self._create_new_question_line(data["pergunta"], control)
+        self._create_new_question_line(data['pergunta'], control)
 
         self._reset_question_form()
 
@@ -479,14 +542,14 @@ class CTkView(ViewContract):
         self.controller.update_question_handler(data)
 
         updating_line = self._row_dict[self._updating]
-        updating_line["display"].set(data["pergunta"])
+        updating_line['display'].set(data['pergunta'])
 
         self._reset_question_form()
 
     def _reorder_colors(self) -> None:
         self._zebrar = True
         for row_info in self._row_dict.values():
-            row_info["row"].configure(fg_color=self._select_color())
+            row_info['row'].configure(fg_color=self._select_color())
 
     def _select_color(self) -> str:
         self._zebrar = not self._zebrar
@@ -498,7 +561,7 @@ class CTkView(ViewContract):
         return window
 
     def insert_new_question(self, data: QuestionDataHint) -> None:
-        self._create_new_question_line(data["pergunta"], data["controle"])
+        self._create_new_question_line(data['pergunta'], data['controle'])
 
     def flush_questions(self) -> None:
         questions: dict = self._row_dict.copy()
@@ -511,14 +574,16 @@ class CTkView(ViewContract):
 
     # ------ Database Functions ------ #
     def new_db(self) -> None:
-        self.controller.confirm_export_first()
+        if not self.controller.export_first():
+            return
 
         self.flush_questions()
 
         self.controller.new_db_handler()
 
     def open_db(self) -> None:
-        self.controller.confirm_export_first()
+        if not self.controller.export_first():
+            return
 
         self.flush_questions()
 
@@ -553,21 +618,24 @@ class CTkView(ViewContract):
 
     def dialog_yes_no_cancel(self) -> Optional[bool]:
         confirm = askyesnocancel(
-            title="Confirme a exportação primeiro",
-            message="Você tem questões em edição, isso irá apagar as questões atuais.\n"
-            "Gostaria de exportar esse banco antes?",
+            title='Confirme a exportação primeiro',
+            message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
+            'Gostaria de exportar esse banco antes?',
         )
         return confirm
 
     def alert(
-        self, alert_type: Literal["INFO", "WARNING", "ERROR"], title: str, message: str
+        self,
+        alert_type: Literal['INFO', 'WARNING', 'ERROR'],
+        title: str,
+        message: str,
     ) -> None:
         match alert_type:
-            case "INFO":
+            case 'INFO':
                 showinfo(title, message)
-            case "WARNING":
+            case 'WARNING':
                 showwarning(title, message)
-            case "ERROR":
+            case 'ERROR':
                 showerror(title, message)
             case _:
                 return

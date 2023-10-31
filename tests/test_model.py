@@ -1,21 +1,35 @@
-from PIL import Image
+from pathlib import Path
 
+from src.Constants import CATEGORYLIST, DIFFICULTLIST
 from src.model import Model
 
 
 class TestModel:
-    def test_open_images(self):
-        model = Model()
+    model = Model()
+    created_questions = dict()
 
-        image_paths = {
-            'configuracoes_light_mode': 'configuracoes_light_mode.png',
-            'configuracoes_dark_mode': 'configuracoes_dark_mode.png',
-            'eraser_light_mode': 'eraser_light_mode.png',
-            'eraser_dark_mode': 'eraser_dark_mode.png',
-            'edit_light_mode': 'edit_light_mode.png',
-            'edit_dark_mode': 'edit_dark_mode.png',
-        }
-        system_images = model.read_system_images(image_paths)
+    def test_get_base_dir(self):
+        entrada = self.model.get_base_dir()
+        esperado = Path
+        resultado = isinstance(entrada, esperado)
+        assert resultado
 
-        for image in system_images.values():
-            assert isinstance(image, Image.Image)
+    def test_get_base_filename(self):
+        entrada = self.model.get_base_filename()
+        esperado = None
+        resultado = entrada is esperado
+        assert resultado
+
+    def test_create_me_question(self):
+        for i, category in enumerate(CATEGORYLIST, 1):
+            entrada = self.model.create_new_question({
+                'id': None, 'categoria': category, 'subcategoria': None, 'controle': None,
+                'tempo': f'{i:d2}:{i:d2}:{i:d2}', 'tipo': 'Multipla escolha 1 correta',
+                'dificuldade': DIFFICULTLIST[i % len(DIFFICULTLIST)],
+                'peso': i, 'pergunta': f'Pergunta {i}',
+                'alternativas': [('Opção 1', False), ('Opção 2', True), ('Opção 3', False), ('Opção 4', False)]
+            })
+            esperado = i
+            resultado = entrada == esperado
+            assert resultado
+

@@ -1,22 +1,16 @@
+from dataclasses import dataclass, field
 from pathlib import Path
+
 from PIL import Image
 
-from dataclasses import dataclass
-from src.Hints.hints import SysImgHint, Dict
+from src.Hints.hints import Dict, SysImgHint
 
 
-@dataclass
+@dataclass(frozen=True)
 class ImageModel:
-    image_paths: Dict[str, Path]
-
-    def __post_init__(self):
-        self._images = {name: self._abre_imagem(path) for name, path in self}
-
-    def _abre_imagem(self, image_path: Path) -> Image:
-        return Image.open(image_path)
-
-    def get_images(self) -> SysImgHint:
-        return self._images
-
-    def __iter__(self):
-        return iter(self.image_paths.items())
+    configuracoes_light_mode: Image.Image
+    configuracoes_dark_mode: Image.Image
+    eraser_light_mode: Image.Image
+    eraser_dark_mode: Image.Image
+    edit_light_mode: Image.Image
+    edit_dark_mode: Image.Image
