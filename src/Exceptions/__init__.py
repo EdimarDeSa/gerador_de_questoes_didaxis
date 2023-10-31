@@ -8,11 +8,11 @@ class QuestionMatchError(Exception):
         self.message = f'A questão "<{controle}>" tem a mesma pergunta!'
 
 
-class BrokenFileError(ExceptionBaseClass):
+class BrokenFileError(Exception):
     def __init__(self, message: str = None):
         self.message = message
 
 
-class QuestionValidationError(ExceptionBaseClass):
+class QuestionValidationError(Exception):
     def __init__(self, message: str):
         self.message = message
