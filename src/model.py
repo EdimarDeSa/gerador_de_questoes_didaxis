@@ -94,37 +94,38 @@ class Model(ModelContract):
     def _validate_question_data(data: QuestionDataHint) -> None:
         if not data:
             raise QuestionValidationError(
-                'Faltam informações para uma questão válida'
+                'Faltam informações para uma questão válida.\n'
+                f'{str(QuestionDataHint)}.'
             )
 
         if data['categoria'] not in CATEGORYLIST:
             raise QuestionValidationError(
-                f'Categoria: {data["categoria"]} deve ser um dos {CATEGORYLIST}'
+                f'Categoria `{data["categoria"]}` deve ser uma da lista {CATEGORYLIST}.'
             )
 
         if len(data['tempo'].split(':')) != 3:
             raise QuestionValidationError(
-                f'Tempo: {data["tempo"]} com formato inválido deve ser 00:00:00'
+                f'Tempo `{data["tempo"]}` com formato inválido deve ser hh:mm:ss.'
             )
 
         if data['tipo'] not in QUESTIONTYPELIST:
             raise QuestionValidationError(
-                f'Tipo: {data["tipo"]} deve ser um dos {QUESTIONTYPELIST}'
+                f'Tipo `{data["tipo"]}` deve ser um da lista {QUESTIONTYPELIST}.'
             )
 
         if data['dificuldade'] not in DIFFICULTLIST:
             raise QuestionValidationError(
-                f'Dificuldade: {data["dificuldade"]} deve ser um dos {DIFFICULTLIST}'
+                f'Dificuldade `{data["dificuldade"]}` deve ser uma da lista {DIFFICULTLIST}.'
             )
 
         if not isinstance(data['peso'], int):
             raise QuestionValidationError(
-                f'Peso {data["peso"]} deve ser do tipo int'
+                f'Peso `{data["peso"]}` deve ser numérico.'
             )
 
         if not data['pergunta']:
             raise QuestionValidationError(
-                f'Pergunta {data["pergunta"]} não pode ser None'
+                f'Perguntas não podem estar em branco.'
             )
 
         if data['tipo'] == D:
@@ -132,12 +133,12 @@ class Model(ModelContract):
 
         if len(data['alternativas']) < 2:
             raise QuestionValidationError(
-                'Perguntas de Multipla escolha e de verdadeiro ou false precisam ter ao menos duas opções'
+                f'Perguntas {data["tipo"]} precisam ter ao menos duas opções!'
             )
 
         if not any([bool(choice) for choice, _ in data['alternativas']]):
             raise QuestionValidationError(
-                f'Alternativa {data["alternativas"]} não pode conter opçõa em branco'
+                f'Alternativas não podem conter opção em branco.'
             )
 
         if data['tipo'] == ME:
@@ -148,7 +149,7 @@ class Model(ModelContract):
 
             if 0 == count > 1:
                 raise QuestionValidationError(
-                    f'Alternativas de questoes {ME} devem conter exclusivamente 1 questão correta.'
+                    f'Alternativas de questoes `{data["tipo"]}` devem conter exclusivamente 1 questão correta.'
                 )
 
     def delete_question(self, control: int) -> None:
@@ -170,9 +171,7 @@ class Model(ModelContract):
         list_to_export = list()
         for question_data in dict_of_questions:
             temp_question = question_data.copy()
-            temp_question['tipo'] = TYPESCONVERTER.get(
-                temp_question['tipo']
-            )
+            temp_question['tipo'] = TYPESCONVERTER.get(temp_question['tipo'])
 
             if question_data['tipo'] == 'd':
                 del temp_question['alternativas']
@@ -180,8 +179,8 @@ class Model(ModelContract):
                 continue
 
             alternativas = question_data['alternativas'].copy()
+            del temp_question['alternativas']
             for answer, correct in alternativas:
-                del temp_question['alternativas']
                 temp_question['alternativa'] = answer
                 temp_question['correta'] = self._correct_onvert(
                     correct, temp_question['tipo']
