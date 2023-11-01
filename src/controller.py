@@ -22,11 +22,11 @@ class Controller(ControllerHandlers):
         self._models = models
         self._views = views
 
-        user_settings = self._setup_user_settings()
+        self._user_settings = self._setup_user_settings()
         images = self._setup_images()
         icon = self._models.create_path('icons/icon_bitmap.ico')
 
-        self._views.setup(self, user_settings, images, icon)
+        self._views.setup(self, self._user_settings, images, icon)
 
     def _setup_images(self) -> ImageModel:
         image_paths = {
@@ -71,8 +71,14 @@ class Controller(ControllerHandlers):
             return
 
         self._models.flush_questions()
+        self._views.flush_questions()
 
     def open_db_handler(self) -> None:
+        cancel = self.export_first()
+
+        if cancel:
+            return
+
         file_path = self._views.dialog_open_file()
 
         if not file_path:
@@ -80,12 +86,18 @@ class Controller(ControllerHandlers):
 
         file_path = Path(file_path).resolve()
 
-        grouped_questions: GroupedQuestionDBHint = (
-            self._models.read_question_xlsx(file_path)
-        )
+        self._models.register_file_path(file_path)
 
-        for group in grouped_questions.values():
-            temp_data = dict(group[0])
+        self._models.flush_questions()
+
+        grouped_questions = self._models.read_question_xlsx(file_path)
+
+        del file_path
+
+        self._views.flush_questions()
+
+        for question_dict_group in grouped_questions.values():
+            temp_data: QuestionDataHint = question_dict_group[0].copy()
 
             temp_data.pop('alternativa')
             temp_data.pop('correta')
@@ -96,7 +108,7 @@ class Controller(ControllerHandlers):
 
             temp_data['alternativas'] = [
                 (item['alternativa'], item['correta'] in ['CORRETA', 'V'])
-                for item in group
+                for item in question_dict_group
             ]
 
             controle = self._models.create_new_question(temp_data)
@@ -116,6 +128,7 @@ class Controller(ControllerHandlers):
         self._models.save_file(filename, question_list)
 
         self._models.flush_questions()
+        self._views.flush_questions()
 
         self._exported = True
 
@@ -136,24 +149,31 @@ class Controller(ControllerHandlers):
             confirm = self._views.dialog_yes_no_cancel()
 
             if confirm is None:
-                return False
+                return True
 
             if confirm:
                 self.export_db_handler()
-        return True
+        return False
 
     # ------  ------ #
 
     # ------ Question Handling ------ #
-    def create_question_handler(self, data: QuestionDataHint) -> int:
+    def create_question_handler(self, data: QuestionDataHint) -> None:
         try:
             control = self._models.create_new_question(data)
-
             question = self.read_question_handler(control)
 
             self._exported = False
 
-            return question['controle']
+            # TODO: Implementar auto export.
+            #  O problema é quando quando eu dou um "auto" export,
+            #  o banco de dados é resetado e a tela de questões também...
+            # if self._user_settings.auto_export:
+            #     self.export_db_handler()
+
+            self._views.insert_new_question(question)
+            self._views.reset_question_form()
+
         except QuestionValidationError as e:
             self._views.alert(
                 'ERROR', 'Registro de pergunta não autorizado!', str(e)
@@ -162,8 +182,6 @@ class Controller(ControllerHandlers):
             self._views.alert(
                 'ERROR', 'Falha de conexão com banco de dados!', str(e)
             )
-
-        return 0
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
         return self._models.read_question(control)

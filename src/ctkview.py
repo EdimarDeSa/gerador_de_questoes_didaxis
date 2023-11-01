@@ -101,6 +101,8 @@ class CTkView(ViewContract):
         self.set_color_theme(self.user_settings.user_color_theme)
         self.set_scaling(self.user_settings.user_scaling)
 
+        self.root.protocol('WM_DELETE_WINDOW', self.close_window_event)
+
     def _setup_variables(self) -> None:
         titles_font_settings = CTkFont(
             family=self.user_settings.font_family,
@@ -467,8 +469,8 @@ class CTkView(ViewContract):
             controle,
             self._img_edit,
             self._img_delete,
-            cmd_delete=self._delete_question,
-            cmd_edit=self._open_question_to_update,
+            self._edit_question,
+            self._delete_question,
         )
 
         self._row_dict[controle] = {
@@ -483,13 +485,18 @@ class CTkView(ViewContract):
 
         self._remove_question_from_questions_frame(control)
 
-    def _open_question_to_update(self, control: int) -> None:
+    def _edit_question(self, control: int) -> None:
         question = self.controller.read_question_handler(control)
-        self._reset_question_form()
+
+        self.reset_question_form()
+
+        self._question.delete(1.0, END)
+
         self.insert_data_in_question_form(question)
+
         self._updating = control
 
-    def _reset_question_form(self) -> None:
+    def reset_question_form(self) -> None:
         self._subcategory.set('')
         self._deadline.set(PLACE_HOLDER_TEMPO)
         self.question_type.set(self.user_settings.question_type_list[1])
@@ -497,7 +504,7 @@ class CTkView(ViewContract):
         self._question_weight.set(PLACE_HOLDER_PESO)
 
         # Janela de enunciado
-        if self.var_erase_statement:
+        if self.var_erase_statement.get():
             self._question.delete(0.0, END)
 
         # Janela de botões
@@ -530,14 +537,7 @@ class CTkView(ViewContract):
             self._updating = None
             return
 
-        control = self.controller.create_question_handler(data)
-
-        if not control:
-            return
-
-        self._create_new_question_line(data['pergunta'], control)
-
-        self._reset_question_form()
+        self.controller.create_question_handler(data)
 
     def update_question(self, data: QuestionDataHint) -> None:
         self.controller.update_question_handler(data)
@@ -545,7 +545,7 @@ class CTkView(ViewContract):
         updating_line = self._row_dict[self._updating]
         updating_line['display'].set(data['pergunta'])
 
-        self._reset_question_form()
+        self.reset_question_form()
 
     def _reorder_colors(self) -> None:
         self._zebrar = True
@@ -569,31 +569,22 @@ class CTkView(ViewContract):
         for control in questions.keys():
             self._remove_question_from_questions_frame(control)
 
-        self._reset_question_form()
+        self.reset_question_form()
 
     # ------  ------ #
 
     # ------ Database Functions ------ #
     def new_db(self) -> None:
-        if not self.controller.export_first():
-            return
-
-        self.flush_questions()
-
         self.controller.new_db_handler()
+        self.setuptoplevel.close_window_event()
 
     def open_db(self) -> None:
-        if not self.controller.export_first():
-            return
-
-        self.flush_questions()
-
         self.controller.open_db_handler()
+        self.setuptoplevel.close_window_event()
 
     def export_db(self) -> None:
         self.controller.export_db_handler()
-
-        self.flush_questions()
+        self.setuptoplevel.close_window_event()
 
     # ------  ------ #
 
@@ -645,7 +636,10 @@ class CTkView(ViewContract):
 
     # ------ Close Window Event ------ #
     def close_window_event(self):
-        self.controller.export_db_handler()
+        cancel = self.controller.export_first()
+
+        if cancel:
+            return
 
         sys.exit(0)
 

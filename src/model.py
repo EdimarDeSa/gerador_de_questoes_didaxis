@@ -8,9 +8,11 @@ from src.Constants import (
     CATEGORYLIST,
     DIFFICULTLIST,
     ME,
+    MEN,
     QUESTIOHEADER,
     QUESTIONTYPELIST,
     TYPESCONVERTER,
+    VF,
     D,
 )
 from src.contracts.model import ModelContract
@@ -153,11 +155,14 @@ class Model(ModelContract):
                 )
 
     def delete_question(self, control: int) -> None:
-        self.__db_connection.delete_question(control)
+        try:
+            self.__db_connection.delete_question(control)
+
+        except ConnectionError:
+            raise ConnectionError('Nãofoi possível se conectar ao banco de dados.')
 
     def flush_questions(self) -> None:
         self.__db_connection.flush_questions()
-        self._base_dir = Path.home() / 'Desktop'
         self._base_filename = None
 
     # ------  ------ #
@@ -167,26 +172,29 @@ class Model(ModelContract):
         all_questions = self.__db_connection.select_all_questions()
 
         dict_of_questions = self._each_question_to_dict(all_questions)
+        all_questions = None
 
         list_to_export = list()
         for question_data in dict_of_questions:
             temp_question = question_data.copy()
-            temp_question['tipo'] = TYPESCONVERTER.get(temp_question['tipo'])
 
-            if question_data['tipo'] == 'd':
-                del temp_question['alternativas']
+            temp_question['tipo'] = TYPESCONVERTER.get(question_data['tipo'])
+
+            del temp_question['alternativas']
+
+            if temp_question['tipo'] == 'd':
+                temp_question['alternativa'] = ''
+                temp_question['correta'] = False
+
                 list_to_export.append(temp_question)
                 continue
 
-            alternativas = question_data['alternativas'].copy()
-            del temp_question['alternativas']
-            for answer, correct in alternativas:
+            for answer, correct in question_data['alternativas']:
                 temp_question['alternativa'] = answer
                 temp_question['correta'] = self._correct_onvert(
-                    correct, temp_question['tipo']
+                    correct, question_data['tipo']
                 )
                 list_to_export.append(temp_question)
-
         return list_to_export
 
     def read_question_xlsx(self, filename: Path) -> GroupedQuestionDBHint:
@@ -218,10 +226,10 @@ class Model(ModelContract):
     @staticmethod
     def _correct_onvert(correct: bool, type_: str) -> bool:
         responses = {
-            'me': 'CORRETA' if correct else '',
-            'men': 'CORRETA' if correct else '',
-            'vf': 'V' if correct else 'F',
-            'd': '',
+            ME: 'CORRETA' if correct else '',
+            MEN: 'CORRETA' if correct else '',
+            VF: 'V' if correct else 'F',
+            D: '',
         }
         return responses.get(type_, '')
 
@@ -244,7 +252,7 @@ class Model(ModelContract):
             difficulty_list=DIFFICULTLIST,
         )
 
-        self._save_file(configs_dir, asdict(user_settings))
+        self.save_file(configs_dir, asdict(user_settings))
 
     def read_user_settings(self, configs_dir: Path) -> UserModel:
         user_data = self._read_file(configs_dir)
@@ -258,7 +266,7 @@ class Model(ModelContract):
                 self._user_settings = replace(
                     self._user_settings, **new_config
                 )
-                self._save_file(file_path, asdict(self._user_settings))
+                self.save_file(file_path, asdict(self._user_settings))
                 return
             raise KeyError(f'User setting "{key}" does not exist')
 
@@ -272,7 +280,7 @@ class Model(ModelContract):
         serializer = self._select_serializer(file_path)
         return serializer.import_from_path(file_path)
 
-    def _save_file(self, file_path: Path, data: Any) -> None:
+    def save_file(self, file_path: Path, data: Any) -> None:
         serializer = self._select_serializer(file_path)
         serializer.export_to_path(file_path, data)
 
