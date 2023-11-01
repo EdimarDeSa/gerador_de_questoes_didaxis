@@ -7,9 +7,9 @@ from src.Hints.hints import (
     Any,
     GroupedQuestionDBHint,
     ImageModelHint,
+    ListDBHint,
     Optional,
     QuestionDataHint,
-    ListDBHint,
 )
 
 

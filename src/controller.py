@@ -156,12 +156,14 @@ class Controller(ControllerHandlers):
             return question['controle']
         except QuestionValidationError as e:
             self._views.alert(
-                'ERROR', 'Criação de pergunta não autorizada', str(e)
+                'ERROR', 'Registro de pergunta não autorizado!', str(e)
             )
         except ConnectionError as e:
             self._views.alert(
-                'ERROR', 'Falha de conexão com banco de dados', str(e)
+                'ERROR', 'Falha de conexão com banco de dados!', str(e)
             )
+
+        return 0
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
         return self._models.read_question(control)

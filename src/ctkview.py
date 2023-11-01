@@ -532,6 +532,9 @@ class CTkView(ViewContract):
 
         control = self.controller.create_question_handler(data)
 
+        if not control:
+            return
+
         self._create_new_question_line(data['pergunta'], control)
 
         self._reset_question_form()
