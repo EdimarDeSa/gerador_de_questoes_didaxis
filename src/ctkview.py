@@ -295,19 +295,17 @@ class CTkView(ViewContract):
             self.icon,
         )
 
-    def set_appearance(self, param: str) -> None:
+    def set_appearance(self, system_color_name: str) -> None:
         """
-        >>> set_appearance('system')
-        :param param:
-            The name of the new appearance
-        :type param:
-            str
-        :return:
-            None
+        >>> self.set_appearance('system')
+        Notes:
+            Seta a aparencia do app e salva essa nova aparência no arquivo do usuário.
+        Args:
+            system_color_name: Nome da nova aparencia, pode ser ['light', 'dark', 'system']
         """
-        set_appearance_mode(param)
+        set_appearance_mode(system_color_name)
         self.controller.update_user_settings_handler(
-            user_appearance_mode=param
+            user_appearance_mode=system_color_name
         )
 
     def set_color_theme(self, param: str) -> None:

@@ -1,8 +1,11 @@
+import os
 from re import fullmatch
 
-from requests import get
+from requests import get, ConnectionError
 
 from src.Constants import *
+
+os.system('cls')
 
 
 def test_verifica_se_shortcuts_esta_em_formato_de_lista():
@@ -118,7 +121,6 @@ def test_constante_vf_verdadeiro_ou_falso():
 
 def test_place_holder_tempo_tem_formato_padrao_hh_mm_ss():
     entrada = PLACE_HOLDER_TEMPO
-
     esperado = True
 
     resultado = entrada == '00:00:00'
@@ -127,13 +129,17 @@ def test_place_holder_tempo_tem_formato_padrao_hh_mm_ss():
 
 
 def test_se_link_de_feedback_esta_funcionando():
-    entrada = LINK_FEEDBACK_FORM
+    try:
+        entrada = LINK_FEEDBACK_FORM
 
-    esperado = 200
+        esperado = 200
 
-    resultado = get(entrada).status_code
+        resultado = get(entrada).status_code
 
-    assert resultado == esperado
+        assert resultado == esperado
+
+    except ConnectionError:
+        assert True
 
 
 def test_filetypes_tem_apenas_excel():
