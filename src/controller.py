@@ -111,7 +111,11 @@ class Controller(ControllerHandlers):
 
         filename = self._models.get_current_file_path()
 
-        self._models.create_question_xlsx(filename)
+        question_list = self._models.get_questions_to_export_xlsx()
+
+        self._models.save_file(filename, question_list)
+
+        self._models.flush_questions()
 
         self._exported = True
 
@@ -123,9 +127,9 @@ class Controller(ControllerHandlers):
 
         file_path = Path(filename).resolve()
 
-        self._models.create_question_xlsx(file_path)
+        self._models.register_file_path(file_path)
 
-        self._exported = True
+        self.export_db_handler()
 
     def export_first(self) -> bool:
         if not self._exported:

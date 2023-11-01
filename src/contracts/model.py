@@ -4,11 +4,12 @@ from pathlib import Path
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.usermodel import UserModel
 from src.Hints.hints import (
+    Any,
     GroupedQuestionDBHint,
     ImageModelHint,
     Optional,
     QuestionDataHint,
-    SysImgHint,
+    ListDBHint,
 )
 
 
@@ -45,7 +46,7 @@ class ModelContract(ABC):
 
     # ------ Questions Data Base Handler ------ #
     @abstractmethod
-    def create_question_xlsx(self, file_path: Path) -> None:
+    def get_questions_to_export_xlsx(self) -> ListDBHint:
         pass
 
     @abstractmethod
@@ -82,4 +83,10 @@ class ModelContract(ABC):
         ...
 
     def get_current_file_path(self) -> Path:
+        pass
+
+    def register_file_path(self, file_path: Path) -> None:
+        pass
+
+    def save_file(self, file_path: Path, data: Any) -> None:
         pass
