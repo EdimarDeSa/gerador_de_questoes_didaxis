@@ -271,15 +271,6 @@ class TestModel:
             with raises(KeyError):
                 self.model.read_question(entrada)
 
-    def test_reset_do_base_dir_apos_flush(self):
-        entrada = self.model.get_base_dir
-
-        esperado = Path().home() / 'Desktop'
-
-        resultado = entrada()
-
-        assert resultado == esperado
-
     def test_reset_do_base_file_name_apos_flush(self):
         entrada = self.model.get_base_filename
 

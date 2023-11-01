@@ -1,4 +1,3 @@
-# import sqlite3
 from dataclasses import replace
 
 from src.contracts.questionsdbcontrct import QuestionDBContract
@@ -38,7 +37,7 @@ class QuestionsDB(QuestionDBContract):
         self.__control = 0
 
     def select_all_questions(self) -> List[QuestionModel]:
-        return [question for question in self.__db.values()]
+        return list(self.__db.values())
 
     def _next_control(self) -> int:
         self.__control += 1

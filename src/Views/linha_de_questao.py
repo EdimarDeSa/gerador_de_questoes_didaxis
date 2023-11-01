@@ -3,6 +3,7 @@ from tkinter.messagebox import askyesno
 from customtkinter import CTkButton, CTkFrame, CTkImage, CTkLabel, StringVar, W
 
 from src.Constants import BORDER_BLUE
+from src.Hints import Callable
 
 
 class LinhaDeQuestao:
@@ -13,13 +14,15 @@ class LinhaDeQuestao:
         controle: int,
         img_edit: CTkImage,
         img_delete: CTkImage,
+        cmd_edit: Callable,
+        cmd_delete: Callable,
         **kwargs
     ):
         self.controle = controle
         self.title = StringVar(value=title)
 
-        self.cmd_edit = kwargs.get('cmd_edit')
-        self.cmd_delete = kwargs.get('cmd_delete')
+        self.cmd_edit = cmd_edit
+        self.cmd_delete = cmd_delete
         border = dict(
             border_width=1, border_spacing=1, border_color=BORDER_BLUE
         )

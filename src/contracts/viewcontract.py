@@ -55,6 +55,10 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
+    def reset_question_form(self) -> None:
+        pass
+
+    @abstractmethod
     def _delete_question(self, control: int) -> None:
         pass
 

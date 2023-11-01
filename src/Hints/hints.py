@@ -31,21 +31,21 @@ QuestionsDBHint = Dict[int, QuestionDataHint]
 
 
 class QuestionDBHint(TypedDict):
-    ID: Optional[str]
-    CATEGORIA: str
-    SUBCATEGORIA: Optional[str]
-    CONTROLE: Optional[int]
-    TEMPO: Optional[str]
-    TIPO: str
-    DIFICULDADE: str
-    PESO: int
-    PERGUNTA: str
-    ALTERNATIVA: Optional[str]
-    CORRETA: Optional[str]
+    id: Optional[str]
+    categoria: str
+    subcategoria: Optional[str]
+    controle: Optional[int]
+    tempo: Optional[str]
+    tipo: str
+    dificuldade: str
+    peso: int
+    pergunta: str
+    alternativa: Optional[str]
+    correta: Optional[str]
 
 
-GroupedQuestionDBHint = Dict[str, QuestionDBHint]
 ListDBHint = List[QuestionDBHint]
+GroupedQuestionDBHint = Dict[str, ListDBHint]
 
 
 class FontHint(TypedDict):

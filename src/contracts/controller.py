@@ -33,7 +33,7 @@ class ControllerHandlers(ABC):
     # Base CRUD methods
 
     @abstractmethod
-    def create_question_handler(self, data: QuestionDataHint) -> int:
+    def create_question_handler(self, data: QuestionDataHint) -> None:
         ...
 
     @abstractmethod
