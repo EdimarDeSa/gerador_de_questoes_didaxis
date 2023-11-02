@@ -3,9 +3,9 @@ import subprocess
 from pathlib import Path
 
 from src.Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
-from src.contracts.controller import ControllerHandlers
-from src.contracts.model import ModelContract
-from src.contracts.viewcontract import ViewContract
+from src.Contracts.controller import ControllerHandlers
+from src.Contracts.model import ModelContract
+from src.Contracts.viewcontract import ViewContract
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.usermodel import UserModel
 from src.Exceptions import BrokenFileError, QuestionValidationError

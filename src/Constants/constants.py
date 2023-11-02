@@ -1,13 +1,15 @@
-TRANSPARENT = 'transparent'
-DARKGRAY = ('gray66', 'gray37')
+TRANSPARENT = 'TRANSPARENT'
+DARKGRAY = ('GRAY66', 'GRAY37')
 BLUE = ('#3B8ED0', '#1F6AA5')
 HOVER_BLUE = ('#36719F', '#144870')
 BORDER_BLUE = ('#3E454A', '#949A9F')
-GREEN = ('#2cbe79', '#2FA572')
-GRAY = ('gray81', 'gray20')
+GREEN = ('#2CBE79', '#2FA572')
+RED = ('#BE2c56', '#A52237')
+GRAY = ('GRAY81', 'GRAY20')
 
 TABOPCAO = 'Opção'
 TABAJUDA = 'Ajuda'
+ADD = 'Adicionar'
 
 SHORTCUTS = [
     ('Abre tela de atalhos:', 'F1'),

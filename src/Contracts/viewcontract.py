@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.contracts.controller import ControllerHandlers
+from src.Contracts.controller import ControllerHandlers
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.usermodel import UserModel
 from src.Hints import Literal, QuestionDataHint

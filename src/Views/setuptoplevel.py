@@ -11,7 +11,7 @@ from customtkinter import (
 )
 
 from src.Constants import GRAY, GREEN, TABAJUDA, TABOPCAO
-from src.contracts.controller import ControllerHandlers
+from src.Contracts.controller import ControllerHandlers
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.topleveltoolsmodel import TopLevelToolsModel
 from src.DataModels.usermodel import UserModel

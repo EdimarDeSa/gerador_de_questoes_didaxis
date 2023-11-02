@@ -15,8 +15,8 @@ from src.Constants import (
     VF,
     D,
 )
-from src.contracts.model import ModelContract
-from src.contracts.serializer import Serializer
+from src.Contracts.model import ModelContract
+from src.Contracts.serializer import Serializer
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.questionmodel import QuestionModel
 from src.DataModels.questionsdb import QuestionsDB
@@ -159,7 +159,9 @@ class Model(ModelContract):
             self.__db_connection.delete_question(control)
 
         except ConnectionError:
-            raise ConnectionError('Nãofoi possível se conectar ao banco de dados.')
+            raise ConnectionError(
+                'Nãofoi possível se conectar ao banco de dados.'
+            )
 
     def flush_questions(self) -> None:
         self.__db_connection.flush_questions()
@@ -178,7 +180,9 @@ class Model(ModelContract):
         for question_data in dict_of_questions:
             intermedite_temp_question = question_data.copy()
 
-            intermedite_temp_question['tipo'] = TYPESCONVERTER.get(question_data['tipo'])
+            intermedite_temp_question['tipo'] = TYPESCONVERTER.get(
+                question_data['tipo']
+            )
 
             del intermedite_temp_question['alternativas']
 

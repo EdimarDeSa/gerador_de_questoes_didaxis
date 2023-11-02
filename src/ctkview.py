@@ -35,7 +35,7 @@ from src.Constants import (
     VF,
     D,
 )
-from src.contracts.viewcontract import ViewContract
+from src.Contracts.viewcontract import ViewContract
 from src.DataModels.topleveltoolsmodel import TopLevelToolsModel
 from src.DataModels.widgetssettingsmodel import WidgetsSettingsModel
 from src.Hints import (
