@@ -127,10 +127,14 @@ class Controller(ControllerHandlers):
 
         self._models.save_file(filename, question_list)
 
+        self._exported = True
+
+        # Se estiver ativo o auto export não reseta o banco e a tabela de questões
+        if self._user_settings.auto_export:
+            return
+
         self._models.flush_questions()
         self._views.flush_questions()
-
-        self._exported = True
 
     def export_as_db_handler(self) -> None:
         filename = self._views.dialog_save_as()
@@ -163,13 +167,10 @@ class Controller(ControllerHandlers):
             control = self._models.create_new_question(data)
             question = self.read_question_handler(control)
 
-            self._exported = False
+            if self._user_settings.auto_export:
+                self.export_db_handler()
 
-            # TODO: Implementar auto export.
-            #  O problema é quando quando eu dou um "auto" export,
-            #  o banco de dados é resetado e a tela de questões também...
-            # if self._user_settings.auto_export:
-            #     self.export_db_handler()
+            self._exported = False
 
             self._views.insert_new_question(question)
             self._views.reset_question_form()
@@ -187,9 +188,12 @@ class Controller(ControllerHandlers):
         return self._models.read_question(control)
 
     def update_question_handler(self, data: QuestionDataHint) -> None:
-        self._exported = False
-
         self._models.update_question(data)
+
+        if self._user_settings.auto_export:
+            self.export_db_handler()
+
+        self._exported = False
 
     def delete_question_handler(self, control: int) -> None:
         self._models.delete_question(control)
