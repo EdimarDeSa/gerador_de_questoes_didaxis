@@ -198,6 +198,9 @@ class Controller(ControllerHandlers):
     def delete_question_handler(self, control: int) -> None:
         self._models.delete_question(control)
 
+        if self._user_settings.auto_export:
+            self.export_db_handler()
+
         self._exported = False
 
     # ------  ------ #
