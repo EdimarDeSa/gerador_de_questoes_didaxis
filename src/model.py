@@ -261,14 +261,14 @@ class Model(ModelContract):
         self._user_settings = UserModel(**user_data)
         return self._user_settings
 
-    def update_user_settings(self, file_path: Path, **new_config) -> None:
-        for key in new_config.keys():
+    def update_user_settings(self, file_path: Path, **new_config) -> UserModel:
+        for key in new_config:
             if key in asdict(self._user_settings):
                 self._user_settings = replace(
                     self._user_settings, **new_config
                 )
                 self.save_file(file_path, asdict(self._user_settings))
-                return
+                return self._user_settings
             raise KeyError(f'User setting "{key}" does not exist')
 
     # ------  ------ #

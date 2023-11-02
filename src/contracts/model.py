@@ -65,7 +65,7 @@ class ModelContract(ABC):
         pass
 
     @abstractmethod
-    def update_user_settings(self, file_path: Path, **new_config) -> None:
+    def update_user_settings(self, file_path: Path, **new_config) -> UserModel:
         pass
 
     # End of user settings CRUD methods

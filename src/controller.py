@@ -57,7 +57,7 @@ class Controller(ControllerHandlers):
             self._setup_user_settings()
 
     def update_user_settings_handler(self, **new_config) -> None:
-        self._models.update_user_settings(
+        self._user_settings = self._models.update_user_settings(
             self._user_settings_path, **new_config
         )
 
