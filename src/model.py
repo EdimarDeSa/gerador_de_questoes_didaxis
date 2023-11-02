@@ -176,25 +176,26 @@ class Model(ModelContract):
 
         list_to_export = list()
         for question_data in dict_of_questions:
-            temp_question = question_data.copy()
+            intermedite_temp_question = question_data.copy()
 
-            temp_question['tipo'] = TYPESCONVERTER.get(question_data['tipo'])
+            intermedite_temp_question['tipo'] = TYPESCONVERTER.get(question_data['tipo'])
 
-            del temp_question['alternativas']
+            del intermedite_temp_question['alternativas']
 
-            if temp_question['tipo'] == 'd':
-                temp_question['alternativa'] = ''
-                temp_question['correta'] = False
+            if intermedite_temp_question['tipo'] == 'd':
+                intermedite_temp_question['alternativa'] = ''
+                intermedite_temp_question['correta'] = ''
 
-                list_to_export.append(temp_question)
+                list_to_export.append(intermedite_temp_question)
                 continue
 
             for answer, correct in question_data['alternativas']:
-                temp_question['alternativa'] = answer
-                temp_question['correta'] = self._correct_onvert(
+                final_temp_question = intermedite_temp_question.copy()
+                final_temp_question['alternativa'] = answer
+                final_temp_question['correta'] = self._correct_onvert(
                     correct, question_data['tipo']
                 )
-                list_to_export.append(temp_question)
+                list_to_export.append(final_temp_question)
         return list_to_export
 
     def read_question_xlsx(self, filename: Path) -> GroupedQuestionDBHint:
