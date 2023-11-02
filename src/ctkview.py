@@ -332,7 +332,6 @@ class CTkView(ViewContract):
             'tempo': self._deadline.get(),
             'tipo': self.question_type.get(),
             'dificuldade': self.difficulty.get(),
-            # TODO: Validar o peso para que aceite apenas numeros
             'peso': self._question_weight.get(),
             'pergunta': self._question.get(0.0, 'end-1c'),
             'alternativas': self._choices_get(),

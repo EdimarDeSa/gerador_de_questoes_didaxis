@@ -57,6 +57,10 @@ class QuestionParametersFrame(CTkFrame):
         CTkLabel(self, text='Peso da questão', **label_settings).grid(
             column=2, row=2, pady=(10, 0)
         )
-        CTkEntry(self, textvariable=question_weight, **entry_settings).grid(
-            column=2, row=3
-        )
+        CTkEntry(
+            self, validate='key', validatecommand=(self.register(self._only_numbers), '%P'),
+            textvariable=question_weight, **entry_settings
+        ).grid(column=2, row=3)
+
+    def _only_numbers(self, digit: str) -> bool:
+        return digit.isdigit()
