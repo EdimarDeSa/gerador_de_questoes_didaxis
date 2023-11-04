@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.contracts.serializer import Serializer
+from src.Contracts.serializer import Serializer
 from src.Exceptions import BrokenFileError
 from src.Hints import Iterable
 

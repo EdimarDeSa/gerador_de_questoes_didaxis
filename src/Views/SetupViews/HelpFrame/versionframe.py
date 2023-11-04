@@ -29,7 +29,7 @@ class VersionFrame(CTkFrame):
     def get_project_version(cls):
         import tomllib
 
-        with open('../pyproject.toml', 'rb') as file:
+        with open('./pyproject.toml', 'rb') as file:
             pyproject_data = tomllib.load(file)
 
         cls.__version__ = pyproject_data['tool']['poetry']['version']

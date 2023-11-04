@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from src.Hints.hints import Optional, QuestionDataHint
+from src.Contracts.spelledtextbox import SpelledTextBoxContract
 
 
 class ControllerHandlers(ABC):
@@ -54,4 +55,8 @@ class ControllerHandlers(ABC):
 
     @abstractmethod
     def get_base_dir(self) -> Path:
+        ...
+
+    @abstractmethod
+    def input_speller_queue(self, text_box_widget: SpelledTextBoxContract) -> None:
         ...

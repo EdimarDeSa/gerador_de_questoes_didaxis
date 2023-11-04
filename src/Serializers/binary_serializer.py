@@ -2,7 +2,7 @@ import pickle
 from pathlib import Path
 from typing import Iterable
 
-from src.contracts.serializer import Serializer
+from src.Contracts.serializer import Serializer
 from src.Exceptions import BrokenFileError
 
 

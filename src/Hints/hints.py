@@ -1,3 +1,4 @@
+from threading import Timer
 from tkinter import Variable
 from typing import (
     Any,
@@ -12,6 +13,8 @@ from typing import (
 
 from PIL import Image
 from typing_extensions import Protocol, TypedDict
+
+from src.Contracts.spelledtextbox import SpelledTextBoxContract
 
 
 class QuestionDataHint(TypedDict):
@@ -117,3 +120,9 @@ ChoicesHint = List[Optional[Tuple[str, bool]]]
 WidgetListHint = List[Any]
 
 MenuSettingsHint = Dict[str, Any]
+
+
+class WidgetInfosHint(TypedDict):
+    widget: SpelledTextBoxContract
+    timer: Timer
+    words: List[str]

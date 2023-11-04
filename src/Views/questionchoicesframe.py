@@ -9,7 +9,8 @@ from customtkinter import (
     Variable,
 )
 
-from src.Hints import MenuSettingsHint, WidgetListHint
+from src.Hints import MenuSettingsHint, WidgetListHint, Callable
+from src.Views.spelledtextbox import SpelledTextBox
 
 
 class QuestionChoicesFrame(CTkFrame):
@@ -22,6 +23,7 @@ class QuestionChoicesFrame(CTkFrame):
         lista_txt_box: WidgetListHint,
         lista_rd_bts: WidgetListHint,
         lista_ck_bts: WidgetListHint,
+        input_speller_queue: Callable,
     ):
         super().__init__(master)
 
@@ -35,7 +37,7 @@ class QuestionChoicesFrame(CTkFrame):
         for index in range(10):
             sc_frame.grid_rowconfigure(index, weight=1)
 
-            texto = CTkTextbox(sc_frame, width=650, height=50, **text_configs)
+            texto = SpelledTextBox(sc_frame, input_speller_queue, width=650, height=50, **text_configs)
             lista_txt_box.append(texto)
 
             rd_button = CTkRadioButton(

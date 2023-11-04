@@ -251,6 +251,7 @@ class CTkView(ViewContract):
             self.widgets_settings.button_title_settings,
             self.add_choice,
             self.rm_choice,
+            self.controller.input_speller_queue
         )
         question_statement_frame.place(
             relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19
@@ -266,6 +267,7 @@ class CTkView(ViewContract):
             self._txt_box_list,
             self._rd_bts_list,
             self._ck_bts_list,
+            self.controller.input_speller_queue
         ).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
         self.questions_frame = QuestionsFrame(

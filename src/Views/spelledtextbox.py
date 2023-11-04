@@ -1,61 +1,97 @@
+import dataclasses
+from tkinter import Event
 from tkinter.messagebox import showwarning
+from typing import Callable
 
 from customtkinter import CTkTextbox
 
 from src.Constants import MAXIMO_DE_CARACTERES, RED
+from src.Contracts.spelledtextbox import SpelledTextBoxContract
 
 
-class SpelledTextBox(CTkTextbox):
-    def __init__(self, master, **kwargs):
+@dataclasses.dataclass(frozen=True)
+class Vector:
+    x: float
+    y: float
+
+
+@dataclasses.dataclass(frozen=True)
+class Suggestions:
+    vector: Vector
+    suggestions: list[str] = dataclasses.field(default_factory=list)
+
+
+class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
+    def __init__(self, master, input_speller_queue: Callable, **kwargs):
         super().__init__(master, border_color=RED, **kwargs)
 
-        self.bind('<KeyRelease>', self.verifica_quantidade_digitos, add='+')
-        self.palavras_com_sugestoes: dict = {}
+        self.bind('<KeyRelease>', self._verifica_quantidade_digitos, add='+')
+        self.bind('<KeyRelease>', self._corretor_ortografico, add='+')
+
+        self.palavras_com_suggests: dict = {}
+        self.input_speller_queue = input_speller_queue
 
         self.alerta_exibido = False
 
-    def get_possiveis_correcoes(self, palavra) -> list:
-        return self.palavras_com_sugestoes.get(palavra, {}).get(
-            'sugestoes', ['Sem sugestões']
+    def _corretor_ortografico(self, event: Event):
+        if event.keysym.isalpha():
+            self.input_speller_queue(self)
+
+    def get_suggestions(self, word: str) -> set[str]:
+        return self.palavras_com_suggests.get(word).get('suggests')
+
+    def register_suggestions(self, word: str, suggestions: set[str]) -> None:
+        if not suggestions: return
+
+        x = self.search(word, 0.0, nocase=True)
+        y = self.index(f"{x} + {len(word)}c")
+        vector = Vector(x, y)
+
+        self.get(vector.x, vector.y)
+
+        tag_name = f'{word}_{vector.x}'
+
+        print('register_suggestions')
+
+        suggestions_list = (
+            suggestions if len(suggestions) < 4 else list(suggestions)[:5]
         )
 
-    def registra_possiveis_correcoes(self, palavra: str, novas_correcoes: set):
-        if novas_correcoes:
-            lista_correcoes = (
-                list(novas_correcoes)
-                if len(novas_correcoes) < 4
-                else list(novas_correcoes)[:5]
-            )
-            self.palavras_com_sugestoes[palavra] = {
-                'sugestoes': lista_correcoes
-            }
+        self.tag_add(tag_name, vector.x, vector.y)
 
-    def get_texto_completo(self) -> str:
-        return self.get(1.0, 'end-1c')
+        self.tag_config(tag_name, underline=1, foreground='red')
+
+        self.palavras_com_suggests[tag_name] = {Suggestions(
+            suggestions=suggestions_list,
+            vector=vector
+        )}
+        print(self.palavras_com_suggests)
+
+
 
     def registra_posicao_inicial(self, palavra, start_index):
-        self.palavras_com_sugestoes.setdefault(palavra, {})[
+        self.palavras_com_suggests.setdefault(palavra, {})[
             'posicao_inicial'
         ] = start_index
 
     def get_posicao_inicial(self, palavra):
-        return self.palavras_com_sugestoes.get(palavra, {}).get(
+        return self.palavras_com_suggests.get(palavra, {}).get(
             'posicao_inicial'
         )
 
     def registra_posicao_final(self, palavra, end_index):
-        self.palavras_com_sugestoes.setdefault(palavra, {})[
+        self.palavras_com_suggests.setdefault(palavra, {})[
             'posicao_final'
         ] = end_index
 
     def get_posicao_final(self, palavra):
-        return self.palavras_com_sugestoes.get(palavra, {}).get(
+        return self.palavras_com_suggests.get(palavra, {}).get(
             'posicao_final'
         )
 
     def cria_tag(self, palavra, comando) -> None:
         tag_name = f'corretor_ortografico_{self.get_posicao_inicial(palavra)}'
-        self.palavras_com_sugestoes.setdefault(palavra, {})[
+        self.palavras_com_suggests.setdefault(palavra, {})[
             'nome_da_tag'
         ] = tag_name
 
@@ -70,15 +106,15 @@ class SpelledTextBox(CTkTextbox):
         )
 
     def get_nome_da_tag(self, palavra: str) -> str:
-        return self.palavras_com_sugestoes.get(palavra, {}).get('nome_da_tag')
+        return self.palavras_com_suggests.get(palavra, {}).get('nome_da_tag')
 
     def remove_correcao_pela_tag(self, nome_da_tag) -> None:
         self.tag_delete(nome_da_tag)
-        for palavra, dados in list(self.palavras_com_sugestoes.items()):
+        for palavra, dados in list(self.palavras_com_suggests.items()):
             if dados.get('nome_da_tag') == nome_da_tag:
-                self.palavras_com_sugestoes.pop(palavra)
+                self.palavras_com_suggests.pop(palavra)
 
-    def verifica_quantidade_digitos(self, _) -> None:
+    def _verifica_quantidade_digitos(self, _) -> None:
         total_digitos = len(self.get(1.0, 'end-1c'))
         if total_digitos > MAXIMO_DE_CARACTERES:
             self.tag_add('tamanho', f'1.{MAXIMO_DE_CARACTERES}', 'end-1c')
