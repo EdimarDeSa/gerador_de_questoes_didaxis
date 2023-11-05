@@ -314,8 +314,10 @@ class Model(ModelContract):
         self._base_dir = file_path.parent
         self._base_filename = file_path.name
 
-    def create_personal_dict(self, default_dict_path: Path, file_path: Path) -> None:
-        default_dict = self._read_file(default_dict_path)
-        self.save_file(file_path, default_dict)
+    def create_personal_dict(
+        self, default_dict_path: Path, file_path: Path
+    ) -> None:
+        default_dict: str = self._read_file(default_dict_path)
+        self.save_file(file_path, default_dict.split('\n'))
 
     # ------  ------ #
