@@ -13,3 +13,11 @@ class SpellerContract(ABC):
     @abstractmethod
     def suggest_corrections(self, word: str) -> set[str]:
         pass
+
+    @abstractmethod
+    def export_word_usage(self) -> None:
+        pass
+
+    @abstractmethod
+    def add_new_word(self, word: str) -> None:
+        pass
