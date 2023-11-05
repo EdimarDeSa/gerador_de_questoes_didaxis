@@ -135,6 +135,8 @@ class CTkView(ViewContract):
                 'autoseparators': True,
                 'exportselection': True,
                 'maxundo': 5,
+                'input_speller_queue': self.controller.input_speller_queue,
+                'cmd_add_new_word': self.controller.add_word_in_personal_dict_handler,
             },
             scrollable_label_settings={'label_font': titles_font_settings},
         )
@@ -247,11 +249,10 @@ class CTkView(ViewContract):
         question_statement_frame = QuestionStatementFrame(
             self.root,
             self.widgets_settings.label_settings,
-            self.widgets_settings.entry_settings,
+            self.widgets_settings.text_settings,
             self.widgets_settings.button_title_settings,
             self.add_choice,
             self.rm_choice,
-            self.controller.input_speller_queue
         )
         question_statement_frame.place(
             relx=0.01, rely=0.23, relwidth=0.485, relheight=0.19
@@ -267,7 +268,6 @@ class CTkView(ViewContract):
             self._txt_box_list,
             self._rd_bts_list,
             self._ck_bts_list,
-            self.controller.input_speller_queue
         ).place(relx=0.01, rely=0.44, relwidth=0.485, relheight=0.46)
 
         self.questions_frame = QuestionsFrame(
