@@ -1,9 +1,8 @@
 import os
 import subprocess
-import sys
 from pathlib import Path
 from functools import lru_cache
-from threading import Timer, Semaphore
+from WorkersBrewery import WorkersBrewery
 
 from src.Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
 from src.Contracts.controller import ControllerHandlers
@@ -24,8 +23,9 @@ class Controller(ControllerHandlers):
         self._exported = True
         self._user_settings_path: Path | None = None
 
-        self._speller_deque = dict()
-        self._workers_semaphore = Semaphore(3)
+        self._brewery = WorkersBrewery(5, .5, True)
+
+        self._speller_deque: dict[str, WidgetInfosHint] = dict()
 
     def start(self, views: ViewContract, models: ModelContract) -> None:
         self._models = models
@@ -35,8 +35,17 @@ class Controller(ControllerHandlers):
         images = self._setup_images()
         icon = self._models.create_path('icons/icon_bitmap.ico')
 
-        personal_dict = self._models.create_path('configs/dicionario_pessoal.json')
-        self._spellcaster: SpellerContract = PySpellChecker(personal_dict)
+        self.personal_dict_path = self._models.create_path(
+            'configs/dicionario_pessoal.json'
+        )
+
+        if not self.personal_dict_path.exists():
+            default_dict_path = self._models.create_path(
+                'configs/lista_de_paralvras.bin'
+            )
+            self._models.create_personal_dict(default_dict_path, self.personal_dict_path)
+
+        self._spellchecker: SpellerContract = PySpellChecker(self.personal_dict_path)
 
         self._views.setup(self, self._user_settings, images, icon)
 
@@ -240,105 +249,39 @@ class Controller(ControllerHandlers):
     def input_speller_queue(self, text_box_widget: SpelledTextBox) -> None:
         widget_name = str(text_box_widget.winfo_id())
 
-        widget_infos: WidgetInfosHint = self._speller_deque.get(widget_name, None)
-        if widget_infos is None:
-            widget_infos = dict(widget=text_box_widget)
-            self._speller_deque[widget_name] = widget_infos
-
-        # print(self._speller_deque)
-        timer: Timer = widget_infos.get('timer', None)
-        print(timer)
-        if timer is not None:
-            timer.cancel()
-            print(timer)
-        # print(self._speller_deque)
-
-        widget_infos['timer'] = self._request_timer(widget_name)
-        # print(self._speller_deque)
-
-    def _request_timer(self, widget_name: str) -> Timer:
-        timer = Timer(0.5, self._start_spelling, [widget_name])
-        timer.start()
-        return timer
-
-    def _start_spelling(self, widget_name: str):
-        with self._workers_semaphore:
-            widget_infos: WidgetInfosHint = self._speller_deque.get(widget_name)
-            widget: SpelledTextBox = widget_infos.get('widget')
-
-            if widget_infos is None:
-                return
-
-            text = widget.get(1.0, 'end-1c')
-
-            tokens = self._spellcaster.tokenize_words(text)
-
-            unknow_words = self._spellcaster.check_spelling(tokens)
-
-            for word in unknow_words:
-                suggestions = self._spellcaster.suggest_corrections(word)
-                widget.register_suggestions(word, suggestions)
-
-
-
-    def __limpa_correcoes_anteriores(self) -> None:
-        for nome_da_tag in self.__text_widget.tag_names():
-            if nome_da_tag.startswith('corretor_ortografico_'):
-                self.__text_widget.remove_correcao_pela_tag(nome_da_tag)
-
-    def show_correction_menu(self, event, palavra) -> None:
-        text_widget: SpelledTextBox = event.widget._master
-        pop_up_menu = Menu(text_widget, tearoff=False, font='Arial 12')
-        for correction in text_widget.get_possiveis_correcoes(palavra):
-            if correction == 'Sem sugestões':
-                pop_up_menu.add_command(
-                    label=correction, command=self.__nada_a_fazer
-                )
-                break
-            pop_up_menu.add_command(
-                label=correction,
-                command=lambda c=correction, p=palavra, w=text_widget: self.__aplica_correcao(
-                    c, p, w
-                ),
+        if self._brewery.exists_contract(widget_name):
+            self._brewery.update_a_contract(
+                widget_name, self._start_spelling, dict(widget=text_box_widget)
             )
-        pop_up_menu.add_separator()
-        pop_up_menu.add_command(
-            label=ADD,
-            command=lambda c=ADD, p=palavra, w=text_widget: self.__aplica_correcao(
-                c, p, w
-            ),
+            return
+
+        self._brewery.hire_a_worker(
+            widget_name, self._start_spelling, dict(widget=text_box_widget)
         )
-        pop_up_menu.tk_popup(x=event.x_root, y=event.y_root)
 
-    def __aplica_correcao(self, correction, palavra, text_widget) -> None:
-        start_index = text_widget.get_posicao_inicial(palavra)
-        end_index = text_widget.get_posicao_final(palavra)
-        tag_name = text_widget.get_nome_da_tag(palavra)
-        if correction == ADD:
-            self.__aplica_adicao(
-                text_widget, start_index, end_index, tag_name, palavra
-            )
-        else:
-            self.__aplica_substituicao(
-                text_widget, start_index, end_index, tag_name, correction
-            )
-        text_widget.palavras_com_sugestoes.pop(palavra)
-        text_widget.focus_set()
+    @lru_cache
+    def _start_spelling(self, widget: SpelledTextBox):
+        text = widget.get(1.0, 'end-1c')
 
-    def __aplica_adicao(
-            self, text_widget, start_index, end_index, tag_name, palavra
-    ) -> None:
-        self.cmd_add_word(palavra)
-        text_widget.tag_remove(tag_name, start_index, end_index)
+        tokens = self._spellchecker.tokenize_words(text)
 
-    @staticmethod
-    def __aplica_substituicao(
-            text_widget, start_index, end_index, tag_name, correction
-    ) -> None:
-        text_widget.tag_remove(tag_name, start_index, end_index)
-        text_widget.delete(start_index, end_index)
-        text_widget.insert(start_index, correction)
+        unknow_words = self._spellchecker.check_spelling(tokens)
 
-    @staticmethod
-    def __nada_a_fazer() -> None:
-        pass
+        widget.register_new_word_cmd(self.add_word_in_personal_dict_handler)
+
+        widget.remove_all_tags()
+
+        for word in unknow_words:
+            suggestions = self._spellchecker.suggest_corrections(word)
+            widget.register_suggestions(word, suggestions)
+
+        widget_name = str(widget.winfo_id())
+
+        self._brewery.fire_a_worker(widget_name)
+
+    def add_word_in_personal_dict_handler(self, word: str) -> None:
+        self._brewery.hire_a_worker(
+            f'add_{word}', self._spellchecker.add_new_word, dict(word=word)
+        )
+
+        self._brewery.fire_a_worker(f'add_{word}')
