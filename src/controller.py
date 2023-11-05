@@ -1,20 +1,18 @@
 import os
 import subprocess
 from pathlib import Path
-from functools import lru_cache
-from WorkersBrewery import WorkersBrewery
 
 from src.Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
 from src.Contracts.controller import ControllerHandlers
 from src.Contracts.model import ModelContract
-from src.Contracts.speller import SpellerContract
 from src.Contracts.viewcontract import ViewContract
 from src.DataModels.imagemodel import ImageModel
 from src.DataModels.usermodel import UserModel
 from src.Exceptions import BrokenFileError, QuestionValidationError
 from src.Hints import Optional, QuestionDataHint, WidgetInfosHint
-from src.Views.spelledtextbox import SpelledTextBox
 from src.Speller.pyspellchecker import PySpellChecker
+from src.Views.spelledtextbox import SpelledTextBox
+from src.WorkersBrewery import WorkersBrewery
 
 
 class Controller(ControllerHandlers):
@@ -23,7 +21,7 @@ class Controller(ControllerHandlers):
         self._exported = True
         self._user_settings_path: Path | None = None
 
-        self._brewery = WorkersBrewery(5, .5, True)
+        self._brewery = WorkersBrewery(5, 0.5, True)
 
         self._speller_deque: dict[str, WidgetInfosHint] = dict()
 
@@ -43,9 +41,11 @@ class Controller(ControllerHandlers):
             default_dict_path = self._models.create_path(
                 'configs/lista_de_paralvras.bin'
             )
-            self._models.create_personal_dict(default_dict_path, self.personal_dict_path)
+            self._models.create_personal_dict(
+                default_dict_path, self.personal_dict_path
+            )
 
-        self._spellchecker: SpellerContract = PySpellChecker(self.personal_dict_path)
+        self._spellchecker = PySpellChecker(self.personal_dict_path)
 
         self._views.setup(self, self._user_settings, images, icon)
 
@@ -248,26 +248,22 @@ class Controller(ControllerHandlers):
 
     def input_speller_queue(self, text_box_widget: SpelledTextBox) -> None:
         widget_name = str(text_box_widget.winfo_id())
+        kwargs = dict(widget=text_box_widget)
 
         if self._brewery.exists_contract(widget_name):
             self._brewery.update_a_contract(
-                widget_name, self._start_spelling, dict(widget=text_box_widget)
+                widget_name, self._start_spelling, kwargs
             )
             return
 
-        self._brewery.hire_a_worker(
-            widget_name, self._start_spelling, dict(widget=text_box_widget)
-        )
+        self._brewery.hire_a_worker(widget_name, self._start_spelling, kwargs)
 
-    @lru_cache
     def _start_spelling(self, widget: SpelledTextBox):
         text = widget.get(1.0, 'end-1c')
 
         tokens = self._spellchecker.tokenize_words(text)
 
         unknow_words = self._spellchecker.check_spelling(tokens)
-
-        widget.register_new_word_cmd(self.add_word_in_personal_dict_handler)
 
         widget.remove_all_tags()
 

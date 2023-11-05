@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.Hints.hints import Optional, QuestionDataHint
 from src.Contracts.spelledtextbox import SpelledTextBoxContract
+from src.Hints.hints import Optional, QuestionDataHint
 
 
 class ControllerHandlers(ABC):
@@ -58,5 +58,11 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def input_speller_queue(self, text_box_widget: SpelledTextBoxContract) -> None:
+    def input_speller_queue(
+        self, text_box_widget: SpelledTextBoxContract
+    ) -> None:
+        ...
+
+    @abstractmethod
+    def add_word_in_personal_dict_handler(self, word: str) -> None:
         ...

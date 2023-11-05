@@ -91,5 +91,7 @@ class ModelContract(ABC):
     def save_file(self, file_path: Path, data: Any) -> None:
         pass
 
-    def create_personal_dict(self, default_dict_path: Path, file_path: Path) -> None:
+    def create_personal_dict(
+        self, default_dict_path: Path, file_path: Path
+    ) -> None:
         pass
