@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
-from threading import Event, Thread
 from collections import deque
-from time import sleep
-from typing import Deque, Callable, Dict
+from dataclasses import dataclass, field
 from decimal import Decimal, getcontext
+from threading import Event, Thread
+from time import sleep
+from typing import Callable, Deque, Dict
 
 
 @dataclass
