@@ -6,7 +6,7 @@ from typing import Callable, Dict, NamedTuple
 
 from customtkinter import CTkTextbox
 
-from src.Constants import ADD, MAXIMO_DE_CARACTERES, RED
+from src.Constants import ADD, MAX_CHARACTER_LIMIT, RED
 from src.Contracts.spelledtextbox import SpelledTextBoxContract
 
 
@@ -28,6 +28,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
     ):
         super().__init__(master, border_color=RED, **kwargs)
 
+        self.bind('<Control-BackSpace>', self._ctrl_backspace)
         self.bind('<KeyRelease>', self._check_max_caracters, add='+')
         self.bind('<KeyRelease>', self._corretor_ortografico, add='+')
 
@@ -35,29 +36,49 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         self.input_speller_queue = input_speller_queue
         self.cmd_add_new_word = cmd_add_new_word
 
-        self.alerta_exibido = False
+        self.alert_displayed = False
+
+    def _ctrl_backspace(self, _):
+        index1 = self.search(r'\s|^', tk.CURRENT, regexp=True, backwards=True)
+
+        if index1 == '1.0':
+            self.delete(f'{index1}', tk.CURRENT)
+            return
+
+        self.delete(f'{index1} wordend', tk.CURRENT)
 
     def _check_max_caracters(self, _) -> None:
-        total_digitos = len(self.get(1.0, 'end-1c'))
-        if total_digitos > MAXIMO_DE_CARACTERES:
-            index1 = self.index(f"@{MAXIMO_DE_CARACTERES},0")
-            print(index1)
-            self.tag_add('lenght', f'{index1}', 'end-1c')
-            self.tag_config('lenght', background=RED[1])
-            self.configure(border_width=2)
+        text = self.get(1.0, 'end')
 
-            if self.alerta_exibido:
-                return None
-
-            showwarning(
-                'Quantidade de dígitos ultrapassada',
-                'Esse texto ficou muito grande, máximo de caracteres é 255.\n'
-                'Após importar o banco para o portal, será necessário editar esse texto!',
-            )
-            self.alerta_exibido = True
-        else:
+        if len(text) < MAX_CHARACTER_LIMIT:
             self.configure(border_width=0)
-            self.alerta_exibido = False
+            self.alert_displayed = False
+            return
+
+        line_count = 1
+        char_count = 0
+        for index, char in enumerate(text, 1):
+            char_count += 0
+            if char == '\n':
+                line_count += 1
+                char_count = 0
+            if index > MAX_CHARACTER_LIMIT:
+                break
+
+        index1 = f"{line_count}.{char_count}"
+        self.tag_add('length', index1, 'end-1c')
+        self.tag_config('length', background=RED[1])
+        self.configure(border_width=2)
+
+        if self.alert_displayed:
+            return None
+
+        showwarning(
+            'Quantidade de dígitos ultrapassada',
+            'Esse texto ficou muito grande, máximo de caracteres é 255.\n'
+            'Após importar o banco para o portal, será necessário editar esse texto!',
+        )
+        self.alert_displayed = True
 
     def _corretor_ortografico(self, event: Event):
         if event.keysym.isalpha(): self.input_speller_queue(self)
@@ -69,7 +90,6 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         if not suggestions: return
 
         tag_name = word
-        print(tag_name)
 
         if tag_name in self.palavras_com_suggests: self.remove_tag(tag_name)
 
@@ -138,7 +158,11 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
             self.cmd_add_new_word(word)
             return
 
-        if word.istitle(): correction.title()
+        # TODO: Não está verificando corretamente se a palavra começa com caixa alta, está colocando a palavra em
+        #  caixa baixa sempre
+        print(word)
+        if word.istitle():
+            correction = correction.title()
 
         self.delete(tag_settings.index1, tag_settings.index2)
         self.insert(tag_settings.index1, correction)
