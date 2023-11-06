@@ -1,5 +1,5 @@
+from functools import cache, lru_cache
 from pathlib import Path
-from functools import lru_cache, cache
 
 from spellchecker import SpellChecker
 
@@ -16,7 +16,9 @@ class PySpellChecker(SpellChecker, SpellerContract):
 
     @lru_cache(maxsize=100, typed=False)
     def tokenize_words(self, text: str) -> set[str]:
-        return set([word for word in self.split_words(text) if not word.isupper()])
+        return set(
+            [word for word in self.split_words(text) if not word.isupper()]
+        )
 
     def check_spelling(self, words_list: set[str]) -> set[str]:
         return self.unknown(words_list)

@@ -1,8 +1,8 @@
 import dataclasses
+from re import match
 from tkinter import Event, Menu
 from tkinter.messagebox import showwarning
 from typing import Callable, Dict
-from re import match
 
 from customtkinter import CTkTextbox
 
@@ -42,7 +42,9 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         if e.state != 12:
             return
 
-        index1 = self.search(r'\s|^', self.index('current'), regexp=True, backwards=True)
+        index1 = self.search(
+            r'\s|^', self.index('current'), regexp=True, backwards=True
+        )
 
         if index1[2:] == '0':
             self.delete(f'{index1}', self.index('current'))
@@ -68,7 +70,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
             if index > MAX_CHARACTER_LIMIT:
                 break
 
-        index1 = f"{line_count}.{char_count}"
+        index1 = f'{line_count}.{char_count}'
         self.tag_add('length', index1, 'end-1c')
         self.tag_config('length', background=RED[1])
         self.configure(border_width=2)
@@ -91,18 +93,24 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         return self.palavras_com_suggests.get(word).suggestions
 
     def register_suggestions(self, word: str, suggestions: set[str]) -> None:
-        if not suggestions: return
+        if not suggestions:
+            return
 
         tag_name = word
 
-        if tag_name in self.palavras_com_suggests: self.remove_tag(tag_name)
+        if tag_name in self.palavras_com_suggests:
+            self.remove_tag(tag_name)
 
         index1 = self.search(word, 0.0, nocase=True)
-        index2 = self.index(f"{index1} + {len(word)}c")
+        index2 = self.index(f'{index1} + {len(word)}c')
 
-        filtered_suggestions = (suggestions if len(suggestions) < 4 else list(suggestions)[:5])
+        filtered_suggestions = (
+            suggestions if len(suggestions) < 4 else list(suggestions)[:5]
+        )
 
-        tag_settings = TagSettings(tag_name, filtered_suggestions, index1, index2)
+        tag_settings = TagSettings(
+            tag_name, filtered_suggestions, index1, index2
+        )
 
         self.palavras_com_suggests[word] = tag_settings
 
@@ -135,7 +143,9 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         pop_up_menu = Menu(self, tearoff=False, font='Arial 12')
         for correction in self.palavras_com_suggests.get(word).suggestions:
             if correction == 'Sem sugestões':
-                pop_up_menu.add_command(label=correction, command=self._nothing_to_do)
+                pop_up_menu.add_command(
+                    label=correction, command=self._nothing_to_do
+                )
                 break
 
             pop_up_menu.add_command(
