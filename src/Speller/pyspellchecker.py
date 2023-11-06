@@ -14,14 +14,14 @@ class PySpellChecker(SpellChecker, SpellerContract):
             local_dictionary=self.local_dictionary, case_sensitive=True
         )
 
-    @lru_cache
+    @lru_cache(maxsize=100, typed=False)
     def tokenize_words(self, text: str) -> set[str]:
         return set([word for word in self.split_words(text) if not word.isupper()])
 
     def check_spelling(self, words_list: set[str]) -> set[str]:
         return self.unknown(words_list)
 
-    @cache
+    @lru_cache(maxsize=100, typed=False)
     def suggest_corrections(self, word: str) -> set[str]:
         return self.candidates(word)
 
