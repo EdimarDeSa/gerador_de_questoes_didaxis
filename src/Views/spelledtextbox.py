@@ -1,8 +1,8 @@
 import dataclasses
-import tkinter as tk
 from tkinter import Event, Menu
 from tkinter.messagebox import showwarning
-from typing import Callable, Dict, NamedTuple
+from typing import Callable, Dict
+from re import match
 
 from customtkinter import CTkTextbox
 
@@ -28,7 +28,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
     ):
         super().__init__(master, border_color=RED, **kwargs)
 
-        self.bind('<Control-BackSpace>', self._ctrl_backspace)
+        self.bind('<BackSpace>', self._ctrl_backspace)
         self.bind('<KeyRelease>', self._check_max_caracters, add='+')
         self.bind('<KeyRelease>', self._corretor_ortografico, add='+')
 
@@ -38,14 +38,17 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
 
         self.alert_displayed = False
 
-    def _ctrl_backspace(self, _):
-        index1 = self.search(r'\s|^', tk.CURRENT, regexp=True, backwards=True)
-
-        if index1 == '1.0':
-            self.delete(f'{index1}', tk.CURRENT)
+    def _ctrl_backspace(self, e: Event):
+        if e.state != 12:
             return
 
-        self.delete(f'{index1} wordend', tk.CURRENT)
+        index1 = self.search(r'\s|^', self.index('current'), regexp=True, backwards=True)
+
+        if index1[2:] == '0':
+            self.delete(f'{index1}', self.index('current'))
+            return
+
+        self.delete(f'{index1} wordend', self.index('current'))
 
     def _check_max_caracters(self, _) -> None:
         text = self.get(1.0, 'end')
@@ -81,7 +84,8 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         self.alert_displayed = True
 
     def _corretor_ortografico(self, event: Event):
-        if event.keysym.isalpha(): self.input_speller_queue(self)
+        if event.char in ' .!?\n\t\r':
+            self.input_speller_queue(self)
 
     def get_suggestions(self, word: str) -> list[str]:
         return self.palavras_com_suggests.get(word).suggestions
@@ -168,6 +172,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         self.insert(tag_settings.index1, correction)
 
         self.focus_set()
+        self.input_speller_queue(self)
 
     def remove_all_tags(self):
         for tag_settings in list(self.palavras_com_suggests.values()):
