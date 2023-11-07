@@ -146,7 +146,15 @@ class Controller(ControllerHandlers):
 
         question_list = self._models.get_questions_to_export_xlsx()
 
-        self._models.save_file(filename, question_list)
+        try:
+            self._models.save_file(filename, question_list)
+        except PermissionError as e:
+            resp = self._views.dialog_retry_cancel('Erro ao gerar banco', str(e))
+
+            if not resp:
+                raise
+
+            self.export_db_handler()
 
         self._exported = True
 
@@ -171,7 +179,11 @@ class Controller(ControllerHandlers):
 
     def export_first(self) -> bool:
         if not self._exported:
-            confirm = self._views.dialog_yes_no_cancel()
+            confirm = self._views.dialog_yes_no_cancel(
+                title='Confirme a exportação primeiro',
+                message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
+                        'Gostaria de exportar esse banco antes?',
+            )
 
             if confirm is None:
                 return True

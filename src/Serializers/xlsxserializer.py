@@ -16,7 +16,10 @@ class XLSXSerializer(Serializer):
         for line_data in data:
             ws.append([line_data[header] for header in QUESTIOHEADER])
 
-        wb.save(file_path)
+        try:
+            wb.save(file_path)
+        except PermissionError:
+            raise PermissionError('A pasta deve estar fechada para salvar uma nova questão.')
 
     def import_from_path(self, file_path: Path) -> Iterable:
         wb: Workbook = load_workbook(file_path, read_only=True, data_only=True)

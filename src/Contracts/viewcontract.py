@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Optional
 
 from src.Contracts.controller import ControllerHandlers
 from src.DataModels.imagemodel import ImageModel
@@ -84,5 +85,9 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
-    def dialog_yes_no_cancel(self) -> bool | None:
+    def dialog_yes_no_cancel(self, title: str, message: str) -> Optional[bool]:
+        pass
+
+    @abstractmethod
+    def dialog_retry_cancel(self, title: str, message: str) -> Optional[bool]:
         pass

@@ -1,6 +1,6 @@
 import sys
 from tkinter.filedialog import askopenfilename, asksaveasfilename
-from tkinter.messagebox import askyesnocancel, showerror, showinfo, showwarning
+from tkinter.messagebox import askyesnocancel, showerror, showinfo, showwarning, askretrycancel
 
 from customtkinter import (
     CENTER,
@@ -609,12 +609,12 @@ class CTkView(ViewContract):
         )
         return filename
 
-    def dialog_yes_no_cancel(self) -> Optional[bool]:
-        confirm = askyesnocancel(
-            title='Confirme a exportação primeiro',
-            message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
-            'Gostaria de exportar esse banco antes?',
-        )
+    def dialog_yes_no_cancel(self, title: str, message: str) -> Optional[bool]:
+        confirm = askyesnocancel(title, message)
+        return confirm
+
+    def dialog_retry_cancel(self, title: str, message: str) -> Optional[bool]:
+        confirm = askretrycancel(title, message)
         return confirm
 
     def alert(
