@@ -149,7 +149,9 @@ class Controller(ControllerHandlers):
         try:
             self._models.save_file(filename, question_list)
         except PermissionError as e:
-            resp = self._views.dialog_retry_cancel('Erro ao gerar banco', str(e))
+            resp = self._views.dialog_retry_cancel(
+                'Erro ao gerar banco', str(e)
+            )
 
             if not resp:
                 raise
@@ -182,7 +184,7 @@ class Controller(ControllerHandlers):
             confirm = self._views.dialog_yes_no_cancel(
                 title='Confirme a exportação primeiro',
                 message='Você tem questões em edição, isso irá apagar as questões atuais.\n'
-                        'Gostaria de exportar esse banco antes?',
+                'Gostaria de exportar esse banco antes?',
             )
 
             if confirm is None:
