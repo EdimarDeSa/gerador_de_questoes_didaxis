@@ -6,6 +6,7 @@ from tkinter.messagebox import (
     showerror,
     showinfo,
     showwarning,
+    askyesno,
 )
 
 from customtkinter import (
@@ -617,6 +618,10 @@ class CTkView(ViewContract):
 
     def dialog_yes_no_cancel(self, title: str, message: str) -> Optional[bool]:
         confirm = askyesnocancel(title, message)
+        return confirm
+
+    def dialog_yes_no(self, title: str, message: str) -> Optional[bool]:
+        confirm = askyesno(title, message)
         return confirm
 
     def dialog_retry_cancel(self, title: str, message: str) -> Optional[bool]:

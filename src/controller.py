@@ -13,6 +13,7 @@ from src.Hints import Optional, QuestionDataHint, WidgetInfosHint
 from src.Speller.pyspellchecker import PySpellChecker
 from src.Views.spelledtextbox import SpelledTextBox
 from src.WorkersBrewery import WorkersBrewery
+from src.VersionChecker import VersionChecker
 
 
 class Controller(ControllerHandlers):
@@ -48,6 +49,14 @@ class Controller(ControllerHandlers):
         self._spellchecker = PySpellChecker(self.personal_dict_path)
 
         self._views.setup(self, self._user_settings, images, icon)
+
+        resp = self._views.dialog_yes_no(
+            'Vrificar atualização?',
+            'Deseja verificar se tem atualizações disponíveis?'
+        )
+
+        if resp:
+            self.version_verify()
 
     def _setup_images(self) -> ImageModel:
         image_paths = {
@@ -295,3 +304,10 @@ class Controller(ControllerHandlers):
         )
 
         self._brewery.fire_a_worker(f'add_{word}')
+
+    def version_verify(self) -> None:
+        try:
+            v = VersionChecker('EditorDeQuestõesDidaxis')
+            return v.__version__
+        except ConnectionError as e:
+            self._views.alert('ERROR', 'Falha de conexão', str(e))

@@ -89,5 +89,9 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
+    def dialog_yes_no(self, title: str, message: str) -> Optional[bool]:
+        pass
+
+    @abstractmethod
     def dialog_retry_cancel(self, title: str, message: str) -> Optional[bool]:
         pass

@@ -139,7 +139,7 @@ class SetupTopLevel(CTkToplevel):
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
         VersionFrame(
-            tabela, self.widget_settings.label_settings, height=32
+            tabela, self.widget_settings.label_settings, self.controller.version_verify, height=32
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
     def category_change_handler(self):

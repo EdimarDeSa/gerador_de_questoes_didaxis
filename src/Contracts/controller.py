@@ -66,3 +66,7 @@ class ControllerHandlers(ABC):
     @abstractmethod
     def add_word_in_personal_dict_handler(self, word: str) -> None:
         ...
+
+    @abstractmethod
+    def version_verify(self) -> None:
+        ...
