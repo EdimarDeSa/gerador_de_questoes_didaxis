@@ -72,7 +72,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
 
         index1 = f'{line_count}.{char_count}'
         self.tag_add('length', index1, 'end-1c')
-        self.tag_config('length', background=RED[1])
+        self.tag_config('length', background=RED)
         self.configure(border_width=2)
 
         if self.alert_displayed:
@@ -130,7 +130,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
             tag_settings.name, tag_settings.index1, tag_settings.index2
         )
 
-        self.tag_config(tag_settings.name, underline=True, underlinefg='red')
+        self.tag_config(tag_settings.name, underline=True, underlinefg=RED)
 
         self.tag_bind(
             tag_settings.name,
