@@ -58,9 +58,7 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def input_speller_queue(
-        self, text_box_widget: SpelledTextBoxContract
-    ) -> None:
+    def input_speller_queue(self, text_box_widget: SpelledTextBoxContract) -> None:
         ...
 
     @abstractmethod
@@ -68,5 +66,5 @@ class ControllerHandlers(ABC):
         ...
 
     @abstractmethod
-    def version_verify(self) -> None:
+    def get_version(self) -> None:
         ...
