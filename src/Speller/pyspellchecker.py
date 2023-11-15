@@ -10,15 +10,11 @@ class PySpellChecker(SpellChecker, SpellerContract):
     def __init__(self, local_dictionary: Path):
         self.local_dictionary = str(local_dictionary)
 
-        super().__init__(
-            local_dictionary=self.local_dictionary, case_sensitive=True
-        )
+        super().__init__(local_dictionary=self.local_dictionary, case_sensitive=True)
 
     @lru_cache(maxsize=100, typed=False)
     def tokenize_words(self, text: str) -> set[str]:
-        return set(
-            [word for word in self.split_words(text) if not word.isupper()]
-        )
+        return set([word for word in self.split_words(text) if not word.isupper()])
 
     def check_spelling(self, words_list: set[str]) -> set[str]:
         return self.unknown(words_list)

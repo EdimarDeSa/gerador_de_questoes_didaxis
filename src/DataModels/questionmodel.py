@@ -14,7 +14,5 @@ class QuestionModel:
     pergunta: str = field(default='')
     categoria: str = field(default='', compare=False)
     subcategoria: Optional[str] = field(default=None, compare=False)
-    alternativas: List[Tuple[str, bool]] = field(
-        default_factory=list, compare=False
-    )
+    alternativas: List[Tuple[str, bool]] = field(default_factory=list, compare=False)
     dificuldade: str = field(default=EASY, compare=False)

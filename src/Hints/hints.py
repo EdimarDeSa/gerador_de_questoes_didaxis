@@ -1,15 +1,6 @@
 from threading import Timer
 from tkinter import Variable
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-)
+from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple
 
 from PIL import Image
 from typing_extensions import Protocol, TypedDict

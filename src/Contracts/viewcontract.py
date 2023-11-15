@@ -20,9 +20,7 @@ class ViewContract(ABC):
         pass
 
     @abstractmethod
-    def start_main_loop(
-        self, test_mode: bool = False, timeout: int = 5000
-    ) -> None:
+    def start_main_loop(self, test_mode: bool = False, timeout: int = 5000) -> None:
         ...
 
     @abstractmethod

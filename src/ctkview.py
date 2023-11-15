@@ -2,11 +2,11 @@ import sys
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import (
     askretrycancel,
+    askyesno,
     askyesnocancel,
     showerror,
     showinfo,
     showwarning,
-    askyesno,
 )
 
 from customtkinter import (
@@ -82,9 +82,7 @@ class CTkView(ViewContract):
 
         Binds(self.root, self)
 
-    def start_main_loop(
-        self, test_mode: bool = False, timeout: int = 200
-    ) -> None:
+    def start_main_loop(self, test_mode: bool = False, timeout: int = 200) -> None:
         if test_mode:
             self._tests(timeout)
 
@@ -150,9 +148,7 @@ class CTkView(ViewContract):
 
         self._question_count = IntVar()
 
-        self.category = StringVar(
-            value=self.user_settings.user_default_category
-        )
+        self.category = StringVar(value=self.user_settings.user_default_category)
         self._category_settings: MenuSettingsHint = {
             'variable': self.category,
             'values': self.user_settings.category_options,
@@ -164,9 +160,7 @@ class CTkView(ViewContract):
 
         self._deadline = StringVar(value=PLACE_HOLDER_TEMPO)
 
-        self.question_type = StringVar(
-            value=self.user_settings.question_type_list[1]
-        )
+        self.question_type = StringVar(value=self.user_settings.question_type_list[1])
         self._question_type_settings: MenuSettingsHint = {
             'variable': self.question_type,
             'values': self.user_settings.question_type_list,
@@ -175,9 +169,7 @@ class CTkView(ViewContract):
             **self.widgets_settings.list_settings,
         }
 
-        self.difficulty = StringVar(
-            value=self.user_settings.difficulty_list[0]
-        )
+        self.difficulty = StringVar(value=self.user_settings.difficulty_list[0])
         self._difficulty_settings: MenuSettingsHint = {
             'variable': self.difficulty,
             'values': self.user_settings.difficulty_list,
@@ -198,9 +190,7 @@ class CTkView(ViewContract):
         self._row_dict: RowDict = dict()
         self._zebrar = True
 
-        self.var_erase_statement = BooleanVar(
-            value=self.user_settings.erase_statement
-        )
+        self.var_erase_statement = BooleanVar(value=self.user_settings.erase_statement)
 
         self.var_auto_export = BooleanVar(value=self.user_settings.auto_export)
 
@@ -221,9 +211,7 @@ class CTkView(ViewContract):
 
         setup_bt_img_light = self.system_images.configuracoes_light_mode
         setup_bt_img_dark = self.system_images.configuracoes_dark_mode
-        self._img_setup = CTkImage(
-            setup_bt_img_light, setup_bt_img_dark, medium
-        )
+        self._img_setup = CTkImage(setup_bt_img_light, setup_bt_img_dark, medium)
 
         delete_light = self.system_images.eraser_light_mode
         delete_dark = self.system_images.eraser_dark_mode
@@ -419,9 +407,7 @@ class CTkView(ViewContract):
         # Se a linha for zero, seta como 5, do contrário, 10
         pady = (5 if not index else 10, 0)
 
-        self._txt_box_list[index].grid(
-            column=0, row=index, sticky=NSEW, pady=pady
-        )
+        self._txt_box_list[index].grid(column=0, row=index, sticky=NSEW, pady=pady)
 
         # Ativado pela edição de questão
         if texto_alternativa is not None:
@@ -435,9 +421,7 @@ class CTkView(ViewContract):
 
         self._choices_count += 1
 
-    def _select_choice_bt(
-        self, indice: int
-    ) -> Optional[CTkCheckBox | CTkRadioButton]:
+    def _select_choice_bt(self, indice: int) -> Optional[CTkCheckBox | CTkRadioButton]:
         select_list = {
             ME: self._rd_bts_list,
             MEN: self._ck_bts_list,

@@ -41,9 +41,6 @@ class CommandButtonsFrame(CTkFrame):
         ).grid(column=1, row=0, sticky=NSEW, padx=10, pady=5)
 
         self.b = CTkButton(
-            self,
-            text='Salvar',
-            command=save_question_handler,
-            **buttons_configs
+            self, text='Salvar', command=save_question_handler, **buttons_configs
         )
         self.b.grid(column=2, row=0, sticky=NSEW, padx=(0, 10), pady=5)

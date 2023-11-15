@@ -21,6 +21,7 @@ from src.DataModels.imagemodel import ImageModel
 from src.DataModels.questionmodel import QuestionModel
 from src.DataModels.questionsdb import QuestionsDB
 from src.DataModels.usermodel import UserModel
+from src.DataModels.versionmodel import VersionInfo
 from src.Exceptions import QuestionValidationError
 from src.Hints.hints import (
     Any,
@@ -73,9 +74,7 @@ class Model(ModelContract):
         control = self.__db_connection.create_question(question)
 
         if not control:
-            raise ConnectionError(
-                'Não foi possível conectar se banco de dados'
-            )
+            raise ConnectionError('Não foi possível conectar se banco de dados')
 
         return control
 
@@ -121,14 +120,10 @@ class Model(ModelContract):
             )
 
         if not isinstance(data['peso'], int):
-            raise QuestionValidationError(
-                f'Peso `{data["peso"]}` deve ser numérico.'
-            )
+            raise QuestionValidationError(f'Peso `{data["peso"]}` deve ser numérico.')
 
         if not data['pergunta']:
-            raise QuestionValidationError(
-                f'Perguntas não podem estar em branco.'
-            )
+            raise QuestionValidationError(f'Perguntas não podem estar em branco.')
 
         if data['tipo'] == D:
             return
@@ -159,9 +154,7 @@ class Model(ModelContract):
             self.__db_connection.delete_question(control)
 
         except ConnectionError:
-            raise ConnectionError(
-                'Nãofoi possível se conectar ao banco de dados.'
-            )
+            raise ConnectionError('Nãofoi possível se conectar ao banco de dados.')
 
     def flush_questions(self) -> None:
         self.__db_connection.flush_questions()
@@ -206,9 +199,7 @@ class Model(ModelContract):
         data: Iterable = self._read_file(filename)
 
         lines: ListDBHint = [
-            dict(zip(QUESTIOHEADER, line))
-            for id_, line in enumerate(data)
-            if id_
+            dict(zip(QUESTIOHEADER, line)) for id_, line in enumerate(data) if id_
         ]
 
         lista_dicionarios_ordenada = sorted(lines, key=lambda x: x['pergunta'])
@@ -268,9 +259,7 @@ class Model(ModelContract):
     def update_user_settings(self, file_path: Path, **new_config) -> UserModel:
         for key in new_config:
             if key in asdict(self._user_settings):
-                self._user_settings = replace(
-                    self._user_settings, **new_config
-                )
+                self._user_settings = replace(self._user_settings, **new_config)
                 self.save_file(file_path, asdict(self._user_settings))
                 return self._user_settings
             raise KeyError(f'User setting "{key}" does not exist')
@@ -314,9 +303,7 @@ class Model(ModelContract):
         self._base_dir = file_path.parent
         self._base_filename = file_path.name
 
-    def create_personal_dict(
-        self, default_dict_path: Path, file_path: Path
-    ) -> None:
+    def create_personal_dict(self, default_dict_path: Path, file_path: Path) -> None:
         default_dict: str = self._read_file(default_dict_path)
         self.save_file(file_path, default_dict.split('\n'))
 
