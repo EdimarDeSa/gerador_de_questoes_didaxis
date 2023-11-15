@@ -1,28 +1,26 @@
 import os
+import shutil
 import signal
 import subprocess
-import urllib.parse
 import tempfile as temp
-import zipfile
 import time
-import shutil
 import tkinter as tk
+import urllib.parse
+import zipfile
+from argparse import ArgumentParser
 from pathlib import Path
 from threading import Thread
 
-import customtkinter as ctk
 import requests
-
 
 ZIP = '.zip'
 URL_BASE = 'https://www.efscode.com.br/atualizacoes/'
 DOWNLOAD = 'downloads/'
-NOME_DO_SOFTWARE = 'gerador_de_questoes_didaxis'
 
 
-class Atualizacao(ctk.CTk):
-    def __init__(self):
-        self.nome_do_software = NOME_DO_SOFTWARE
+class Atualizacao(tk.Tk):
+    def __init__(self, nome: str):
+        self.nome_do_software = nome
         self.url_encodada = self.gera_url_atualizacao()
         self.pasta_software = self.busca_arquivo_local()
 
@@ -195,5 +193,8 @@ class Atualizacao(ctk.CTk):
 
 
 if __name__ == '__main__':
-    app = Atualizacao()
+    parser = ArgumentParser()
+    parser.add_argument(['--name', '-n'], type=str, required=True, help='Name of the software to update')
+
+    app = Atualizacao(parser.parse_args('--name'))
     app.mainloop()
