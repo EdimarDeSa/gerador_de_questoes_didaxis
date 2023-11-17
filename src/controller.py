@@ -11,20 +11,27 @@ from src.DataModels.usermodel import UserModel
 from src.Exceptions import BrokenFileError, QuestionValidationError
 from src.Hints import Optional, QuestionDataHint, WidgetInfosHint
 from src.Speller.pyspellchecker import PySpellChecker
+from src.VersionChecker import VersionChecker
 from src.Views.spelledtextbox import SpelledTextBox
 from src.WorkersBrewery import WorkersBrewery
-from src.VersionChecker import VersionChecker
+from DataModels.enums import ImagesEnum
 
 
 class Controller(ControllerHandlers):
+    __name__ = 'gerador_de_questoes_didaxis'
+    __version__ = None
+
     # ------ Initialization and Setup ------ #
     def __init__(self):
         self._exported = True
         self._user_settings_path: Path | None = None
+        self.version_checker = VersionChecker(self.__name__)
 
         self._brewery = WorkersBrewery(5, 0.5, True)
 
         self._speller_deque: dict[str, WidgetInfosHint] = dict()
+
+        self._show_version(self.version_checker)
 
     def start(self, views: ViewContract, models: ModelContract) -> None:
         self._models = models
@@ -50,27 +57,11 @@ class Controller(ControllerHandlers):
 
         self._views.setup(self, self._user_settings, images, icon)
 
-        resp = self._views.dialog_yes_no(
-            'Vrificar atualização?',
-            'Deseja verificar se tem atualizações disponíveis?'
-        )
-
-        if resp:
-            self.version_verify()
+        self._brewery.hire_a_worker('version', self.get_version, {})
 
     def _setup_images(self) -> ImageModel:
-        image_paths = {
-            'configuracoes_light_mode': 'icons/configuracoes_light_mode.png',
-            'configuracoes_dark_mode': 'icons/configuracoes_dark_mode.png',
-            'eraser_light_mode': 'icons/eraser_light_mode.png',
-            'eraser_dark_mode': 'icons/eraser_dark_mode.png',
-            'edit_light_mode': 'icons/edit_light_mode.png',
-            'edit_dark_mode': 'icons/edit_dark_mode.png',
-        }
-        image_paths = {
-            key: self._models.create_path(value)
-            for key, value in image_paths.items()
-        }
+        image_paths = {img.name: img.value for img in ImagesEnum}
+
         return self._models.read_system_images(image_paths)
 
     def _setup_user_settings(self) -> UserModel:
@@ -158,9 +149,7 @@ class Controller(ControllerHandlers):
         try:
             self._models.save_file(filename, question_list)
         except PermissionError as e:
-            resp = self._views.dialog_retry_cancel(
-                'Erro ao gerar banco', str(e)
-            )
+            resp = self._views.dialog_retry_cancel('Erro ao gerar banco', str(e))
 
             if not resp:
                 raise
@@ -220,13 +209,9 @@ class Controller(ControllerHandlers):
             self._views.reset_question_form()
 
         except QuestionValidationError as e:
-            self._views.alert(
-                'ERROR', 'Registro de pergunta não autorizado!', str(e)
-            )
+            self._views.alert('ERROR', 'Registro de pergunta não autorizado!', str(e))
         except ConnectionError as e:
-            self._views.alert(
-                'ERROR', 'Falha de conexão com banco de dados!', str(e)
-            )
+            self._views.alert('ERROR', 'Falha de conexão com banco de dados!', str(e))
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
         return self._models.read_question(control)
@@ -260,9 +245,7 @@ class Controller(ControllerHandlers):
 
     # ------ Feedback Sending ------ #
     def send_feedback_handler(self):
-        subprocess.call(
-            f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False
-        )
+        subprocess.call(f'start {LINK_FEEDBACK_FORM}', shell=True, stdout=False)
 
     # ------  ------ #
 
@@ -271,15 +254,16 @@ class Controller(ControllerHandlers):
 
     def input_speller_queue(self, text_box_widget: SpelledTextBox) -> None:
         widget_name = str(text_box_widget.winfo_id())
-        kwargs = dict(widget=text_box_widget)
 
         if self._brewery.exists_contract(widget_name):
             self._brewery.update_a_contract(
-                widget_name, self._start_spelling, kwargs
+                widget_name, self._start_spelling, {'widget': text_box_widget}
             )
             return
 
-        self._brewery.hire_a_worker(widget_name, self._start_spelling, kwargs)
+        self._brewery.hire_a_worker(
+            widget_name, self._start_spelling, {'widget': text_box_widget}
+        )
 
     def _start_spelling(self, widget: SpelledTextBox):
         text = widget.get(1.0, 'end-1c')
@@ -300,14 +284,14 @@ class Controller(ControllerHandlers):
 
     def add_word_in_personal_dict_handler(self, word: str) -> None:
         self._brewery.hire_a_worker(
-            f'add_{word}', self._spellchecker.add_new_word, dict(word=word)
+            f'add_{word}', self._spellchecker.add_new_word, {'word': word}
         )
 
         self._brewery.fire_a_worker(f'add_{word}')
 
-    def version_verify(self) -> None:
-        try:
-            v = VersionChecker('EditorDeQuestõesDidaxis')
-            return v.__version__
-        except ConnectionError as e:
-            self._views.alert('ERROR', 'Falha de conexão', str(e))
+    def get_version(self) -> None:
+        self.version_checker.check_version()
+
+    @classmethod
+    def _show_version(cls, version_checker: VersionChecker):
+        cls.__version__ = version_checker.version_infos.version
