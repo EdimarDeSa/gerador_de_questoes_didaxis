@@ -1,3 +1,5 @@
+from enum import StrEnum
+
 TRANSPARENT = 'transparent'
 RED = 'red'
 DARKGRAY = ('GRAY66', 'GRAY37')
@@ -109,3 +111,9 @@ TYPESCONVERTER = {
     'd': D,
     D: 'd',
 }
+
+
+class AlertTypes(StrEnum):
+    INFO = 'INFO'
+    WARN = 'WARNING'
+    ERRO = 'ERROR'

@@ -40,6 +40,7 @@ from .Constants import (
     PLACE_HOLDER_TEMPO,
     TRANSPARENT,
     VF,
+    AlertTypes,
     D,
 )
 from .Contracts.viewcontract import ViewContract
@@ -614,16 +615,16 @@ class CTkView(ViewContract):
 
     def alert(
         self,
-        alert_type: Literal['INFO', 'WARNING', 'ERROR'],
+        alert_type: AlertTypes,
         title: str,
         message: str,
     ) -> None:
         match alert_type:
-            case 'INFO':
+            case AlertTypes.INFO:
                 showinfo(title, message)
-            case 'WARNING':
+            case AlertTypes.WARN:
                 showwarning(title, message)
-            case 'ERROR':
+            case AlertTypes.ERRO:
                 showerror(title, message)
             case _:
                 return

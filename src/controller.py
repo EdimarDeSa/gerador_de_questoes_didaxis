@@ -2,7 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from .Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
+from .Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER, AlertTypes
 from .Contracts.controllercontract import ControllerHandlers
 from .Contracts.modelcontract import ModelContract
 from .Contracts.viewcontract import ViewContract
@@ -209,9 +209,13 @@ class Controller(ControllerHandlers):
             self._views.reset_question_form()
 
         except QuestionValidationError as e:
-            self._views.alert('ERROR', 'Registro de pergunta não autorizado!', str(e))
+            self._views.alert(
+                AlertTypes.ERRO, 'Registro de pergunta não autorizado!', str(e)
+            )
         except ConnectionError as e:
-            self._views.alert('ERROR', 'Falha de conexão com banco de dados!', str(e))
+            self._views.alert(
+                AlertTypes.ERRO, 'Falha de conexão com banco de dados!', str(e)
+            )
 
     def read_question_handler(self, control: int) -> QuestionDataHint:
         return self._models.read_question(control)
@@ -291,6 +295,16 @@ class Controller(ControllerHandlers):
 
     def get_version(self) -> None:
         self.version_checker.check_version()
+
+        if not self.version_checker.new_version_available:
+            return
+        answer = self._views.dialog_yes_no(
+            'Nova versão disponível',
+            'A versão {version} é a mais atual, deseja atualizar?',
+        )
+
+        if answer:
+            self.version_checker.update()
 
     @classmethod
     def _show_version(cls, version_checker: VersionChecker):

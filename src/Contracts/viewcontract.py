@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
+from ..Constants import AlertTypes
 from ..Contracts.controllercontract import ControllerHandlers
 from ..DataModels.imagemodel import ImageModel
 from ..DataModels.usermodel import UserModel
@@ -64,7 +65,7 @@ class ViewContract(ABC):
     @abstractmethod
     def alert(
         self,
-        alert_type: Literal['INFO', 'WARNING', 'ERROR'],
+        alert_type: AlertTypes,
         title: str,
         message: str,
     ) -> None:
