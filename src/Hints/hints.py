@@ -2,9 +2,9 @@ from threading import Timer
 from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple
 
 from PIL import Image
-from typing_extensions import Protocol, TypedDict, ClassVar
+from typing_extensions import ClassVar, Protocol, TypedDict
 
-from ..Contracts.spelledtextbox import SpelledTextBoxContract
+from ..Contracts.spelledtextboxcontracts import SpelledTextBoxContract
 
 
 class QuestionDataHint(TypedDict):
@@ -82,6 +82,7 @@ class ImageType:
         if not isinstance(v, Image.Image):
             raise ValueError('Deve ser uma instância de PIL.Image.Image')
         return v
+
 
 #
 # class SysImgHint(TypedDict):

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from .spelledtextbox import SpelledTextBoxContract
 from ..Hints.hints import Optional, QuestionDataHint
+from .spelledtextboxcontracts import SpelledTextBoxContract
 
 
 class ControllerHandlers(ABC):

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
-from ..Contracts.controller import ControllerHandlers
+from ..Contracts.controllercontract import ControllerHandlers
 from ..DataModels.imagemodel import ImageModel
 from ..DataModels.usermodel import UserModel
 from ..Hints import Literal, QuestionDataHint

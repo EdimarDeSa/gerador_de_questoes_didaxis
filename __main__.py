@@ -1,6 +1,6 @@
-from controller import Controller
-from ctkview import CTkView
-from model import Model
+from src.controller import Controller
+from src.ctkview import CTkView
+from src.model import Model
 
 
 def main():

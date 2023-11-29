@@ -2,19 +2,19 @@ import os
 import subprocess
 from pathlib import Path
 
-from Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
-from Contracts.controller import ControllerHandlers
-from Contracts.model import ModelContract
-from Contracts.viewcontract import ViewContract
-from DataModels.imagemodel import ImageModel
-from DataModels.usermodel import UserModel
-from Exceptions import BrokenFileError, QuestionValidationError
-from Hints import Optional, QuestionDataHint, WidgetInfosHint
-from Speller.pyspellchecker import PySpellChecker
-from VersionChecker import VersionChecker
-from Views.spelledtextbox import SpelledTextBox
-from WorkersBrewery import WorkersBrewery
-from DataModels.enums import ImagesEnum
+from .Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
+from .Contracts.controllercontract import ControllerHandlers
+from .Contracts.modelcontract import ModelContract
+from .Contracts.viewcontract import ViewContract
+from .DataModels.enums import ImagesEnum
+from .DataModels.imagemodel import ImageModel
+from .DataModels.usermodel import UserModel
+from .Exceptions import BrokenFileError, QuestionValidationError
+from .Hints import Optional, QuestionDataHint, WidgetInfosHint
+from .Speller.pyspellchecker import PySpellChecker
+from .VersionChecker import VersionChecker
+from .Views.spelledtextbox import SpelledTextBox
+from .WorkersBrewery import WorkersBrewery
 
 
 class Controller(ControllerHandlers):

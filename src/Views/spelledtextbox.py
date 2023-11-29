@@ -6,7 +6,7 @@ from typing import Callable, Dict
 from customtkinter import CTkTextbox
 
 from ..Constants import ADD, MAX_CHARACTER_LIMIT, RED
-from ..Contracts.spelledtextbox import SpelledTextBoxContract
+from ..Contracts.spelledtextboxcontracts import SpelledTextBoxContract
 
 
 @dataclasses.dataclass(frozen=True)

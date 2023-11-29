@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from Constants import (
+from .Constants import (
     CATEGORYLIST,
     DIFFICULTLIST,
     ME,
@@ -15,15 +15,14 @@ from Constants import (
     VF,
     D,
 )
-from Contracts.model import ModelContract
-from Contracts.serializer import Serializer
-from DataModels.imagemodel import ImageModel
-from DataModels.questionmodel import QuestionModel
-from DataModels.questionsdb import QuestionsDB
-from DataModels.usermodel import UserModel
-from DataModels.versionmodel import VersionInfo
-from Exceptions import QuestionValidationError
-from Hints.hints import (
+from .Contracts.modelcontract import ModelContract
+from .Contracts.serializerhandlers import Serializer
+from .DataModels.imagemodel import ImageModel
+from .DataModels.questionmodel import QuestionModel
+from .DataModels.questionsdb import QuestionsDB
+from .DataModels.usermodel import UserModel
+from .Exceptions import QuestionValidationError
+from .Hints.hints import (
     Any,
     GroupedQuestionDBHint,
     ImageModelHint,
@@ -33,9 +32,9 @@ from Hints.hints import (
     Optional,
     QuestionDataHint,
 )
-from Serializers.binary_serializer import BinarySerializer
-from Serializers.json_serializer import JsonSerializer
-from Serializers.xlsxserializer import XLSXSerializer
+from .Serializers.binary_serializer import BinarySerializer
+from .Serializers.json_serializer import JsonSerializer
+from .Serializers.xlsxserializer import XLSXSerializer
 
 
 class Model(ModelContract):

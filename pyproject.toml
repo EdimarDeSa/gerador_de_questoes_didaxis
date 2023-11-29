@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "editor_de_questoes_didaxis"
-version = "0.4.7"
+version = "0.5.0"
 description = "O Gerador de Questões Didaxis é um programa que permite criar e gerenciar questões didáticas. Com o novo layout e recursos aprimorados, foram feitas alterações significativas para melhorar a experiência do usuário."
 authors = ["Edimar de Sá <edimarfreitas95@gmail.com>"]
 license = "MIT"
@@ -25,7 +25,6 @@ blue = "^0.9.1"
 isort = "^5.12.0"
 taskipy = "^1.12.0"
 pytest-cov = "^4.1.0"
-auto-py-to-exe = "^2.42.0"
 
 
 [tool.poetry.group.doc.dependencies]

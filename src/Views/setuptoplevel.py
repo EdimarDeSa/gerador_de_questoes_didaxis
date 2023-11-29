@@ -11,12 +11,11 @@ from customtkinter import (
 )
 
 from ..Constants import GRAY, GREEN, TABAJUDA, TABOPCAO
-from ..Contracts.controller import ControllerHandlers
+from ..Contracts.controllercontract import ControllerHandlers
 from ..DataModels.imagemodel import ImageModel
 from ..DataModels.topleveltoolsmodel import TopLevelToolsModel
 from ..DataModels.usermodel import UserModel
 from ..DataModels.widgetssettingsmodel import WidgetsSettingsModel
-
 from .SetupViews import (
     CategorySelectionFrame,
     FilesFrame,

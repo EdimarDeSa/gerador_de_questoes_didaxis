@@ -3,7 +3,7 @@ from pathlib import Path
 
 from spellchecker import SpellChecker
 
-from ..Contracts.speller import SpellerContract
+from ..Contracts.spellercontracts import SpellerContract
 
 
 class PySpellChecker(SpellChecker, SpellerContract):

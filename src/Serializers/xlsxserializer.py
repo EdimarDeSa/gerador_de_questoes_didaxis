@@ -4,7 +4,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from ..Constants import QUESTIOHEADER
-from ..Contracts.serializer import Serializer
+from ..Contracts.serializerhandlers import Serializer
 from ..Hints.hints import Iterable
 
 

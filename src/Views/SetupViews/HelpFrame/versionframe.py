@@ -19,9 +19,7 @@ class VersionFrame(CTkFrame):
         self.rowconfigure(0, weight=3)
 
         # TODO: Implementar atualização
-        CTkLabel(self, text=f'Versão: {version}', **label_configs).grid(
-            row=0, column=0
-        )
+        CTkLabel(self, text=f'Versão: {version}', **label_configs).grid(row=0, column=0)
 
         CTkButton(self, text='Verificar atualização', command=get_version).grid(
             row=0, column=1

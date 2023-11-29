@@ -19,25 +19,33 @@ class VersionChecker:
     def check_version(self) -> None:
         try:
             response = requests.get(self.base_url).json()
-            print(response)
-
             new_version_info = VersionInfo(**response)
 
-            current_version, current_release, current_patch = self.version_infos.version.split('.')
+            (
+                current_version,
+                current_release,
+                current_patch,
+            ) = self.version_infos.version.split('.')
             new_version, new_release, new_patch = new_version_info.version.split('.')
 
-            if not any((
+            if not any(
+                (
                     current_version < new_version,
                     current_release < new_release,
-                    current_patch < new_patch
-            )):
+                    current_patch < new_patch,
+                )
+            ):
                 self.new_version_available = True
 
         except requests.ConnectionError:
             raise ConnectionError('Sem conexão com o servidor para atualizações.')
 
     def update(self) -> None:
-        subprocess.call(['../SUT.exe', f'--name {self.version_infos.name}'], stdout=False, shell=True)
+        subprocess.call(
+            ['../SUT.exe', f'--name {self.version_infos.name}'],
+            stdout=False,
+            shell=True,
+        )
 
     @staticmethod
     def check_atual_version_info() -> VersionInfo:
