@@ -33,6 +33,10 @@ mkdocs-material = "^9.4.7"
 mkdocstrings = "^0.23.0"
 
 
+
+[tool.poetry.group.build.dependencies]
+pyinstaller = "^6.2.0"
+
 [tool.poetry.scripts]
 editor = "src.__main__:main"
 
@@ -60,7 +64,7 @@ line_length = 88
 
 
 [tool.taskipy.tasks]
-build = "auto-py-to-exe -c auto-py-to-exe/auto-py-to-exe.json -lang pt_br -o auto-py-to-exe"
+build = "auto-py-to-exe\\compilador_gerador_questoes.bat"
 lint = "blue ./src/ && isort ./src/"
 docs = "cd ./src/ && mkdocs serve"
 pre_test = "task lint"
