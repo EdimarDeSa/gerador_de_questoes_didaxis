@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.DataModels.imagemodel import ImageModel
-from src.DataModels.usermodel import UserModel
-from src.Hints.hints import (
+from ..DataModels.imagemodel import ImageModel
+from ..DataModels.usermodel import UserModel
+from ..Hints.hints import (
     Any,
     GroupedQuestionDBHint,
     ImageModelHint,

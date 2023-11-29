@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
-from src.Contracts.controller import ControllerHandlers
-from src.DataModels.imagemodel import ImageModel
-from src.DataModels.usermodel import UserModel
-from src.Hints import Literal, QuestionDataHint
+from ..Contracts.controller import ControllerHandlers
+from ..DataModels.imagemodel import ImageModel
+from ..DataModels.usermodel import UserModel
+from ..Hints import Literal, QuestionDataHint
 
 
 class ViewContract(ABC):

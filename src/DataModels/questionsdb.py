@@ -1,7 +1,7 @@
 from dataclasses import replace
 
-from src.Contracts.questionsdbcontrct import QuestionDBContract
-from src.Hints.hints import Dict, List, QuestionDataHint
+from ..Contracts.questionsdbcontrct import QuestionDBContract
+from ..Hints.hints import Dict, List, QuestionDataHint
 
 from .questionmodel import QuestionModel
 

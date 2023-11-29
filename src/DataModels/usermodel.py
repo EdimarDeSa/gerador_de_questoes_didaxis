@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from src.Hints import List
+from ..Hints import List
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
-from src.Constants import EASY
+from ..Constants import EASY
 
 
 @dataclass(frozen=True)

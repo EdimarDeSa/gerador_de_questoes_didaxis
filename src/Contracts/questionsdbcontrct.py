@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.Hints.hints import List, QuestionDataHint
+from ..Hints.hints import List, QuestionDataHint
 
 
 class QuestionDBContract(ABC):

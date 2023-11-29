@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from src.Hints import MenuSettingsHint
+from ..Hints import MenuSettingsHint
 
 
 @dataclass(frozen=True, kw_only=True)
