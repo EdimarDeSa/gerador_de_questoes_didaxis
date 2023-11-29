@@ -1,5 +1,6 @@
 import subprocess
 import tomllib
+from pathlib import Path
 
 import requests
 
@@ -28,11 +29,11 @@ class VersionChecker:
             ) = self.version_infos.version.split('.')
             new_version, new_release, new_patch = new_version_info.version.split('.')
 
-            if not any(
+            if any(
                 (
-                    current_version < new_version,
-                    current_release < new_release,
-                    current_patch < new_patch,
+                    int(current_version) < int(new_version),
+                    int(current_release) < int(new_release),
+                    int(current_patch) < int(new_patch),
                 )
             ):
                 self.new_version_available = True
@@ -49,6 +50,7 @@ class VersionChecker:
 
     @staticmethod
     def check_atual_version_info() -> VersionInfo:
-        with open('./pyproject.toml', 'rb') as toml_file:
+        path = Path(__file__).resolve().parent.parent.parent / 'pyproject.toml'
+        with open(path, 'rb') as toml_file:
             infos = tomllib.load(toml_file)['tool']['poetry']
             return VersionInfo(**infos)
