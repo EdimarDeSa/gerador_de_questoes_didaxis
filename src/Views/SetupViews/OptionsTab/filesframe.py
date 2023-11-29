@@ -22,17 +22,14 @@ class FilesFrame(CTkFrame):
             row=0, column=0, columnspan=2, pady=(10, 0)
         )
 
-        CTkButton(
-            self, text='Novo', command=new_db_handler, **button_settings
-        ).grid(row=1, column=0, **pad)
+        CTkButton(self, text='Novo', command=new_db_handler, **button_settings).grid(
+            row=1, column=0, **pad
+        )
+
+        CTkButton(self, text='Abrir', command=open_db_handler, **button_settings).grid(
+            row=1, column=1, **pad
+        )
 
         CTkButton(
-            self, text='Abrir', command=open_db_handler, **button_settings
-        ).grid(row=1, column=1, **pad)
-
-        CTkButton(
-            self,
-            text='Salvar como',
-            command=export_as_db_handler,
-            **button_settings
+            self, text='Salvar como', command=export_as_db_handler, **button_settings
         ).grid(column=0, columnspan=2, row=2, **pad)

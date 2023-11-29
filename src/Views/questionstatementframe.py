@@ -28,9 +28,9 @@ class QuestionStatementFrame(CTkFrame):
         CTkLabel(self, text='Opção', **label_configs).place(
             relx=0.85, rely=0.025, relwidth=0.15
         )
-        CTkButton(
-            self, text='+', command=add_choice_handler, **button_configs
-        ).place(relx=0.905, rely=0.35)
-        CTkButton(
-            self, text='-', command=rm_choice_handler, **button_configs
-        ).place(relx=0.905, rely=0.65)
+        CTkButton(self, text='+', command=add_choice_handler, **button_configs).place(
+            relx=0.905, rely=0.35
+        )
+        CTkButton(self, text='-', command=rm_choice_handler, **button_configs).place(
+            relx=0.905, rely=0.65
+        )

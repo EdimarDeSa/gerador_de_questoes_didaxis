@@ -80,9 +80,7 @@ class Worker(Thread):
 
     def reset_countdown(self, new_interval=None) -> None:
         if new_interval is not None:
-            self._wait_interval = Decimal(
-                str(new_interval), self._count_context
-            )
+            self._wait_interval = Decimal(str(new_interval), self._count_context)
         self._reset_event.set()
 
     def set_job(self, quest: Quest) -> None:
@@ -97,9 +95,7 @@ class QuestContract:
 
 
 class WorkersBrewery:
-    def __init__(
-        self, n_workers=2, wait_time=0.5, daemon_workers: bool = False
-    ):
+    def __init__(self, n_workers=2, wait_time=0.5, daemon_workers: bool = False):
         self.__stand_by_workers: Deque[Worker] = deque(maxlen=n_workers)
         self.__contracts: Dict[str, QuestContract] = dict()
 
@@ -107,9 +103,7 @@ class WorkersBrewery:
             worker = Worker(str(id_), wait_time, daemon_workers)
             self.__stand_by_workers.append(worker)
 
-    def hire_a_worker(
-        self, contract_name: str, job: Callable, kwargs: Dict
-    ) -> None:
+    def hire_a_worker(self, contract_name: str, job: Callable, kwargs: Dict) -> None:
         quest = Quest(job, kwargs)
 
         worker = self.__stand_by_workers.popleft()

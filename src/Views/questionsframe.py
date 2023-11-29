@@ -1,11 +1,4 @@
-from customtkinter import (
-    CTk,
-    CTkFrame,
-    CTkImage,
-    CTkLabel,
-    CTkScrollableFrame,
-    X,
-)
+from customtkinter import CTk, CTkFrame, CTkImage, CTkLabel, CTkScrollableFrame, X
 
 from src.Constants import GREEN
 from src.Hints import MenuSettingsHint

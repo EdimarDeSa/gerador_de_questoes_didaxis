@@ -108,9 +108,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
             suggestions if len(suggestions) < 4 else list(suggestions)[:5]
         )
 
-        tag_settings = TagSettings(
-            tag_name, filtered_suggestions, index1, index2
-        )
+        tag_settings = TagSettings(tag_name, filtered_suggestions, index1, index2)
 
         self.palavras_com_suggests[word] = tag_settings
 
@@ -126,9 +124,7 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
     def register_tag(self, word: str) -> None:
         tag_settings = self.palavras_com_suggests.get(word)
 
-        self.tag_add(
-            tag_settings.name, tag_settings.index1, tag_settings.index2
-        )
+        self.tag_add(tag_settings.name, tag_settings.index1, tag_settings.index2)
 
         self.tag_config(tag_settings.name, underline=True, underlinefg=RED)
 
@@ -143,16 +139,12 @@ class SpelledTextBox(CTkTextbox, SpelledTextBoxContract):
         pop_up_menu = Menu(self, tearoff=False, font='Arial 12')
         for correction in self.palavras_com_suggests.get(word).suggestions:
             if correction == 'Sem sugestões':
-                pop_up_menu.add_command(
-                    label=correction, command=self._nothing_to_do
-                )
+                pop_up_menu.add_command(label=correction, command=self._nothing_to_do)
                 break
 
             pop_up_menu.add_command(
                 label=correction,
-                command=lambda c=correction, w=word: self.__apply_correction(
-                    c, w
-                ),
+                command=lambda c=correction, w=word: self.__apply_correction(c, w),
             )
 
         pop_up_menu.add_separator()

@@ -12,9 +12,9 @@ class QuestionCountFrame(CTkFrame):
     ):
         super().__init__(master)
 
-        CTkLabel(
-            self, text='Total de questões:', **label_settings, wraplength=85
-        ).pack(anchor=S, expand=True)
+        CTkLabel(self, text='Total de questões:', **label_settings, wraplength=85).pack(
+            anchor=S, expand=True
+        )
 
         CTkLabel(self, textvariable=question_count, **label_settings).pack(
             anchor=N, expand=True

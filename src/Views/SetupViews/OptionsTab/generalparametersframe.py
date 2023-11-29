@@ -60,9 +60,9 @@ class GeneralPramsFrame(CTkFrame):
             **self.position_bottom
         )
 
-        CTkLabel(
-            self, text='Apagar enunciado ao salvar?', **label_configs
-        ).pack(**self.position_top)
+        CTkLabel(self, text='Apagar enunciado ao salvar?', **label_configs).pack(
+            **self.position_top
+        )
         # noinspection PyTypeChecker
         CTkSwitch(
             self,
@@ -87,9 +87,7 @@ class GeneralPramsFrame(CTkFrame):
             textvariable=self._var_auto_export_on_off,
         ).pack(**self.position_bottom)
 
-        CTkLabel(self, text='Dark mode', **label_configs).pack(
-            **self.position_top
-        )
+        CTkLabel(self, text='Dark mode', **label_configs).pack(**self.position_top)
         CTkOptionMenu(
             self,
             values=APPEARANCEMODETHEME,

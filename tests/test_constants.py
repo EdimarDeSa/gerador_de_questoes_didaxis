@@ -1,7 +1,7 @@
 import os
 from re import fullmatch
 
-from requests import get, ConnectionError
+from requests import ConnectionError, get
 
 from src.Constants import *
 

@@ -64,9 +64,7 @@ class SetupTopLevel(CTkToplevel):
         self.wm_iconbitmap(default=self.icon_path)
 
     def _setup_variables(self):
-        self.var_escala_do_sistema = StringVar(
-            value=self.user_settings.user_scaling
-        )
+        self.var_escala_do_sistema = StringVar(value=self.user_settings.user_scaling)
         self.var_aparencia_do_sistema = StringVar(
             value=self.user_settings.user_appearance_mode
         )
@@ -139,7 +137,11 @@ class SetupTopLevel(CTkToplevel):
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
         VersionFrame(
-            tabela, self.widget_settings.label_settings, self.controller.version_verify, height=32
+            tabela,
+            self.widget_settings.label_settings,
+            self.controller.get_version,
+            self.controller.__version__,
+            height=32,
         ).pack(fill=BOTH, expand=True, padx=20, pady=(0, 10))
 
     def category_change_handler(self):

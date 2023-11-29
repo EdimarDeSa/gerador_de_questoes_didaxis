@@ -26,9 +26,7 @@ class QuestionChoicesFrame(CTkFrame):
     ):
         super().__init__(master)
 
-        CTkLabel(self, text='Opções', **label_configs).place(
-            rely=0.02, relwidth=1
-        )
+        CTkLabel(self, text='Opções', **label_configs).place(rely=0.02, relwidth=1)
 
         sc_frame = CTkScrollableFrame(self)
         sc_frame.place(rely=0.12, relwidth=1, relheight=0.88)
@@ -36,9 +34,7 @@ class QuestionChoicesFrame(CTkFrame):
         for index in range(10):
             sc_frame.grid_rowconfigure(index, weight=1)
 
-            texto = SpelledTextBox(
-                sc_frame, width=650, height=50, **text_configs
-            )
+            texto = SpelledTextBox(sc_frame, width=650, height=50, **text_configs)
             lista_txt_box.append(texto)
 
             rd_button = CTkRadioButton(
