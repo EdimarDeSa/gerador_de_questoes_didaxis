@@ -18,7 +18,7 @@ from DataModels.enums import ImagesEnum
 
 
 class Controller(ControllerHandlers):
-    __name__ = 'gerador_de_questoes_didaxis'
+    __name__ = 'editor_de_questoes_didaxis'
     __version__ = None
 
     # ------ Initialization and Setup ------ #
