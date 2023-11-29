@@ -233,7 +233,8 @@ class Model(ModelContract):
     # ------ System Images ------ #
     def read_system_images(self, image_names: ImageModelHint) -> ImageModel:
         images_dict = {
-            key: Image.open(img_path) for key, img_path in image_names.items()
+            key: Image.open(self.create_path(img_path))
+            for key, img_path in image_names.items()
         }
         return ImageModel(**images_dict)
 
