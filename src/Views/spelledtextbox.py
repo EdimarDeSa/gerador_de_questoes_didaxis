@@ -1,13 +1,12 @@
 import dataclasses
-from re import match
 from tkinter import Event, Menu
 from tkinter.messagebox import showwarning
 from typing import Callable, Dict
 
 from customtkinter import CTkTextbox
 
-from src.Constants import ADD, MAX_CHARACTER_LIMIT, RED
-from src.Contracts.spelledtextbox import SpelledTextBoxContract
+from ..Constants import ADD, MAX_CHARACTER_LIMIT, RED
+from ..Contracts.spelledtextbox import SpelledTextBoxContract
 
 
 @dataclasses.dataclass(frozen=True)

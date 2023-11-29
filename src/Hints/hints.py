@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple
 from PIL import Image
 from typing_extensions import Protocol, TypedDict, ClassVar
 
-from src.Contracts.spelledtextbox import SpelledTextBoxContract
+from ..Contracts.spelledtextbox import SpelledTextBoxContract
 
 
 class QuestionDataHint(TypedDict):

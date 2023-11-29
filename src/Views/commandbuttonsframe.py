@@ -1,7 +1,7 @@
 from customtkinter import NS, NSEW, CTk, CTkButton, CTkFrame, CTkImage
 
-from src.Constants import BLUE, BORDER_BLUE, DARKGRAY, HOVER_BLUE
-from src.Hints import Callable, MenuSettingsHint
+from ..Constants import BLUE, BORDER_BLUE, DARKGRAY, HOVER_BLUE
+from ..Hints import Callable, MenuSettingsHint
 
 
 class CommandButtonsFrame(CTkFrame):

@@ -1,7 +1,7 @@
 from customtkinter import CTk, CTkButton, CTkFrame, CTkLabel, CTkTextbox
 
-from src.Hints import Callable, MenuSettingsHint
-from src.Views.spelledtextbox import SpelledTextBox
+from ..Hints import Callable, MenuSettingsHint
+from ..Views.spelledtextbox import SpelledTextBox
 
 
 class QuestionStatementFrame(CTkFrame):

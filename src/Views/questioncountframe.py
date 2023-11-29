@@ -1,6 +1,6 @@
 from customtkinter import CTk, CTkFrame, CTkLabel, N, S, Variable
 
-from src.Hints import MenuSettingsHint
+from ..Hints import MenuSettingsHint
 
 
 class QuestionCountFrame(CTkFrame):

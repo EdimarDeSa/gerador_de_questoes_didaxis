@@ -2,18 +2,18 @@ import os
 import subprocess
 from pathlib import Path
 
-from src.Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
-from src.Contracts.controller import ControllerHandlers
-from src.Contracts.model import ModelContract
-from src.Contracts.viewcontract import ViewContract
-from src.DataModels.imagemodel import ImageModel
-from src.DataModels.usermodel import UserModel
-from src.Exceptions import BrokenFileError, QuestionValidationError
-from src.Hints import Optional, QuestionDataHint, WidgetInfosHint
-from src.Speller.pyspellchecker import PySpellChecker
-from src.VersionChecker import VersionChecker
-from src.Views.spelledtextbox import SpelledTextBox
-from src.WorkersBrewery import WorkersBrewery
+from Constants import LINK_FEEDBACK_FORM, TYPESCONVERTER
+from Contracts.controller import ControllerHandlers
+from Contracts.model import ModelContract
+from Contracts.viewcontract import ViewContract
+from DataModels.imagemodel import ImageModel
+from DataModels.usermodel import UserModel
+from Exceptions import BrokenFileError, QuestionValidationError
+from Hints import Optional, QuestionDataHint, WidgetInfosHint
+from Speller.pyspellchecker import PySpellChecker
+from VersionChecker import VersionChecker
+from Views.spelledtextbox import SpelledTextBox
+from WorkersBrewery import WorkersBrewery
 from DataModels.enums import ImagesEnum
 
 

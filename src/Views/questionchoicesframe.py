@@ -9,8 +9,8 @@ from customtkinter import (
     Variable,
 )
 
-from src.Hints import Callable, MenuSettingsHint, WidgetListHint
-from src.Views.spelledtextbox import SpelledTextBox
+from ..Hints import MenuSettingsHint, WidgetListHint
+from ..Views.spelledtextbox import SpelledTextBox
 
 
 class QuestionChoicesFrame(CTkFrame):

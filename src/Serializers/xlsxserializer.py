@@ -3,9 +3,9 @@ from pathlib import Path
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
-from src.Constants import QUESTIOHEADER
-from src.Contracts.serializer import Serializer
-from src.Hints.hints import Iterable
+from ..Constants import QUESTIOHEADER
+from ..Contracts.serializer import Serializer
+from ..Hints.hints import Iterable
 
 
 class XLSXSerializer(Serializer):

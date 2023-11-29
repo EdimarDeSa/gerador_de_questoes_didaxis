@@ -1,6 +1,6 @@
 from customtkinter import CTkButton, CTkFrame, CTkLabel, CTkToplevel
 
-from src.Hints.hints import Callable, MenuSettingsHint
+from ....Hints.hints import Callable, MenuSettingsHint
 
 
 class VersionFrame(CTkFrame):

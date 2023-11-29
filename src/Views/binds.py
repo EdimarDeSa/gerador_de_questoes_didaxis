@@ -2,8 +2,8 @@ from tkinter import Event
 
 from customtkinter import CTk
 
-from src.Constants import EASY, HARD, ME, MEDIUM, MEN, VF
-from src.Contracts.viewcontract import ViewContract
+from ..Constants import EASY, HARD, ME, MEDIUM, MEN, VF
+from ..Contracts.viewcontract import ViewContract
 
 
 # TODO: Cabe melhorias

@@ -6,7 +6,7 @@ from customtkinter import (
     Variable,
 )
 
-from src.Hints import Callable, List, MenuSettingsHint
+from ....Hints import Callable, List, MenuSettingsHint
 
 
 class CategorySelectionFrame(CTkScrollableFrame):

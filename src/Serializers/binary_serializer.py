@@ -2,8 +2,8 @@ import pickle
 from pathlib import Path
 from typing import Iterable
 
-from src.Contracts.serializer import Serializer
-from src.Exceptions import BrokenFileError
+from ..Contracts.serializer import Serializer
+from ..Exceptions import BrokenFileError
 
 
 class BinarySerializer(Serializer):

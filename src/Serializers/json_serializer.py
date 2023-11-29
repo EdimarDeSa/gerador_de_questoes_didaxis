@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
 
-from src.Contracts.serializer import Serializer
-from src.Exceptions import BrokenFileError
-from src.Hints import Iterable
+from ..Contracts.serializer import Serializer
+from ..Exceptions import BrokenFileError
+from ..Hints import Iterable
 
 
 class JsonSerializer(Serializer):

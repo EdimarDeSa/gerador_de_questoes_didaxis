@@ -10,12 +10,12 @@ from customtkinter import (
     StringVar,
 )
 
-from src.Constants import GRAY, GREEN, TABAJUDA, TABOPCAO
-from src.Contracts.controller import ControllerHandlers
-from src.DataModels.imagemodel import ImageModel
-from src.DataModels.topleveltoolsmodel import TopLevelToolsModel
-from src.DataModels.usermodel import UserModel
-from src.DataModels.widgetssettingsmodel import WidgetsSettingsModel
+from ..Constants import GRAY, GREEN, TABAJUDA, TABOPCAO
+from ..Contracts.controller import ControllerHandlers
+from ..DataModels.imagemodel import ImageModel
+from ..DataModels.topleveltoolsmodel import TopLevelToolsModel
+from ..DataModels.usermodel import UserModel
+from ..DataModels.widgetssettingsmodel import WidgetsSettingsModel
 
 from .SetupViews import (
     CategorySelectionFrame,

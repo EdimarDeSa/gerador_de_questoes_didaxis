@@ -30,7 +30,7 @@ from customtkinter import (
     set_window_scaling,
 )
 
-from src.Constants import (
+from Constants import (
     EXTENSION,
     FILETYPES,
     GREEN,
@@ -42,10 +42,10 @@ from src.Constants import (
     VF,
     D,
 )
-from src.Contracts.viewcontract import ViewContract
-from src.DataModels.topleveltoolsmodel import TopLevelToolsModel
-from src.DataModels.widgetssettingsmodel import WidgetsSettingsModel
-from src.Hints import (
+from Contracts.viewcontract import ViewContract
+from DataModels.topleveltoolsmodel import TopLevelToolsModel
+from DataModels.widgetssettingsmodel import WidgetsSettingsModel
+from Hints import (
     ChoicesHint,
     List,
     Literal,
@@ -54,7 +54,7 @@ from src.Hints import (
     QuestionDataHint,
     RowDict,
 )
-from src.Views import (
+from Views import (
     CommandButtonsFrame,
     QuestionChoicesFrame,
     QuestionCountFrame,
@@ -63,8 +63,8 @@ from src.Views import (
     QuestionStatementFrame,
     SetupTopLevel,
 )
-from src.Views.binds import Binds
-from src.Views.linha_de_questao import LinhaDeQuestao
+from Views.binds import Binds
+from Views.linha_de_questao import LinhaDeQuestao
 
 
 class CTkView(ViewContract):

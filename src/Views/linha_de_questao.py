@@ -2,8 +2,8 @@ from tkinter.messagebox import askyesno
 
 from customtkinter import CTkButton, CTkFrame, CTkImage, CTkLabel, StringVar, W
 
-from src.Constants import BORDER_BLUE
-from src.Hints import Callable
+from ..Constants import BORDER_BLUE
+from ..Hints import Callable
 
 
 class LinhaDeQuestao:

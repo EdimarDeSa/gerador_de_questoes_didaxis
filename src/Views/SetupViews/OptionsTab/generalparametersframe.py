@@ -9,8 +9,8 @@ from customtkinter import (
     Variable,
 )
 
-from src.Constants import APPEARANCEMODETHEME, SCALELIST
-from src.Hints import Callable, MenuSettingsHint
+from ....Constants import APPEARANCEMODETHEME, SCALELIST
+from ....Hints import Callable, MenuSettingsHint
 
 
 class GeneralPramsFrame(CTkFrame):
