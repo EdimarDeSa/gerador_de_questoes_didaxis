@@ -1,9 +1,8 @@
 from threading import Timer
-from tkinter import Variable
 from typing import Any, Callable, Dict, Iterable, List, Literal, Optional, Tuple
 
 from PIL import Image
-from typing_extensions import Protocol, TypedDict
+from typing_extensions import Protocol, TypedDict, ClassVar
 
 from src.Contracts.spelledtextbox import SpelledTextBoxContract
 
@@ -73,13 +72,25 @@ class ImageModelHint(TypedDict):
     edit_dark_mode: str
 
 
-class SysImgHint(TypedDict):
-    configuracoes_light_mode: Image.Image
-    configuracoes_dark_mode: Image.Image
-    eraser_light_mode: Image.Image
-    eraser_dark_mode: Image.Image
-    edit_light_mode: Image.Image
-    edit_dark_mode: Image.Image
+class ImageType:
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not isinstance(v, Image.Image):
+            raise ValueError('Deve ser uma instância de PIL.Image.Image')
+        return v
+
+#
+# class SysImgHint(TypedDict):
+#     configuracoes_light_mode: ImageType
+#     configuracoes_dark_mode: ImageType
+#     eraser_light_mode: ImageType
+#     eraser_dark_mode: ImageType
+#     edit_light_mode: ImageType
+#     edit_dark_mode: ImageType
 
 
 class RowFrame(Protocol):
@@ -90,17 +101,17 @@ class RowFrame(Protocol):
         ...
 
 
-class QuestionLineHint(TypedDict):
-    row: RowFrame
-    display: Variable
-
-
 class TkVariable(Protocol):
     def get(self):
         ...
 
     def set(self):
         ...
+
+
+class QuestionLineHint(TypedDict):
+    row: RowFrame
+    display: TkVariable
 
 
 RowDict = Dict[int, QuestionLineHint]
