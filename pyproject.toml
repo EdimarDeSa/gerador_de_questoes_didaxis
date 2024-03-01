@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "gerador-de-questoes-didaxis"
+version = "0.1.0"
+description = ""
+authors = ["EFSCode"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+customtkinter = "^5.2.2"
+pandas = "^2.2.1"
+pillow = "^10.2.0"
+pyspellchecker = "^0.8.1"
+openpyxl = "^3.1.2"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
